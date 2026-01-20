@@ -1,0 +1,140 @@
+// ==============================================
+// SBS Recruitment App - Mixins
+// ==============================================
+
+// NOTE: Variables are injected globally via Vite config
+
+// Typography mixins
+@mixin title-font {
+	font-family: $font-title;
+	font-weight: $font-weight-medium;
+	font-size: $font-size-title;
+	line-height: 1;
+	color: $color-dark-gray;
+}
+
+@mixin subtitle-font {
+	font-family: $font-title;
+	font-weight: $font-weight-regular;
+	font-size: $font-size-subtitle;
+	line-height: 1;
+	color: $color-dark-gray;
+}
+
+@mixin body-font {
+	font-family: $font-body;
+	font-weight: $font-weight-regular;
+	font-size: $font-size-body;
+	line-height: 1.4;
+	color: $color-dark-gray;
+}
+
+@mixin body-bold-font {
+	font-family: $font-body;
+	font-weight: $font-weight-bold;
+	font-size: $font-size-body;
+	line-height: 1.4;
+	color: $color-dark-gray;
+}
+
+@mixin button-font {
+	font-family: $font-title;
+	font-weight: $font-weight-medium;
+	font-size: $font-size-button;
+	line-height: 1;
+	text-transform: uppercase;
+}
+
+// Flex mixins
+@mixin flex-center {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+@mixin flex-between {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+@mixin flex-column {
+	display: flex;
+	flex-direction: column;
+}
+
+// Button base
+@mixin button-base {
+	@include button-font;
+	border: none;
+	border-radius: $border-radius-md;
+	padding: $spacing-sm $spacing-md;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:hover {
+		opacity: 0.9;
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+}
+
+// Primary button (red)
+@mixin button-primary {
+	@include button-base;
+	background-color: $color-red;
+	color: $color-white;
+}
+
+// Secondary button (dark gray)
+@mixin button-secondary {
+	@include button-base;
+	background-color: $color-dark-gray;
+	color: $color-white;
+}
+
+// Outline button
+@mixin button-outline {
+	@include button-base;
+	background-color: transparent;
+	border: 1px solid $color-dark-gray;
+	color: $color-dark-gray;
+}
+
+// Card style
+@mixin card {
+	background-color: $color-white;
+	border-radius: $border-radius-lg;
+	box-shadow: $shadow-card;
+	padding: $spacing-md;
+}
+
+// Modal style
+@mixin modal {
+	background-color: $color-white;
+	border-radius: $border-radius-lg;
+	box-shadow: $shadow-modal;
+	padding: $spacing-md;
+}
+
+// Responsive breakpoint mixins
+@mixin mobile {
+	@media (max-width: $breakpoint-sm) {
+		@content;
+	}
+}
+
+@mixin tablet {
+	@media (max-width: $breakpoint-md) {
+		@content;
+	}
+}
+
+@mixin desktop {
+	@media (min-width: $breakpoint-lg) {
+		@content;
+	}
+}

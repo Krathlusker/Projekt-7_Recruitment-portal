@@ -1,0 +1,235 @@
+// ==============================================
+// SBS Recruitment App - Global SCSS (injected via Vite)
+// ==============================================
+
+// ==================== VARIABLES ====================
+
+// Colors
+$color-dark-gray: #2d2d2d;
+$color-white: #ffffff;
+$color-red: #ee3123;
+$color-light-gray: #ebebeb;
+$color-yellow: #f1db53;
+$color-gray: #919191;
+
+// Typography - Font Families
+$font-title: 'Neo Sans W1G', 'Segoe UI', sans-serif;
+$font-body: 'Helvetica Neue LT Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+// Typography - Font Sizes
+$font-size-title: 36px;
+$font-size-subtitle: 24px;
+$font-size-button: 20px;
+$font-size-body: 12px;
+$font-size-small: 9px;
+
+// Typography - Font Weights
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-bold: 700;
+
+// Spacing
+$spacing-xs: 4px;
+$spacing-sm: 6px;
+$spacing-md: 12px;
+$spacing-lg: 24px;
+$spacing-xl: 48px;
+
+// Border Radius
+$border-radius-sm: 4px;
+$border-radius-md: 6px;
+$border-radius-lg: 12px;
+
+// Shadows
+$shadow-modal: 0px 0px 15px 5px rgba(0, 0, 0, 0.25);
+$shadow-card: 0px 2px 8px rgba(0, 0, 0, 0.1);
+
+// Breakpoints
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+
+// Z-index layers
+$z-index-modal: 1000;
+$z-index-floating-button: 900;
+$z-index-header: 100;
+
+// Layout
+$max-content-width: 1024px;
+$modal-max-height-mobile: 657px;
+
+// ==================== MIXINS ====================
+
+// Content container - centralized max-width
+@mixin content-container {
+	max-width: $max-content-width;
+	margin: 0 auto;
+	padding: 0 $spacing-md;
+	width: 100%;
+}
+
+// Section padding
+@mixin section-padding {
+	padding: $spacing-xl 0;
+}
+
+// Section title
+@mixin section-title {
+	@include title-font;
+	margin-bottom: $spacing-md;
+}
+
+// Section intro text
+@mixin section-intro {
+	@include body-font;
+	font-size: 14px;
+	line-height: 1.6;
+	margin-bottom: $spacing-md;
+}
+
+// Typography mixins
+@mixin title-font {
+	font-family: $font-title;
+	font-weight: $font-weight-medium;
+	font-size: $font-size-title;
+	line-height: 1;
+	color: $color-dark-gray;
+}
+
+@mixin subtitle-font {
+	font-family: $font-title;
+	font-weight: $font-weight-regular;
+	font-size: $font-size-subtitle;
+	line-height: 1;
+	color: $color-dark-gray;
+}
+
+@mixin body-font {
+	font-family: $font-body;
+	font-weight: $font-weight-regular;
+	font-size: $font-size-body;
+	line-height: 1.4;
+	color: $color-dark-gray;
+}
+
+@mixin body-bold-font {
+	font-family: $font-body;
+	font-weight: $font-weight-bold;
+	font-size: $font-size-body;
+	line-height: 1.4;
+	color: $color-dark-gray;
+}
+
+@mixin button-font {
+	font-family: $font-title;
+	font-weight: $font-weight-medium;
+	font-size: $font-size-button;
+	line-height: 1;
+	text-transform: uppercase;
+}
+
+// Flex mixins
+@mixin flex-center {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+@mixin flex-between {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+@mixin flex-column {
+	display: flex;
+	flex-direction: column;
+}
+
+// Responsive mixins
+@mixin mobile {
+	@media (max-width: #{$breakpoint-sm - 1}) {
+		@content;
+	}
+}
+
+@mixin tablet {
+	@media (min-width: $breakpoint-sm) and (max-width: #{$breakpoint-lg - 1}) {
+		@content;
+	}
+}
+
+@mixin desktop {
+	@media (min-width: $breakpoint-lg) {
+		@content;
+	}
+}
+
+// Container mixin
+@mixin container {
+	width: 100%;
+	max-width: $breakpoint-xl;
+	margin: 0 auto;
+	padding: 0 $spacing-lg;
+}
+
+// Card mixin
+@mixin card {
+	background-color: $color-white;
+	border-radius: $border-radius-md;
+	box-shadow: $shadow-card;
+}
+
+// Button base mixin
+@mixin button-base {
+	@include button-font;
+	@include flex-center;
+	border: none;
+	border-radius: $border-radius-md;
+	cursor: pointer;
+	transition: all 0.2s ease;
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+}
+
+// Primary button mixin
+@mixin button-primary {
+	@include button-base;
+	background-color: $color-red;
+	color: $color-white;
+	padding: $spacing-md $spacing-lg;
+
+	&:hover:not(:disabled) {
+		background-color: #c9281e; // Darker red
+	}
+}
+
+// Secondary button mixin
+@mixin button-secondary {
+	@include button-base;
+	background-color: $color-dark-gray;
+	color: $color-white;
+	padding: $spacing-md $spacing-lg;
+
+	&:hover:not(:disabled) {
+		background-color: #4a4a4a; // Lighter gray
+	}
+}
+
+// Outline button mixin
+@mixin button-outline {
+	@include button-base;
+	background-color: transparent;
+	color: $color-dark-gray;
+	border: 2px solid $color-dark-gray;
+	padding: $spacing-md $spacing-lg;
+
+	&:hover:not(:disabled) {
+		background-color: $color-dark-gray;
+		color: $color-white;
+	}
+}

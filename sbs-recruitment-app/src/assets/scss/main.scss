@@ -1,0 +1,140 @@
+// ==============================================
+// SBS Recruitment App - Main Styles
+// ==============================================
+// Variables and mixins are injected globally via Vite config
+
+// Reset
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+// Base styles
+html {
+	font-size: 16px;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+body {
+	@include body-font;
+	background-color: $color-white;
+	min-height: 100vh;
+}
+
+// Typography
+h1 {
+	@include title-font;
+}
+
+h2 {
+	@include subtitle-font;
+}
+
+p {
+	@include body-font;
+}
+
+a {
+	color: $color-dark-gray;
+	text-decoration: none;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+// Utility classes following BEM-like approach
+.text {
+	&--title {
+		@include title-font;
+	}
+
+	&--subtitle {
+		@include subtitle-font;
+	}
+
+	&--body {
+		@include body-font;
+	}
+
+	&--bold {
+		@include body-bold-font;
+	}
+
+	&--center {
+		text-align: center;
+	}
+
+	&--white {
+		color: $color-white;
+	}
+}
+
+// Button utilities
+.btn {
+	&--primary {
+		@include button-primary;
+	}
+
+	&--secondary {
+		@include button-secondary;
+	}
+
+	&--outline {
+		@include button-outline;
+	}
+
+	&--full-width {
+		width: 100%;
+	}
+}
+
+// Layout utilities
+.container {
+	max-width: 1440px;
+	margin: 0 auto;
+	padding: 0 $spacing-lg;
+}
+
+.flex {
+	display: flex;
+
+	&--center {
+		@include flex-center;
+	}
+
+	&--between {
+		@include flex-between;
+	}
+
+	&--column {
+		@include flex-column;
+	}
+}
+
+// Element Plus overrides for consistent styling
+.el-button {
+	@include button-font;
+	font-size: $font-size-body !important;
+}
+
+.el-input__wrapper {
+	border-radius: $border-radius-sm !important;
+}
+
+.el-select__wrapper {
+	border-radius: $border-radius-sm !important;
+}
+
+.el-dialog {
+	border-radius: $border-radius-lg !important;
+	box-shadow: $shadow-modal !important;
+}
+
+.el-card {
+	border-radius: $border-radius-lg !important;
+}
