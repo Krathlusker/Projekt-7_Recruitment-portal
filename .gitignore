@@ -48,3 +48,4 @@ EXAMPLE APP/sbs-recruitment/vitest.config.ts
 .gitattributes
 EXAMPLE APP/sbs-recruitment/.vscode/extensions.json
 EXAMPLE APP/sbs-recruitment/server/uploads/.gitkeep
+nul
