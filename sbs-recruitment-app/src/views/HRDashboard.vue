@@ -260,8 +260,39 @@
 							</div>
 
 							<div class="application-detail__section">
-								<h3>Ønskede tidspunkter</h3>
-								<div v-if="selectedApplication.selectedSlots && selectedApplication.selectedSlots.length > 0">
+								<h3>Samtaletider</h3>
+
+								<!-- Show confirmed slot if exists and no selected slots (manually booked) -->
+								<div
+									v-if="
+										selectedApplication.confirmedSlot &&
+										(!selectedApplication.selectedSlots || selectedApplication.selectedSlots.length === 0)
+									"
+									class="application-detail__confirmed-slot"
+								>
+									<h4>Bekræftet samtaletid</h4>
+									<div class="application-detail__slot application-detail__slot--confirmed">
+										<div class="application-detail__slot-info">
+											<span class="application-detail__slot-date">{{ selectedApplication.confirmedSlot.date }}</span>
+											<span class="application-detail__slot-time">{{ selectedApplication.confirmedSlot.time }}</span>
+											<span class="application-detail__slot-type">
+												{{
+													selectedApplication.confirmedSlot.type === 'fysisk' ? 'Fysisk (45 min)' : 'Virtuel (60 min)'
+												}}
+											</span>
+										</div>
+										<div class="application-detail__slot-actions">
+											<span class="application-detail__confirmed-badge">Bekræftet</span>
+											<el-button size="small" class="btn-red" @click="releaseConfirmedSlot(selectedApplication.id)">
+												Frigiv tid
+											</el-button>
+										</div>
+									</div>
+								</div>
+
+								<!-- Show selected slots if available (priority times from applicant) -->
+								<div v-else-if="selectedApplication.selectedSlots && selectedApplication.selectedSlots.length > 0">
+									<h4>Ansøgerens ønskede tidspunkter</h4>
 									<div
 										v-for="(slotId, index) in selectedApplication.selectedSlots"
 										:key="slotId"
@@ -287,57 +318,44 @@
 											>
 												Bekræft tid
 											</el-button>
-											<span
-												v-else-if="slotId === selectedApplication.confirmedSlot?.id"
-												class="application-detail__confirmed-badge"
-											>
-												Bekræftet
-											</span>
+											<template v-else-if="slotId === selectedApplication.confirmedSlot?.id">
+												<span class="application-detail__confirmed-badge">Bekræftet</span>
+												<el-button size="small" class="btn-red" @click="releaseConfirmedSlot(selectedApplication.id)">
+													Frigiv tid
+												</el-button>
+											</template>
 											<el-button v-else @click="changeToSelectedSlot(selectedApplication.id, slotId)" class="btn-dark">
 												Skift til denne tid
 											</el-button>
 										</div>
 									</div>
 								</div>
-								<p v-else>Ingen tidspunkter valgt</p>
 
-								<!-- Change confirmed time section -->
-								<div v-if="selectedApplication.confirmedSlot" class="application-detail__change-time">
-									<h4>Skift bekræftet tid</h4>
+								<!-- No slots at all -->
+								<p v-else class="application-detail__no-slots">
+									Ansøgeren har ikke valgt tidspunkter (ikke kvalificeret til DISC-test)
+								</p>
 
-									<!-- Custom date and time pickers -->
-									<div class="application-detail__custom-time">
-										<el-date-picker
-											v-model="customDate"
-											type="date"
-											placeholder="Vælg dato"
-											format="YYYY-MM-DD"
-											value-format="YYYY-MM-DD"
-											style="width: 48%; margin-right: 4%"
-										/>
-										<el-time-select
-											v-model="customTime"
-											placeholder="Vælg tid"
-											start="08:00"
-											step="00:15"
-											end="17:00"
-											style="width: 48%"
-										/>
-									</div>
-									<div class="application-detail__custom-time" style="margin-top: 12px">
-										<el-select v-model="customType" placeholder="Vælg type" style="width: 100%">
-											<el-option label="Fysisk (45 min)" value="fysisk" />
-											<el-option label="Virtuel (60 min)" value="virtuel" />
-										</el-select>
-									</div>
-									<el-button
-										:disabled="!customDate || !customTime || !customType"
-										@click="changeToCustomSlot(selectedApplication.id)"
-										class="btn-dark"
-										style="width: 100%; margin-top: 12px"
-									>
-										Skift til valgt tid
-									</el-button>
+								<!-- Custom time picker - always shown -->
+								<div class="application-detail__custom-time-section">
+									<CustomTimeSlotPicker
+										:title="
+											selectedApplication.confirmedSlot ||
+											(selectedApplication.selectedSlots && selectedApplication.selectedSlots.length > 0)
+												? 'Skift til ny tid'
+												: 'Opret ny tid'
+										"
+										:button-text="
+											selectedApplication.confirmedSlot ||
+											(selectedApplication.selectedSlots && selectedApplication.selectedSlots.length > 0)
+												? 'Skift til valgt tid'
+												: 'Opret og book tid'
+										"
+										:loading="isBookingCustomSlot"
+										:available-slots="availableSlotsForBooking"
+										@submit="handleCustomTimeSubmit"
+										@select-existing="handleSelectExistingSlot"
+									/>
 								</div>
 							</div>
 
@@ -431,8 +449,8 @@
 							</div>
 
 							<!-- Selected Date Details -->
-							<Transition name="slide-fade">
-								<div v-if="selectedDate" class="time-slots-manager__selected">
+							<Transition :name="selectedDateSlideDirection" mode="out-in">
+								<div v-if="selectedDate" :key="selectedDate" ref="selectedDateSection" class="time-slots-manager__selected">
 									<div class="time-slots-manager__selected-header">
 										<h3>{{ formatSelectedDate(selectedDate) }}</h3>
 										<el-button @click="selectedDate = null" class="btn-dark">Luk</el-button>
@@ -512,6 +530,15 @@
 						<p><strong>Antal ansøgninger som vil blive slettet:</strong> {{ oldApplicationsCount }}</p>
 					</div>
 				</div>
+
+				<!-- Clear all data section for testing -->
+				<div class="cleanup-manager__danger-zone">
+					<h4>Test Zone</h4>
+					<p class="cleanup-manager__warning">
+						Slet ALLE ansøgninger og samtaletider. Denne handling kan ikke fortrydes!
+					</p>
+					<el-button class="btn-red" @click="clearAllData"> Ryd al data </el-button>
+				</div>
 			</div>
 
 			<template #footer>
@@ -529,6 +556,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { User, Message, Phone, Calendar } from '@element-plus/icons-vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 import ModalCloseButton from '@/components/ModalCloseButton.vue'
+import CustomTimeSlotPicker from '@/components/CustomTimeSlotPicker.vue'
 import api, { setAuthHeader, clearAuthHeader } from '@/config/api'
 import type {
 	Application,
@@ -559,12 +587,14 @@ const showCleanupModal = ref(false)
 const scrollableRef = ref<InstanceType<typeof OverlayScrollbarsComponent> | null>(null)
 const applicationsSection = ref<HTMLElement | null>(null)
 const gridContainerRef = ref<HTMLElement | null>(null)
+const selectedDateSection = ref<HTMLElement | null>(null)
 const gridColumns = ref(3)
 
 // Time slots management
 const availableTimeSlots = ref<InterviewSlot[]>([])
 const calendarDate = ref(new Date())
 const selectedDate = ref<string | null>(null)
+const selectedDateSlideDirection = ref<'slide-left' | 'slide-right' | 'slide-fade'>('slide-fade')
 const newTimeSlot = ref({
 	date: '',
 	time: '',
@@ -574,6 +604,7 @@ const customSlotSelection = ref<string>('')
 const customDate = ref<string>('')
 const customTime = ref<string>('')
 const customType = ref<string>('fysisk')
+const isBookingCustomSlot = ref(false)
 
 // Cleanup management
 const cleanupMonths = ref<number | null>(null)
@@ -657,6 +688,17 @@ const upcomingInterviews = computed(() => {
 		.sort((a, b) => {
 			const dateA = new Date(`${a.confirmedSlot!.date} ${a.confirmedSlot!.time}`)
 			const dateB = new Date(`${b.confirmedSlot!.date} ${b.confirmedSlot!.time}`)
+			return dateA.getTime() - dateB.getTime()
+		})
+})
+
+// Available slots for booking (not booked, not held, not reserved)
+const availableSlotsForBooking = computed(() => {
+	return availableTimeSlots.value
+		.filter((slot) => !slot.isBooked && !slot.heldBy && !slot.reservedBy)
+		.sort((a, b) => {
+			const dateA = new Date(`${a.date} ${a.time}`)
+			const dateB = new Date(`${b.date} ${b.time}`)
 			return dateA.getTime() - dateB.getTime()
 		})
 })
@@ -884,6 +926,27 @@ const confirmInterviewSlot = async (applicationId: string, slotId: string) => {
 	}
 }
 
+// Release confirmed slot (make it available again)
+const releaseConfirmedSlot = async (applicationId: string) => {
+	try {
+		await api.post(`/applications/${applicationId}/release-confirmed-slot`)
+
+		// Reload data
+		await loadApplications()
+		await loadTimeSlots()
+
+		// Update selected application if dialog is open
+		if (selectedApplication.value) {
+			const updated = applications.value.find((app) => app.id === applicationId)
+			if (updated) {
+				selectedApplication.value = { ...updated }
+			}
+		}
+	} catch (error) {
+		console.error('Failed to release confirmed slot:', error)
+	}
+}
+
 // Change to one of the selected slots (not currently confirmed)
 const changeToSelectedSlot = async (applicationId: string, slotId: string) => {
 	if (!selectedApplication.value?.confirmedSlot) return
@@ -918,31 +981,33 @@ const changeToSelectedSlot = async (applicationId: string, slotId: string) => {
 	}
 }
 
-// Change to custom date/time
-const changeToCustomSlot = async (applicationId: string) => {
-	if (!selectedApplication.value?.confirmedSlot || !customDate.value || !customTime.value || !customType.value) return
+// Handle custom time submit from CustomTimeSlotPicker component
+const handleCustomTimeSubmit = async (data: { date: string; time: string; type: 'fysisk' | 'virtuel' }) => {
+	if (!selectedApplication.value) return
+
+	isBookingCustomSlot.value = true
 
 	try {
-		const oldSlotId = selectedApplication.value.confirmedSlot.id
+		const applicationId = selectedApplication.value.id
 
 		// Create the custom slot
 		const customSlot: InterviewSlot = {
 			id: `custom-${Date.now()}`,
-			date: customDate.value,
-			time: customTime.value,
-			type: customType.value as 'fysisk' | 'virtuel',
+			date: data.date,
+			time: data.time,
+			type: data.type,
 			isBooked: true,
 			bookedBy: applicationId
 		}
 
-		// Unbook the old slot (only if it's not a custom slot)
-		if (!oldSlotId.startsWith('custom-')) {
-			await api.patch(`/interview-slots/${oldSlotId}/unbook`)
-		}
+		// Release all existing slots (confirmed and reserved)
+		await releaseAllApplicationSlots(selectedApplication.value)
 
-		// Update application with custom confirmed slot
+		// Update application with custom confirmed slot, clear selectedSlots, and set status
 		await api.patch(`/applications/${applicationId}`, {
-			confirmedSlot: customSlot
+			confirmedSlot: customSlot,
+			selectedSlots: [],
+			status: 'interview-scheduled'
 		})
 
 		// Reload data
@@ -954,13 +1019,90 @@ const changeToCustomSlot = async (applicationId: string) => {
 		if (updated) {
 			selectedApplication.value = { ...updated }
 		}
-
-		// Reset custom inputs
-		customDate.value = ''
-		customTime.value = ''
-		customType.value = 'fysisk'
 	} catch (error) {
-		console.error('Failed to change to custom slot:', error)
+		console.error('Failed to book custom slot:', error)
+	} finally {
+		isBookingCustomSlot.value = false
+	}
+}
+
+// Handle selecting an existing slot from the picker
+const handleSelectExistingSlot = async (slot: {
+	id: string
+	date: string
+	time: string
+	type: 'fysisk' | 'virtuel'
+}) => {
+	if (!selectedApplication.value) return
+
+	isBookingCustomSlot.value = true
+
+	try {
+		const applicationId = selectedApplication.value.id
+
+		// Release all existing slots (confirmed and reserved)
+		await releaseAllApplicationSlots(selectedApplication.value)
+
+		// Book the selected slot
+		await api.patch(`/interview-slots/${slot.id}/book`, {
+			applicationId: applicationId
+		})
+
+		// Create confirmed slot object
+		const confirmedSlot: InterviewSlot = {
+			id: slot.id,
+			date: slot.date,
+			time: slot.time,
+			type: slot.type,
+			isBooked: true,
+			bookedBy: applicationId
+		}
+
+		// Update application with the confirmed slot, clear selectedSlots, and set status
+		await api.patch(`/applications/${applicationId}`, {
+			confirmedSlot: confirmedSlot,
+			selectedSlots: [],
+			status: 'interview-scheduled'
+		})
+
+		// Reload data
+		await loadApplications()
+		await loadTimeSlots()
+
+		// Update selected application
+		const updated = applications.value.find((app) => app.id === applicationId)
+		if (updated) {
+			selectedApplication.value = { ...updated }
+		}
+	} catch (error) {
+		console.error('Failed to book existing slot:', error)
+	} finally {
+		isBookingCustomSlot.value = false
+	}
+}
+
+// Release all slots associated with an application (both confirmed and reserved)
+const releaseAllApplicationSlots = async (application: Application) => {
+	// Release confirmed slot if it exists and is not custom
+	if (application.confirmedSlot && !application.confirmedSlot.id.startsWith('custom-')) {
+		try {
+			await api.patch(`/interview-slots/${application.confirmedSlot.id}/unbook`)
+		} catch (error) {
+			console.error('Failed to unbook confirmed slot:', error)
+		}
+	}
+
+	// Release all reserved slots from selectedSlots using force-release (HR only)
+	if (application.selectedSlots && application.selectedSlots.length > 0) {
+		for (const slotId of application.selectedSlots) {
+			if (!slotId.startsWith('custom-')) {
+				try {
+					await api.patch(`/interview-slots/${slotId}/force-release`)
+				} catch (error) {
+					console.error(`Failed to release slot ${slotId}:`, error)
+				}
+			}
+		}
 	}
 }
 
@@ -968,8 +1110,24 @@ const selectDate = (dateString: string) => {
 	// Don't allow selecting past dates
 	if (isDateInPast(dateString)) return
 
+	// Determine slide direction based on date comparison
+	if (selectedDate.value) {
+		const newDate = new Date(dateString)
+		const oldDate = new Date(selectedDate.value)
+		selectedDateSlideDirection.value = newDate > oldDate ? 'slide-left' : 'slide-right'
+	} else {
+		selectedDateSlideDirection.value = 'slide-fade'
+	}
+
 	selectedDate.value = dateString
 	newTimeSlot.value.time = ''
+
+	// Scroll to the selected date section after Vue updates the DOM
+	setTimeout(() => {
+		if (selectedDateSection.value) {
+			selectedDateSection.value.scrollIntoView({ behavior: 'smooth', block: 'start' })
+		}
+	}, 100)
 }
 
 const hasTimeSlotsOnDate = (dateString: string): boolean => {
@@ -1092,6 +1250,26 @@ const performCleanup = async () => {
 	}
 }
 
+// Clear all data (for testing)
+const clearAllData = async () => {
+	if (
+		!confirm('Er du sikker på at du vil slette ALLE ansøgninger og samtaletider? Denne handling kan ikke fortrydes!')
+	) {
+		return
+	}
+
+	try {
+		const response = await api.delete('/clear-all-data')
+		console.log('Cleared all data:', response.data)
+
+		showCleanupModal.value = false
+		await loadApplications()
+		await loadTimeSlots()
+	} catch (error) {
+		console.error('Failed to clear all data:', error)
+	}
+}
+
 // Resize observer for grid columns
 let resizeObserver: ResizeObserver | null = null
 
@@ -1134,11 +1312,38 @@ onUnmounted(() => {
 	&__login-card {
 		@include card;
 		@include flex-column;
-		@include flex-center;
+		align-items: center;
 		gap: $spacing-lg;
 		width: 100%;
 		max-width: 402px;
 		padding: $spacing-xl;
+
+		:deep(.el-form) {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		:deep(.el-form-item) {
+			width: 100%;
+			max-width: 280px;
+			margin-bottom: $spacing-md;
+		}
+
+		:deep(.el-input) {
+			width: 100%;
+		}
+
+		:deep(.el-input__wrapper) {
+			width: 100%;
+			box-sizing: border-box;
+		}
+
+		.btn-red {
+			width: 100%;
+			max-width: 280px;
+		}
 	}
 
 	&__login-logo {
@@ -1642,6 +1847,21 @@ onUnmounted(() => {
 		border-radius: $border-radius-sm;
 		white-space: nowrap;
 	}
+
+	&__no-slots {
+		@include body-font;
+		color: $color-gray;
+		font-style: italic;
+		margin: 0;
+	}
+
+	&__custom-time-section {
+		margin-top: $spacing-lg;
+		padding: $spacing-md;
+		background-color: color.adjust($color-light-gray, $lightness: 2%);
+		border-radius: $border-radius-md;
+		border: 1px solid $color-light-gray;
+	}
 }
 
 // Time Slots Manager
@@ -1950,22 +2170,68 @@ onUnmounted(() => {
 	opacity: 0;
 }
 
-// Slide-fade transition for calendar selection
+// Slide-fade transition for calendar selection with height animation
 .slide-fade-enter-active {
-	transition: all 0.3s ease-out;
+	transition:
+		opacity 0.3s ease-out,
+		transform 0.3s ease-out,
+		max-height 0.3s ease-out;
+	overflow: hidden;
 }
 
 .slide-fade-leave-active {
-	transition: all 0.2s ease-in;
+	transition:
+		opacity 0.25s ease-in,
+		transform 0.25s ease-in,
+		max-height 0.3s ease-in;
+	overflow: hidden;
 }
 
 .slide-fade-enter-from {
 	transform: translateY(-10px);
 	opacity: 0;
+	max-height: 0;
+}
+
+.slide-fade-enter-to {
+	max-height: 500px;
+}
+
+.slide-fade-leave-from {
+	max-height: 500px;
 }
 
 .slide-fade-leave-to {
 	transform: translateY(-10px);
+	opacity: 0;
+	max-height: 0;
+}
+
+// Slide left/right transitions for date selection
+.slide-left-enter-active,
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active {
+	transition: all 0.25s ease;
+}
+
+.slide-left-enter-from {
+	transform: translateX(30px);
+	opacity: 0;
+}
+
+.slide-left-leave-to {
+	transform: translateX(-30px);
+	opacity: 0;
+}
+
+.slide-right-enter-from {
+	transform: translateX(-30px);
+	opacity: 0;
+}
+
+.slide-right-leave-to {
+	transform: translateX(30px);
 	opacity: 0;
 }
 
@@ -2002,6 +2268,27 @@ onUnmounted(() => {
 			@include body-font;
 			margin: 0;
 		}
+	}
+
+	&__danger-zone {
+		margin-top: $spacing-lg;
+		padding: $spacing-md;
+		border: 2px solid $color-red;
+		border-radius: $border-radius-md;
+		background-color: rgba($color-red, 0.05);
+
+		h4 {
+			@include body-font;
+			font-weight: $font-weight-bold;
+			color: $color-red;
+			margin: 0 0 $spacing-sm 0;
+		}
+	}
+
+	&__warning {
+		@include body-font;
+		color: $color-dark-gray;
+		margin-bottom: $spacing-md;
 	}
 }
 </style>

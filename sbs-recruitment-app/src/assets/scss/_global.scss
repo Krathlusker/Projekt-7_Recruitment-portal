@@ -4,6 +4,17 @@
 
 @use 'sass:color';
 
+// ==================== COLOR UTILITY FUNCTIONS ====================
+// Wrapper functions to use in Vue components since sass:color namespace isn't forwarded
+
+@function darken($color, $amount) {
+	@return color.adjust($color, $lightness: -$amount);
+}
+
+@function lighten($color, $amount) {
+	@return color.adjust($color, $lightness: $amount);
+}
+
 // ==================== VARIABLES ====================
 
 // Colors

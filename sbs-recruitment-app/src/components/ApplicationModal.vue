@@ -162,61 +162,75 @@
 									</p>
 
 									<div class="application-modal__date-section">
-										<!-- Date header with selected date and button -->
-										<div class="application-modal__date-header">
-											<span class="application-modal__date-display">{{
-												selectedDate ? formatShortDate(selectedDate) : 'Ingen dato valgt'
-											}}</span>
-											<button class="application-modal__date-btn" @click="openCalendarModal">
-												<el-icon><Calendar /></el-icon>
-												<span>VÆLG DATO</span>
-											</button>
-										</div>
-
-										<!-- Time slots for selected date -->
-										<div v-if="selectedDate && availableSlots.length > 0" class="application-modal__slots">
-											<div
-												v-for="slot in availableSlots"
-												:key="slot.id"
-												class="application-modal__slot"
-												:class="{
-													'application-modal__slot--selected': isSlotSelected(slot.id),
-													'application-modal__slot--disabled':
-														slot.isBooked ||
-														(slot.reservedBy && slot.reservedBy !== sessionId) ||
-														(selectedSlots.length >= 2 && !isSlotSelected(slot.id)),
-													'application-modal__slot--reserved':
-														slot.reservedBy && slot.reservedBy !== sessionId && !slot.isBooked
-												}"
-												@click="toggleSlot(slot)"
-											>
-												<span class="application-modal__slot-time">{{ slot.time }}</span>
-												<span class="application-modal__slot-type">{{
-													slot.type === 'fysisk' ? 'Fysisk' : 'Virtuel'
+										<!-- Top section: Date header + slots -->
+										<div class="application-modal__date-top">
+											<!-- Date header with selected date and button -->
+											<div class="application-modal__date-header">
+												<span class="application-modal__date-display">{{
+													selectedDate ? formatShortDate(selectedDate) : 'Ingen dato valgt'
 												}}</span>
-												<span v-if="isSlotSelected(slot.id)" class="application-modal__slot-choice">
-													{{ getSlotChoiceNumber(slot.id) }}. valg
-												</span>
-												<span
-													v-else-if="slot.reservedBy && slot.reservedBy !== sessionId && !slot.isBooked"
-													class="application-modal__slot-reserved-label"
+												<button class="application-modal__date-btn" @click="openCalendarModal">
+													<el-icon><Calendar /></el-icon>
+													<span>VÆLG DATO</span>
+												</button>
+											</div>
+
+											<!-- Time slots for selected date -->
+											<div v-if="selectedDate && availableSlots.length > 0" class="application-modal__slots">
+												<div
+													v-for="slot in availableSlots"
+													:key="slot.id"
+													class="application-modal__slot"
+													:class="{
+														'application-modal__slot--selected': isSlotSelected(slot.id),
+														'application-modal__slot--disabled':
+															selectedSlots.length >= 2 && !isSlotSelected(slot.id)
+													}"
+													@click="toggleSlot(slot)"
 												>
-													Reserveret
-												</span>
+													<span class="application-modal__slot-time">{{ slot.time }}</span>
+													<span class="application-modal__slot-type">{{
+														slot.type === 'fysisk' ? 'Fysisk' : 'Virtuel'
+													}}</span>
+												</div>
+											</div>
+
+											<!-- No date selected message -->
+											<div v-else-if="!selectedDate" class="application-modal__no-date">
+												<p>Tryk på "VÆLG DATO" for at vælge en samtaledag</p>
+											</div>
+
+											<!-- No slots available message -->
+											<div v-else-if="selectedDate && availableSlots.length === 0" class="application-modal__no-slots">
+												<p>Ingen ledige tider på denne dato</p>
 											</div>
 										</div>
 
-										<!-- No date selected message -->
-										<div v-else-if="!selectedDate" class="application-modal__no-date">
-											<p>Tryk på "VÆLG DATO" for at vælge en samtaledag</p>
+										<!-- Selected slots section -->
+										<div class="application-modal__selected-section">
+											<div class="application-modal__slots-count">Valgt: {{ selectedSlots.length }} af 2</div>
+											<div class="application-modal__selected-slots">
+												<div
+													v-for="(_, index) in [0, 1]"
+													:key="index"
+													class="application-modal__selected-slot"
+													:class="{ 'application-modal__selected-slot--empty': !selectedSlots[index] }"
+												>
+													<template v-if="selectedSlots[index]">
+														<div class="application-modal__selected-slot-info">
+															<span class="application-modal__selected-slot-time">{{ getSlotById(selectedSlots[index])?.time }}</span>
+															<span class="application-modal__selected-slot-date">{{ formatShortDate(getSlotById(selectedSlots[index])?.date || '') }}</span>
+														</div>
+														<button class="application-modal__selected-slot-remove" @click="removeSlotByIndex(index)">
+															<el-icon><Delete /></el-icon>
+														</button>
+													</template>
+													<template v-else>
+														<span class="application-modal__selected-slot-empty">{{ index + 1 }}. valg</span>
+													</template>
+												</div>
+											</div>
 										</div>
-
-										<!-- No slots available message -->
-										<div v-else-if="selectedDate && availableSlots.length === 0" class="application-modal__no-slots">
-											<p>Ingen ledige tider på denne dato</p>
-										</div>
-
-										<div class="application-modal__slots-count">Valgt: {{ selectedSlots.length }} af 2</div>
 									</div>
 								</div>
 
@@ -232,6 +246,7 @@
 									<p class="application-modal__description">
 										Du kan gå tilbage og ændre dine oplysninger inden du sender.
 									</p>
+									<ConsentModal v-model="consentAccepted" />
 								</div>
 
 								<!-- Step 5: Not Qualified -->
@@ -329,7 +344,7 @@
 							<ArrowLeft />
 						</el-icon>
 					</button>
-					<button @click="handleSubmit" class="modal-nav-btn modal-nav-btn--yellow">Send</button>
+					<button @click="handleSubmit" :disabled="!consentAccepted" class="modal-nav-btn modal-nav-btn--yellow">Send</button>
 				</div>
 
 				<!-- Step 5: Not Qualified -->
@@ -400,12 +415,16 @@
 						<!-- Calendar Legend -->
 						<div class="calendar-modal__legend">
 							<div class="calendar-modal__legend-item">
+								<span class="calendar-modal__legend-color calendar-modal__legend-color--today"></span>
+								<span class="calendar-modal__legend-label">Dags dato</span>
+							</div>
+							<div class="calendar-modal__legend-item">
 								<span class="calendar-modal__legend-color calendar-modal__legend-color--available"></span>
 								<span class="calendar-modal__legend-label">Ledige tider</span>
 							</div>
 							<div class="calendar-modal__legend-item">
-								<span class="calendar-modal__legend-color calendar-modal__legend-color--unavailable"></span>
-								<span class="calendar-modal__legend-label">Ingen ledige tider</span>
+								<span class="calendar-modal__legend-color calendar-modal__legend-color--selected"></span>
+								<span class="calendar-modal__legend-label">Valgt dato</span>
 							</div>
 						</div>
 					</div>
@@ -419,6 +438,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import type { FormInstance, FormRules, UploadFile } from 'element-plus'
 import ModalCloseButton from '@/components/ModalCloseButton.vue'
+import ConsentModal from '@/components/ConsentModal.vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 import {
 	Plus,
@@ -430,7 +450,8 @@ import {
 	Calendar,
 	Message,
 	SuccessFilled,
-	WarningFilled
+	WarningFilled,
+	Delete
 } from '@element-plus/icons-vue'
 import { discQuestions, QUALIFICATION_THRESHOLD } from '@/config/discQuestions'
 import type {
@@ -525,6 +546,9 @@ const calendarDate = ref(new Date())
 const allTimeSlots = ref<InterviewSlot[]>([])
 const calendarModalVisible = ref(false)
 const calendarSlideDirection = ref<'calendar-slide-left' | 'calendar-slide-right'>('calendar-slide-left')
+
+// Consent
+const consentAccepted = ref(false)
 
 // Calendar key for transition - changes when month changes
 const calendarKey = computed(() => {
@@ -677,8 +701,24 @@ const isSlotSelected = (slotId: string): boolean => {
 	return selectedSlots.value.includes(slotId)
 }
 
-const getSlotChoiceNumber = (slotId: string): number => {
-	return selectedSlots.value.indexOf(slotId) + 1
+const getSlotById = (slotId: string): InterviewSlot | undefined => {
+	return allTimeSlots.value.find((slot: InterviewSlot) => slot.id === slotId)
+}
+
+const removeSlotByIndex = async (index: number) => {
+	const slotId = selectedSlots.value[index]
+	if (!slotId) return
+
+	const slot = getSlotById(slotId)
+	if (slot) {
+		selectedSlots.value.splice(index, 1)
+		try {
+			await api.post(`/interview-slots/${slot.id}/release`, { sessionId: sessionId.value })
+			await loadAvailableSlots()
+		} catch (error) {
+			console.error('Failed to release slot reservation:', error)
+		}
+	}
 }
 
 const toggleSlot = async (slot: InterviewSlot) => {
@@ -730,10 +770,14 @@ const loadAvailableSlots = async () => {
 			selectedSlots.value = validSelectedSlots
 		}
 
-		// Update available slots if a date is selected (exclude booked and held slots)
+		// Update available slots if a date is selected (exclude booked, held, and reserved by others)
 		if (selectedDate.value) {
 			availableSlots.value = allTimeSlots.value.filter(
-				(slot) => slot.date === selectedDate.value && !slot.isBooked && !slot.heldBy
+				(slot) =>
+					slot.date === selectedDate.value &&
+					!slot.isBooked &&
+					!slot.heldBy &&
+					(!slot.reservedBy || slot.reservedBy === sessionId.value)
 			)
 		}
 	} catch (error) {
@@ -760,8 +804,11 @@ const hasTimeSlotsOnDate = (date: string): boolean => {
 
 const getAvailableTimeSlotsForDate = (date: string): InterviewSlot[] => {
 	// Note: SQLite returns isBooked as 0/1, so check for falsy values
+	// Filter out booked, held, and slots reserved by others
 	const slotsForDate = allTimeSlots.value.filter((slot) => slot.date === date)
-	const filtered = slotsForDate.filter((slot) => !slot.isBooked && !slot.heldBy)
+	const filtered = slotsForDate.filter(
+		(slot) => !slot.isBooked && !slot.heldBy && (!slot.reservedBy || slot.reservedBy === sessionId.value)
+	)
 	return filtered
 }
 
@@ -837,8 +884,14 @@ const selectDateAndClose = (date: string) => {
 	const availableOnDate = getAvailableTimeSlotsForDate(date)
 	if (availableOnDate.length > 0) {
 		selectedDate.value = date
-		// Filter out booked and held slots - only show available and reserved slots
-		availableSlots.value = allTimeSlots.value.filter((slot) => slot.date === date && !slot.isBooked && !slot.heldBy)
+		// Filter out booked, held, and slots reserved by others - only show available slots and own reservations
+		availableSlots.value = allTimeSlots.value.filter(
+			(slot) =>
+				slot.date === date &&
+				!slot.isBooked &&
+				!slot.heldBy &&
+				(!slot.reservedBy || slot.reservedBy === sessionId.value)
+		)
 		closeCalendarModal()
 	}
 }
@@ -995,6 +1048,7 @@ const handleClose = async () => {
 	discAnswers.value = {}
 	selectedSlots.value = []
 	selectedDate.value = ''
+	consentAccepted.value = false
 	// Generate new session ID for next session
 	sessionId.value = generateSessionId()
 	emit('close')
@@ -1010,13 +1064,15 @@ const handleClose = async () => {
 	}
 
 	&__content {
+		height: 100%;
 		flex: 1;
-		overflow-y: auto;
+		overflow: hidden;
 	}
 
 	&__step {
 		@include flex-column;
 		gap: $spacing-sm;
+		height: 100%;
 
 		&--centered {
 			align-items: center;
@@ -1177,7 +1233,14 @@ const handleClose = async () => {
 	// Date selection
 	&__date-section {
 		@include flex-column;
-		gap: $spacing-md;
+		justify-content: space-between;
+		flex: 1;
+	}
+
+	&__date-top {
+		@include flex-column;
+		gap: $spacing-sm;
+		flex: 1;
 	}
 
 	&__date-header {
@@ -1222,7 +1285,7 @@ const handleClose = async () => {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		padding: $spacing-xl;
+		flex: 1;
 		border: 2px dashed $color-light-gray;
 		border-radius: $border-radius-md;
 		color: $color-dark-gray;
@@ -1232,6 +1295,14 @@ const handleClose = async () => {
 			@include body-font;
 			margin: 0;
 		}
+	}
+
+	&__slots {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: $spacing-sm;
+		flex: 1;
+		align-content: start;
 	}
 
 	&__date-title {
@@ -1409,8 +1480,7 @@ const handleClose = async () => {
 
 	&__slots {
 		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: $spacing-md;
+		grid-template-columns: repeat(3, 1fr);
 	}
 
 	&__slots-title {
@@ -1422,8 +1492,8 @@ const handleClose = async () => {
 	&__slot {
 		@include flex-column;
 		@include flex-center;
-		gap: $spacing-sm;
-		padding: $spacing-md;
+		gap: $spacing-xs;
+		padding: $spacing-xs $spacing-sm;
 		border: 2px solid $color-dark-gray;
 		border-radius: $border-radius-md;
 		cursor: pointer;
@@ -1438,6 +1508,10 @@ const handleClose = async () => {
 		&--selected {
 			background-color: $color-dark-gray !important;
 			color: $color-white;
+
+			&:hover {
+				background-color: color.adjust($color-dark-gray, $lightness: 10%) !important;
+			}
 		}
 
 		&--disabled {
@@ -1456,6 +1530,7 @@ const handleClose = async () => {
 
 	&__slot-time {
 		@include body-bold-font;
+		font-size: 18px;
 		color: inherit;
 	}
 
@@ -1478,21 +1553,90 @@ const handleClose = async () => {
 		font-size: $font-size-small;
 	}
 
-	&__slot-reserved-label {
-		position: absolute;
-		top: -6px;
-		right: 0;
-		background-color: #f5a623;
-		color: $color-white;
-		padding: 4px 8px;
-		border-radius: $border-radius-sm;
-		font-size: $font-size-small;
-		font-weight: 600;
+	&__selected-section {
+		display: flex;
+		flex-direction: column;
 	}
 
 	&__slots-count {
 		@include body-bold-font;
+		font-size: 18px;
 		text-align: center;
+		margin-top: $spacing-sm;
+	}
+
+	&__selected-slots {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: $spacing-sm;
+		height: 52px;
+	}
+
+	&__selected-slot {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		padding: $spacing-sm;
+		border: 2px solid $color-dark-gray;
+		border-radius: $border-radius-md;
+		background-color: $color-dark-gray;
+		color: $color-white;
+
+		&--empty {
+			background-color: transparent;
+			border-style: dashed;
+			justify-content: flex-start;
+		}
+	}
+
+	&__selected-slot-info {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: $spacing-sm;
+		flex: 1;
+		padding-top: 3px;
+	}
+
+	&__selected-slot-priority {
+		font-size: 10px;
+		opacity: 0.7;
+	}
+
+	&__selected-slot-time {
+		@include body-font;
+		font-weight: $font-weight-bold;
+		color: $color-white;
+	}
+
+	&__selected-slot-date {
+		font-size: 12px;
+		opacity: 0.7;
+	}
+
+	&__selected-slot-empty {
+		@include body-font;
+		font-size: 12px;
+		color: $color-dark-gray;
+		opacity: 0.5;
+	}
+
+	&__selected-slot-remove {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 24px;
+		height: 24px;
+		border: none;
+		background-color: transparent;
+		color: $color-white;
+		cursor: pointer;
+		border-radius: $border-radius-sm;
+		transition: background-color 0.2s ease;
+
+		&:hover {
+			background-color: rgba($color-white, 0.2);
+		}
 	}
 
 	// Result icons
@@ -1514,7 +1658,7 @@ const handleClose = async () => {
 		align-items: flex-start;
 		justify-content: space-between;
 		position: relative;
-		padding-top: $spacing-sm;
+		padding-top: $spacing-xs;
 	}
 
 	&__stepper-step {
@@ -1605,8 +1749,9 @@ const handleClose = async () => {
 
 	&__footer {
 		flex-shrink: 0;
-		padding: $spacing-md;
-		padding-top: 0;
+		padding: $spacing-xs $spacing-md $spacing-xs $spacing-md;
+		position: relative;
+		z-index: 1; // Keep below ConsentModal (z-index: 4000)
 	}
 }
 
@@ -1684,13 +1829,12 @@ const handleClose = async () => {
 	width: 320px;
 	min-width: 320px;
 	max-width: 320px;
-	height: 400px;
-	min-height: 400px;
+	min-height: 450px;
 
 	&__content {
 		width: 100%;
 		height: 100%;
-		overflow: hidden;
+		overflow: visible;
 	}
 
 	&__header {
@@ -1772,7 +1916,7 @@ const handleClose = async () => {
 
 	&__calendar-wrapper {
 		position: relative;
-		overflow: hidden;
+		overflow: visible;
 	}
 
 	&__calendar {
@@ -1780,6 +1924,7 @@ const handleClose = async () => {
 		border: none;
 		height: 300px;
 		min-height: 300px;
+		overflow: hidden;
 
 		:deep(.el-calendar__header) {
 			display: none;
@@ -1852,13 +1997,20 @@ const handleClose = async () => {
 		}
 
 		&--has-slots {
-			background-color: $color-light-gray;
+			background-color: $color-dark-gray;
+			color: $color-white;
 			cursor: pointer;
 
 			&:hover {
-				background-color: $color-dark-gray;
-				color: $color-white;
+				background-color: $color-light-gray;
+				color: $color-dark-gray;
 			}
+		}
+
+		// Today with available slots (not selected) - show border with padding
+		&--today#{&}--has-slots:not(#{&}--selected) {
+			background-clip: content-box;
+			padding: calc($spacing-xs / 3);
 		}
 
 		&--selected#{&}--has-slots {
@@ -1869,6 +2021,12 @@ const handleClose = async () => {
 				background-color: $color-yellow;
 				color: $color-dark-gray;
 			}
+		}
+
+		// Today + selected - show border with padding on yellow background
+		&--today#{&}--selected#{&}--has-slots {
+			background-clip: content-box;
+			padding: calc($spacing-xs / 3);
 		}
 
 		&--disabled {
@@ -1888,8 +2046,7 @@ const handleClose = async () => {
 		display: flex;
 		gap: $spacing-lg;
 		justify-content: center;
-		padding: $spacing-md;
-		margin-top: $spacing-sm;
+		padding: $spacing-sm;
 	}
 
 	&__legend-item {
@@ -1899,12 +2056,21 @@ const handleClose = async () => {
 	}
 
 	&__legend-color {
-		width: 14px;
-		height: 14px;
+		width: 35px;
+		height: 25px;
 		border-radius: $border-radius-sm;
 
+		&--today {
+			background-color: transparent;
+			border: 2px solid $color-dark-gray;
+		}
+
 		&--available {
-			background-color: $color-light-gray;
+			background-color: $color-dark-gray;
+		}
+
+		&--selected {
+			background-color: $color-yellow;
 		}
 
 		&--unavailable {

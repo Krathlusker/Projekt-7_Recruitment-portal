@@ -2,6 +2,8 @@
 // SBS Recruitment App - Mixins
 // ==============================================
 
+@use 'sass:color';
+
 // NOTE: Variables are injected globally via Vite config
 
 // Typography mixins
@@ -96,8 +98,6 @@
 		cursor: not-allowed;
 	}
 }
-
-@use 'sass:color';
 
 // Button styles (only 4 allowed variants)
 @mixin button-dark {
