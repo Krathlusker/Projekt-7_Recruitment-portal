@@ -22,80 +22,70 @@
 		>
 			<!-- Hero Section -->
 			<section class="landing-page__hero">
-			<div class="landing-page__hero-content">
-				<div class="landing-page__hero-video">
-					<div class="landing-page__hero-video-placeholder">
-						<el-icon :size="64">
-							<VideoPlay />
-						</el-icon>
-						<span>Video afspilles her</span>
-					</div>
-				</div>
-			</div>
-		</section>
-
-		<!-- Introduction Section -->
-		<section class="landing-page__intro">
-			<div class="landing-page__intro-container">
-				<h1 class="landing-page__intro-title">Vi er SBS</h1>
-				<p class="landing-page__intro-text">
-					Siden 1964 har Scandinavian Brake Systems (SBS) arbejdet på at udvikle og producere bremseteknologi til både
-					2-og 4 hjulede køretøjer. Vi producerer lokalt, men vores løsninger og produkter bliver brugt over hele
-					verden.
-				</p>
-				<p class="landing-page__intro-text">
-					Hos SBS kan du blive en del af et stort team af skønne medarbejder hvor du har mulighed for periodisk at være
-					i vores pakkeri eller over længere tid, udvikle dig selv som industritekniker i vores produktion.
-				</p>
-			</div>
-		</section>
-
-		<!-- Job Cards Section -->
-		<section class="landing-page__jobs">
-			<div class="landing-page__jobs-container">
-				<h2 class="landing-page__jobs-title">Hvad kan du blive hos os?</h2>
-				<p class="landing-page__jobs-intro">
-					SBS er en virksomhed med mange forskellige muligheder. Hvis du er ungarbejder og mangler et job i dit sabbatår
-					så er vores pakkeri det perfekte job.
-				</p>
-				<p class="landing-page__jobs-intro">
-					Hvis du er i gang med eller færdig med din uddannelse indenfor maskiner, industri eller teknik. Så er du måske
-					mere interesseret i at arbejde i vores produktion, hvor du får dybdegående forståelser for vores proces og de
-					værktøjer vi bruger til at skabe førende bremseklods løsninger verden over.
-				</p>
-				<div class="landing-page__jobs-grid">
-					<div v-for="job in jobs" :key="job.id" class="job-card" @click="openJobModal(job.id)">
-						<div class="job-card__image">
-							<img :src="job.image" :alt="job.title" />
-						</div>
-						<div class="job-card__content">
-							<h3 class="job-card__title">{{ job.title }}</h3>
-						</div>
-					<el-button class="btn-light job-card__button">Læs mere</el-button>
-					</div>
-				</div>
-			</div>
-		</section>
-
-		<!-- Benefits Section -->
-		<section class="landing-page__benefits">
-			<div class="landing-page__benefits-container">
-				<h2 class="landing-page__benefits-title">Fordele hos SBS</h2>
-				<p class="landing-page__benefits-intro">
-					Hos SBS er der en række medarbejder fordele som alle vores ansatte nyder godt af!
-				</p>
-				<div class="landing-page__benefits-grid">
-					<div v-for="benefit in benefits.slice(0, 6)" :key="benefit.id" class="benefit-card">
-						<div class="benefit-card__icon">
-							<el-icon :size="48">
-								<component :is="benefit.icon" />
+				<div class="landing-page__hero-content">
+					<div class="landing-page__hero-video">
+						<div class="landing-page__hero-video-placeholder">
+							<el-icon :size="64">
+								<VideoPlay />
 							</el-icon>
+							<span>Video afspilles her</span>
 						</div>
-						<h3 class="benefit-card__title">{{ benefit.title }}</h3>
-						<p class="benefit-card__text">{{ benefit.text }}</p>
 					</div>
-					<div class="landing-page__benefits-last-row">
-						<div v-for="benefit in benefits.slice(6)" :key="benefit.id" class="benefit-card">
+				</div>
+			</section>
+
+			<!-- Introduction Section -->
+			<section class="landing-page__intro">
+				<div class="landing-page__intro-container">
+					<h1 class="landing-page__intro-title">Vi er SBS</h1>
+					<p class="landing-page__intro-text">
+						Siden 1964 har Scandinavian Brake Systems (SBS) arbejdet på at udvikle og producere bremseteknologi til både
+						2-og 4 hjulede køretøjer. Vi producerer lokalt, men vores løsninger og produkter bliver brugt over hele
+						verden.
+					</p>
+					<p class="landing-page__intro-text">
+						Hos SBS kan du blive en del af et stort team af skønne medarbejder hvor du har mulighed for periodisk at
+						være i vores pakkeri eller over længere tid, udvikle dig selv som industritekniker i vores produktion.
+					</p>
+				</div>
+			</section>
+
+			<!-- Job Cards Section -->
+			<section class="landing-page__jobs">
+				<div class="landing-page__jobs-container">
+					<h2 class="landing-page__jobs-title">Hvad kan du blive hos os?</h2>
+					<p class="landing-page__jobs-intro">
+						SBS er en virksomhed med mange forskellige muligheder. Hvis du er ungarbejder og mangler et job i dit
+						sabbatår så er vores pakkeri det perfekte job.
+					</p>
+					<p class="landing-page__jobs-intro">
+						Hvis du er i gang med eller færdig med din uddannelse indenfor maskiner, industri eller teknik. Så er du
+						måske mere interesseret i at arbejde i vores produktion, hvor du får dybdegående forståelser for vores
+						proces og de værktøjer vi bruger til at skabe førende bremseklods løsninger verden over.
+					</p>
+					<div class="landing-page__jobs-grid">
+						<div v-for="job in jobs" :key="job.id" class="job-card" @click="openJobModal(job.id)">
+							<div class="job-card__image">
+								<img :src="job.image" :alt="job.title" />
+							</div>
+							<div class="job-card__content">
+								<h3 class="job-card__title">{{ job.title }}</h3>
+							</div>
+							<el-button class="btn-light job-card__button">Læs mere</el-button>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Benefits Section -->
+			<section class="landing-page__benefits">
+				<div class="landing-page__benefits-container">
+					<h2 class="landing-page__benefits-title">Fordele hos SBS</h2>
+					<p class="landing-page__benefits-intro">
+						Hos SBS er der en række medarbejder fordele som alle vores ansatte nyder godt af!
+					</p>
+					<div class="landing-page__benefits-grid">
+						<div v-for="benefit in benefits.slice(0, 6)" :key="benefit.id" class="benefit-card">
 							<div class="benefit-card__icon">
 								<el-icon :size="48">
 									<component :is="benefit.icon" />
@@ -104,93 +94,103 @@
 							<h3 class="benefit-card__title">{{ benefit.title }}</h3>
 							<p class="benefit-card__text">{{ benefit.text }}</p>
 						</div>
+						<div class="landing-page__benefits-last-row">
+							<div v-for="benefit in benefits.slice(6)" :key="benefit.id" class="benefit-card">
+								<div class="benefit-card__icon">
+									<el-icon :size="48">
+										<component :is="benefit.icon" />
+									</el-icon>
+								</div>
+								<h3 class="benefit-card__title">{{ benefit.title }}</h3>
+								<p class="benefit-card__text">{{ benefit.text }}</p>
+							</div>
+						</div>
 					</div>
 				</div>
-			</div>
-		</section>
+			</section>
 
-		<!-- Footer -->
-		<footer class="landing-page__footer">
-			<div class="landing-page__footer-container">
-				<!-- Social Media -->
-				<div class="landing-page__social">
-					<a href="https://linkedin.com/company/sbs-friction" target="_blank" class="landing-page__social-link">
-						<el-icon :size="20">
-							<Link />
-						</el-icon>
-					</a>
-					<a href="https://facebook.com/sbsfriction" target="_blank" class="landing-page__social-link">
-						<el-icon :size="20">
-							<ChatDotRound />
-						</el-icon>
-					</a>
-					<a href="https://instagram.com/sbsfriction" target="_blank" class="landing-page__social-link">
-						<el-icon :size="20">
-							<Picture />
-						</el-icon>
-					</a>
-					<a href="https://youtube.com/sbsfriction" target="_blank" class="landing-page__social-link">
-						<el-icon :size="20">
-							<VideoPlay />
-						</el-icon>
-					</a>
-				</div>
-
-				<!-- Nyttige links -->
-				<div class="landing-page__footer-section">
-					<h4 class="landing-page__footer-title">Nyttige links</h4>
-					<div class="landing-page__footer-links">
-						<a href="https://sfriction.dk" target="_blank" class="landing-page__footer-link">SBS</a>
-						<a href="https://sfriction.dk/karriere" target="_blank" class="landing-page__footer-link">SBS - Career</a>
-						<a href="https://www.brembo.com" target="_blank" class="landing-page__footer-link">Brembo</a>
-					</div>
-				</div>
-
-				<!-- SBS A/S Info -->
-				<div class="landing-page__footer-section">
-					<h4 class="landing-page__footer-title">SBS A/S</h4>
-					<div class="landing-page__footer-info">
-						<a
-							href="https://www.google.com/maps/place/SBS+Friction+A%2FS/@55.0768882,10.5817289"
-							target="_blank"
-							class="landing-page__footer-info-link"
-						>
-							<el-icon :size="15">
-								<Location />
+			<!-- Footer -->
+			<footer class="landing-page__footer">
+				<div class="landing-page__footer-container">
+					<!-- Social Media -->
+					<div class="landing-page__social">
+						<a href="https://linkedin.com/company/sbs-friction" target="_blank" class="landing-page__social-link">
+							<el-icon :size="20">
+								<Link />
 							</el-icon>
-							<span>Kuopiovej 11, 5700 Svendborg</span>
 						</a>
-						<a href="tel:+4563211515" class="landing-page__footer-info-link">
-							<el-icon :size="15">
-								<Phone />
+						<a href="https://facebook.com/sbsfriction" target="_blank" class="landing-page__social-link">
+							<el-icon :size="20">
+								<ChatDotRound />
 							</el-icon>
-							<span>+45 6321 15 15</span>
 						</a>
-						<a href="mailto:sbs@sbs.dk?subject=Recruitment%20enquirie" class="landing-page__footer-info-link">
-							<el-icon :size="15">
-								<Message />
+						<a href="https://instagram.com/sbsfriction" target="_blank" class="landing-page__social-link">
+							<el-icon :size="20">
+								<Picture />
 							</el-icon>
-							<span>SBS@SBS.dk</span>
+						</a>
+						<a href="https://youtube.com/sbsfriction" target="_blank" class="landing-page__social-link">
+							<el-icon :size="20">
+								<VideoPlay />
+							</el-icon>
 						</a>
 					</div>
-				</div>
 
-				<!-- Copyright -->
-				<div class="landing-page__copyright">
-					<el-icon :size="15">
-						<CircleCheck />
-					</el-icon>
-					<span>Scandinavian Brake Systems A/S (SBS)</span>
-				</div>
+					<!-- Nyttige links -->
+					<div class="landing-page__footer-section">
+						<h4 class="landing-page__footer-title">Nyttige links</h4>
+						<div class="landing-page__footer-links">
+							<a href="https://sfriction.dk" target="_blank" class="landing-page__footer-link">SBS</a>
+							<a href="https://sfriction.dk/karriere" target="_blank" class="landing-page__footer-link">SBS - Career</a>
+							<a href="https://www.brembo.com" target="_blank" class="landing-page__footer-link">Brembo</a>
+						</div>
+					</div>
 
-				<!-- Legal Links -->
-				<div class="landing-page__legal">
-					<a href="/privacy" class="landing-page__legal-link">Persondata</a>
-					<span class="landing-page__legal-separator"></span>
-					<a href="/cookies" class="landing-page__legal-link">Cookiepolitik</a>
+					<!-- SBS A/S Info -->
+					<div class="landing-page__footer-section">
+						<h4 class="landing-page__footer-title">SBS A/S</h4>
+						<div class="landing-page__footer-info">
+							<a
+								href="https://www.google.com/maps/place/SBS+Friction+A%2FS/@55.0768882,10.5817289"
+								target="_blank"
+								class="landing-page__footer-info-link"
+							>
+								<el-icon :size="15">
+									<Location />
+								</el-icon>
+								<span>Kuopiovej 11, 5700 Svendborg</span>
+							</a>
+							<a href="tel:+4563211515" class="landing-page__footer-info-link">
+								<el-icon :size="15">
+									<Phone />
+								</el-icon>
+								<span>+45 6321 15 15</span>
+							</a>
+							<a href="mailto:sbs@sbs.dk?subject=Recruitment%20enquirie" class="landing-page__footer-info-link">
+								<el-icon :size="15">
+									<Message />
+								</el-icon>
+								<span>SBS@SBS.dk</span>
+							</a>
+						</div>
+					</div>
+
+					<!-- Copyright -->
+					<div class="landing-page__copyright">
+						<el-icon :size="15">
+							<CircleCheck />
+						</el-icon>
+						<span>Scandinavian Brake Systems A/S (SBS)</span>
+					</div>
+
+					<!-- Legal Links -->
+					<div class="landing-page__legal">
+						<a href="/privacy" class="landing-page__legal-link">Persondata</a>
+						<span class="landing-page__legal-separator"></span>
+						<a href="/cookies" class="landing-page__legal-link">Cookiepolitik</a>
+					</div>
 				</div>
-			</div>
-		</footer>
+			</footer>
 		</OverlayScrollbarsComponent>
 
 		<!-- Floating Apply Button -->

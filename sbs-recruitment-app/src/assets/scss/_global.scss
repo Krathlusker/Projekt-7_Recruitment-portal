@@ -383,7 +383,7 @@ body.modal-open {
 	margin: 0 6px;
 }
 
-.el-select-dropdown__item.is-selected{
+.el-select-dropdown__item.is-selected {
 	color: $color-dark-gray;
 	background-color: $color-yellow;
 }
@@ -420,7 +420,7 @@ body.modal-open {
 		max-height: calc(100vh - #{$spacing-md * 2}); // Viewport minus padding
 
 		&--fullscreen {
-			max-width: calc(100vw - 48px);
+			max-width: min(1344px, calc(100vw - 48px));
 			height: calc(100vh - 48px);
 			max-height: calc(100vh - 48px);
 		}

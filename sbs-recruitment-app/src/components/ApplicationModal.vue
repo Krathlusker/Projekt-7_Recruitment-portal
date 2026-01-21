@@ -25,303 +25,323 @@
 								<div v-if="currentStep === 1" class="application-modal__step">
 									<h2 class="application-modal__title">Hvem er du?</h2>
 									<p class="application-modal__description">
-										Vi vil rigtig gerne vide hvem du er, derfor beder vi om at du udfylder de generelle info om dig, og svarer på
-										de følgende 5 spørgsmål. Så er det bare lidt lettere at lære hinanden at kende.
+										Vi vil rigtig gerne vide hvem du er, derfor beder vi om at du udfylder de generelle info om dig, og
+										svarer på de følgende 5 spørgsmål. Så er det bare lidt lettere at lære hinanden at kende.
 									</p>
 
-				<el-form
-					ref="personalFormRef"
-					:model="formData"
-					:rules="personalFormRules"
-					label-position="top"
-					class="application-modal__form"
-				>
-					<el-form-item label="Fulde navn" prop="fullName" required>
-						<el-input v-model="formData.fullName" placeholder="Skriv her..." />
-					</el-form-item>
+									<el-form
+										ref="personalFormRef"
+										:model="formData"
+										:rules="personalFormRules"
+										label-position="top"
+										class="application-modal__form"
+									>
+										<el-form-item label="Fulde navn" prop="fullName" required>
+											<el-input v-model="formData.fullName" placeholder="Skriv her..." />
+										</el-form-item>
 
-					<el-form-item label="Telefonnummer" prop="phone" required>
-						<el-input v-model="formData.phone" placeholder="Skriv her..." />
-					</el-form-item>
+										<el-form-item label="Telefonnummer" prop="phone" required>
+											<el-input v-model="formData.phone" placeholder="Skriv her..." />
+										</el-form-item>
 
-					<el-form-item label="E-mail" prop="email" required>
-						<el-input v-model="formData.email" placeholder="Skriv her..." />
-					</el-form-item>
+										<el-form-item label="E-mail" prop="email" required>
+											<el-input v-model="formData.email" placeholder="Skriv her..." />
+										</el-form-item>
 
-					<el-form-item label="Alder (valgfri)" prop="age">
-						<el-tooltip
-							:visible="isAgeFocused"
-							content="Det er ikke et krav at oplyse din alder. Hvis du ikke ønsker at dele dette, er det helt fint."
-							placement="top"
-							effect="light"
-							popper-class="age-hint-tooltip"
-						>
-							<el-select
-								v-model="formData.age"
-								placeholder="Vælg her..."
-								class="application-modal__select"
-								clearable
-							@focus="isAgeFocused = true"
-							@visible-change="handleAgeVisibleChange"
-						>
-							<el-option v-for="age in ageOptions" :key="age" :label="`${age} år`" :value="age.toString()" />
-						</el-select>
-					</el-tooltip>
-				</el-form-item>
+										<el-form-item label="Alder (valgfri)" prop="age">
+											<el-tooltip
+												:visible="isAgeFocused"
+												content="Det er ikke et krav at oplyse din alder. Hvis du ikke ønsker at dele dette, er det helt fint."
+												placement="top"
+												effect="light"
+												popper-class="age-hint-tooltip"
+											>
+												<el-select
+													v-model="formData.age"
+													placeholder="Vælg her..."
+													class="application-modal__select"
+													clearable
+													@focus="isAgeFocused = true"
+													@visible-change="handleAgeVisibleChange"
+												>
+													<el-option
+														v-for="age in ageOptions"
+														:key="age"
+														:label="`${age} år`"
+														:value="age.toString()"
+													/>
+												</el-select>
+											</el-tooltip>
+										</el-form-item>
 
-				<el-form-item label="Hvilket job ønsker du at søge?" prop="jobPosition">
-					<el-select v-model="formData.jobPosition" placeholder="Select option" class="application-modal__select">
-						<el-option label="Pakkeriet" value="pakkeriet" />
-						<el-option label="Produktion" value="produktion" />
-						<el-option label="Andre stillinger" value="andre" />
-					</el-select>
-				</el-form-item>
+										<el-form-item label="Hvilket job ønsker du at søge?" prop="jobPosition">
+											<el-select
+												v-model="formData.jobPosition"
+												placeholder="Select option"
+												class="application-modal__select"
+											>
+												<el-option label="Pakkeriet" value="pakkeriet" />
+												<el-option label="Produktion" value="produktion" />
+												<el-option label="Andre stillinger" value="andre" />
+											</el-select>
+										</el-form-item>
 
-					<div class="application-modal__cv-row">
-						<div class="application-modal__cv-toggle">
-							<span class="application-modal__cv-label">Vedhæft CV?</span>
-							<el-switch v-model="formData.hasCV" />
-							<span class="application-modal__cv-hint">{{ formData.hasCV ? 'Ja' : 'Nej' }}</span>
-						</div>
+										<div class="application-modal__cv-row">
+											<div class="application-modal__cv-toggle">
+												<span class="application-modal__cv-label">Vedhæft CV?</span>
+												<el-switch v-model="formData.hasCV" />
+												<span class="application-modal__cv-hint">{{ formData.hasCV ? 'Ja' : 'Nej' }}</span>
+											</div>
 
-						<div v-if="formData.hasCV" class="application-modal__cv-upload">
-							<el-upload
-								ref="uploadRef"
-								:auto-upload="false"
-								:limit="1"
-								accept=".pdf,.doc,.docx"
-								drag
-								@change="handleFileChange"
-							>
-								<span class="application-modal__cv-dropzone-text">
-									{{ formData.cvFile ? formData.cvFile.name : 'Træk eller klik for at uploade' }}
-								</span>
-							</el-upload>
-						</div>
-					</div>
-				</el-form>
-			</div>
+											<div v-if="formData.hasCV" class="application-modal__cv-upload">
+												<el-upload
+													ref="uploadRef"
+													:auto-upload="false"
+													:limit="1"
+													accept=".pdf,.doc,.docx"
+													drag
+													@change="handleFileChange"
+												>
+													<span class="application-modal__cv-dropzone-text">
+														{{ formData.cvFile ? formData.cvFile.name : 'Træk eller klik for at uploade' }}
+													</span>
+												</el-upload>
+											</div>
+										</div>
+									</el-form>
+								</div>
 
-			<!-- Step 2: DISC Quiz -->
-			<div v-else-if="currentStep === 2" class="application-modal__step application-modal__step--quiz">
-				<h2 class="application-modal__title">Quiz</h2>
+								<!-- Step 2: DISC Quiz -->
+								<div v-else-if="currentStep === 2" class="application-modal__step application-modal__step--quiz">
+									<h2 class="application-modal__title">Quiz</h2>
 
-				<!-- Progress bar -->
-				<div class="application-modal__quiz-progress">
-					<span class="application-modal__quiz-progress-text">{{ currentQuestion + 1 }} af {{ discQuestions.length }}</span>
-					<div class="application-modal__quiz-progress-bar">
-						<div
-							class="application-modal__quiz-progress-fill"
-							:style="{ width: ((currentQuestion + 1) / discQuestions.length * 100) + '%' }"
-						></div>
-					</div>
-				</div>
+									<!-- Progress bar -->
+									<div class="application-modal__quiz-progress">
+										<span class="application-modal__quiz-progress-text"
+											>{{ currentQuestion + 1 }} af {{ discQuestions.length }}</span
+										>
+										<div class="application-modal__quiz-progress-bar">
+											<div
+												class="application-modal__quiz-progress-fill"
+												:style="{ width: ((currentQuestion + 1) / discQuestions.length) * 100 + '%' }"
+											></div>
+										</div>
+									</div>
 
-				<!-- Question -->
-				<p class="application-modal__quiz-question">
-					{{ discQuestions[currentQuestion].question }}
-				</p>
+									<!-- Question -->
+									<p class="application-modal__quiz-question">
+										{{ discQuestions[currentQuestion].question }}
+									</p>
 
-				<!-- Radio options -->
-				<div class="application-modal__quiz-options">
-					<label
-						v-for="(option, index) in discQuestions[currentQuestion].options"
-						:key="index"
-						class="application-modal__quiz-option"
-						:class="{ 'application-modal__quiz-option--selected': isOptionSelected(currentQuestion, option) }"
-					>
-						<input
-							type="radio"
-							:name="'question-' + currentQuestion"
-							:checked="isOptionSelected(currentQuestion, option)"
-							@change="selectOption(currentQuestion, option)"
-							class="application-modal__quiz-radio"
-						/>
-						<span class="application-modal__quiz-option-text">{{ option.text }}</span>
-					</label>
-				</div>
-			</div>
+									<!-- Radio options -->
+									<div class="application-modal__quiz-options">
+										<label
+											v-for="(option, index) in discQuestions[currentQuestion].options"
+											:key="index"
+											class="application-modal__quiz-option"
+											:class="{ 'application-modal__quiz-option--selected': isOptionSelected(currentQuestion, option) }"
+										>
+											<input
+												type="radio"
+												:name="'question-' + currentQuestion"
+												:checked="isOptionSelected(currentQuestion, option)"
+												@change="selectOption(currentQuestion, option)"
+												class="application-modal__quiz-radio"
+											/>
+											<span class="application-modal__quiz-option-text">{{ option.text }}</span>
+										</label>
+									</div>
+								</div>
 
-			<!-- Step 3: Date Selection (Qualified) -->
-			<div v-else-if="currentStep === 3" class="application-modal__step">
-				<h2 class="application-modal__title">Din ønskede tid</h2>
-				<p class="application-modal__description">
-					Her kan du vælge 2 tidspunkter på de dage vi holder samtaler, og selv passe din aftale ind i din hverdag.
-				</p>
+								<!-- Step 3: Date Selection (Qualified) -->
+								<div v-else-if="currentStep === 3" class="application-modal__step">
+									<h2 class="application-modal__title">Din ønskede tid</h2>
+									<p class="application-modal__description">
+										Her kan du vælge 2 tidspunkter på de dage vi holder samtaler, og selv passe din aftale ind i din
+										hverdag.
+									</p>
 
-				<div class="application-modal__date-section">
-					<!-- Date header with selected date and button -->
-					<div class="application-modal__date-header">
-						<span class="application-modal__date-display">{{ selectedDate ? formatShortDate(selectedDate) : 'Ingen dato valgt' }}</span>
-						<button class="application-modal__date-btn" @click="openCalendarModal">
-							<el-icon><Calendar /></el-icon>
-							<span>VÆLG DATO</span>
-						</button>
-					</div>
+									<div class="application-modal__date-section">
+										<!-- Date header with selected date and button -->
+										<div class="application-modal__date-header">
+											<span class="application-modal__date-display">{{
+												selectedDate ? formatShortDate(selectedDate) : 'Ingen dato valgt'
+											}}</span>
+											<button class="application-modal__date-btn" @click="openCalendarModal">
+												<el-icon><Calendar /></el-icon>
+												<span>VÆLG DATO</span>
+											</button>
+										</div>
 
-					<!-- Time slots for selected date -->
-					<div v-if="selectedDate && availableSlots.length > 0" class="application-modal__slots">
-						<div
-							v-for="slot in availableSlots"
-							:key="slot.id"
-							class="application-modal__slot"
-							:class="{
-								'application-modal__slot--selected': isSlotSelected(slot.id),
-								'application-modal__slot--disabled': slot.isBooked || (slot.reservedBy && slot.reservedBy !== sessionId) || (selectedSlots.length >= 2 && !isSlotSelected(slot.id)),
-								'application-modal__slot--reserved': slot.reservedBy && slot.reservedBy !== sessionId && !slot.isBooked
-							}"
-							@click="toggleSlot(slot)"
-						>
-							<span class="application-modal__slot-time">{{ slot.time }}</span>
-							<span class="application-modal__slot-type">{{ slot.type === 'fysisk' ? 'Fysisk' : 'Virtuel' }}</span>
-							<span v-if="isSlotSelected(slot.id)" class="application-modal__slot-choice">
-								{{ getSlotChoiceNumber(slot.id) }}. valg
-							</span>
-							<span v-else-if="slot.reservedBy && slot.reservedBy !== sessionId && !slot.isBooked" class="application-modal__slot-reserved-label">
-								Reserveret
-							</span>
-						</div>
-					</div>
+										<!-- Time slots for selected date -->
+										<div v-if="selectedDate && availableSlots.length > 0" class="application-modal__slots">
+											<div
+												v-for="slot in availableSlots"
+												:key="slot.id"
+												class="application-modal__slot"
+												:class="{
+													'application-modal__slot--selected': isSlotSelected(slot.id),
+													'application-modal__slot--disabled':
+														slot.isBooked ||
+														(slot.reservedBy && slot.reservedBy !== sessionId) ||
+														(selectedSlots.length >= 2 && !isSlotSelected(slot.id)),
+													'application-modal__slot--reserved':
+														slot.reservedBy && slot.reservedBy !== sessionId && !slot.isBooked
+												}"
+												@click="toggleSlot(slot)"
+											>
+												<span class="application-modal__slot-time">{{ slot.time }}</span>
+												<span class="application-modal__slot-type">{{
+													slot.type === 'fysisk' ? 'Fysisk' : 'Virtuel'
+												}}</span>
+												<span v-if="isSlotSelected(slot.id)" class="application-modal__slot-choice">
+													{{ getSlotChoiceNumber(slot.id) }}. valg
+												</span>
+												<span
+													v-else-if="slot.reservedBy && slot.reservedBy !== sessionId && !slot.isBooked"
+													class="application-modal__slot-reserved-label"
+												>
+													Reserveret
+												</span>
+											</div>
+										</div>
 
-					<!-- No date selected message -->
-					<div v-else-if="!selectedDate" class="application-modal__no-date">
-						<p>Tryk på "VÆLG DATO" for at vælge en samtaledag</p>
-					</div>
+										<!-- No date selected message -->
+										<div v-else-if="!selectedDate" class="application-modal__no-date">
+											<p>Tryk på "VÆLG DATO" for at vælge en samtaledag</p>
+										</div>
 
-					<!-- No slots available message -->
-					<div v-else-if="selectedDate && availableSlots.length === 0" class="application-modal__no-slots">
-						<p>Ingen ledige tider på denne dato</p>
-					</div>
+										<!-- No slots available message -->
+										<div v-else-if="selectedDate && availableSlots.length === 0" class="application-modal__no-slots">
+											<p>Ingen ledige tider på denne dato</p>
+										</div>
 
-					<div class="application-modal__slots-count">Valgt: {{ selectedSlots.length }} af 2</div>
-				</div>
-			</div>
+										<div class="application-modal__slots-count">Valgt: {{ selectedSlots.length }} af 2</div>
+									</div>
+								</div>
 
-			<!-- Step 4: Send Confirmation -->
-			<div v-else-if="currentStep === 4" class="application-modal__step application-modal__step--centered">
-				<el-icon :size="64" class="application-modal__result-icon">
-					<Message />
-				</el-icon>
-				<h2 class="application-modal__title">Klar til at sende?</h2>
-				<p class="application-modal__description">
-					Du er nu klar til at sende din ansøgning. Tryk på "Send" for at indsende.
-				</p>
-				<p class="application-modal__description">
-					Du kan gå tilbage og ændre dine oplysninger inden du sender.
-				</p>
-			</div>
-
-			<!-- Step 5: Not Qualified -->
-			<div v-else-if="currentStep === 5" class="application-modal__step application-modal__step--centered">
-				<el-icon :size="64" class="application-modal__result-icon application-modal__result-icon--warning">
-					<WarningFilled />
-				</el-icon>
-				<h2 class="application-modal__title">Tak for din interesse</h2>
-				<p class="application-modal__description">
-					Desværre matcher din profil ikke det vi søger lige nu. Vi gemmer din ansøgning og kontakter dig, hvis der
-					åbner sig en passende mulighed.
-				</p>
-				<p class="application-modal__description">Du er altid velkommen til at søge igen på et senere tidspunkt.</p>
-			</div>
-
-			<!-- Step 6: Success -->
-			<div v-else-if="currentStep === 6" class="application-modal__step application-modal__step--centered">
-				<el-icon :size="64" class="application-modal__result-icon application-modal__result-icon--success">
-					<SuccessFilled />
-				</el-icon>
-				<h2 class="application-modal__title">Tak for din ansøgning</h2>
-				<p class="application-modal__description">
-					Vi har modtaget din ansøgning og dine ønsker til samtaletider. Du vil modtage en bekræftelse på mail med de
-					endelige detaljer.
-				</p>
-				<p class="application-modal__description">Vi glæder os til at møde dig!</p>
-			</div>
-
-						</div>
-					</Transition>
-				</OverlayScrollbarsComponent>
-
-				<!-- Stepper (inside modal box, at bottom) -->
-				<div class="application-modal__footer">
-					<div class="application-modal__stepper">
-						<div
-							v-for="step in steps"
-							:key="step.id"
-							class="application-modal__stepper-step"
-							:class="{
-								'application-modal__stepper-step--active': currentStep === step.id && currentStep < 5,
-								'application-modal__stepper-step--completed': highestStepReached > step.id || currentStep >= 5
-							}"
-							@click="goToStep(step.id)"
-						>
-							<div class="application-modal__stepper-icon-wrapper">
-								<div class="application-modal__stepper-icon">
-									<el-icon v-if="highestStepReached > step.id || currentStep >= 5">
-										<Check />
+								<!-- Step 4: Send Confirmation -->
+								<div v-else-if="currentStep === 4" class="application-modal__step application-modal__step--centered">
+									<el-icon :size="64" class="application-modal__result-icon">
+										<Message />
 									</el-icon>
-									<el-icon v-else>
-										<component :is="step.icon" />
+									<h2 class="application-modal__title">Klar til at sende?</h2>
+									<p class="application-modal__description">
+										Du er nu klar til at sende din ansøgning. Tryk på "Send" for at indsende.
+									</p>
+									<p class="application-modal__description">
+										Du kan gå tilbage og ændre dine oplysninger inden du sender.
+									</p>
+								</div>
+
+								<!-- Step 5: Not Qualified -->
+								<div v-else-if="currentStep === 5" class="application-modal__step application-modal__step--centered">
+									<el-icon :size="64" class="application-modal__result-icon application-modal__result-icon--warning">
+										<WarningFilled />
 									</el-icon>
+									<h2 class="application-modal__title">Tak for din interesse</h2>
+									<p class="application-modal__description">
+										Desværre matcher din profil ikke det vi søger lige nu. Vi gemmer din ansøgning og kontakter dig,
+										hvis der åbner sig en passende mulighed.
+									</p>
+									<p class="application-modal__description">
+										Du er altid velkommen til at søge igen på et senere tidspunkt.
+									</p>
+								</div>
+
+								<!-- Step 6: Success -->
+								<div v-else-if="currentStep === 6" class="application-modal__step application-modal__step--centered">
+									<el-icon :size="64" class="application-modal__result-icon application-modal__result-icon--success">
+										<SuccessFilled />
+									</el-icon>
+									<h2 class="application-modal__title">Tak for din ansøgning</h2>
+									<p class="application-modal__description">
+										Vi har modtaget din ansøgning og dine ønsker til samtaletider. Du vil modtage en bekræftelse på mail
+										med de endelige detaljer.
+									</p>
+									<p class="application-modal__description">Vi glæder os til at møde dig!</p>
 								</div>
 							</div>
-							<span class="application-modal__stepper-label">{{ step.label }}</span>
+						</Transition>
+					</OverlayScrollbarsComponent>
+
+					<!-- Stepper (inside modal box, at bottom) -->
+					<div class="application-modal__footer">
+						<div class="application-modal__stepper">
+							<div
+								v-for="step in steps"
+								:key="step.id"
+								class="application-modal__stepper-step"
+								:class="{
+									'application-modal__stepper-step--active': currentStep === step.id && currentStep < 5,
+									'application-modal__stepper-step--completed': highestStepReached > step.id || currentStep >= 5
+								}"
+								@click="goToStep(step.id)"
+							>
+								<div class="application-modal__stepper-icon-wrapper">
+									<div class="application-modal__stepper-icon">
+										<el-icon v-if="highestStepReached > step.id || currentStep >= 5">
+											<Check />
+										</el-icon>
+										<el-icon v-else>
+											<component :is="step.icon" />
+										</el-icon>
+									</div>
+								</div>
+								<span class="application-modal__stepper-label">{{ step.label }}</span>
+							</div>
+							<div
+								v-for="i in 3"
+								:key="'connector-' + i"
+								class="application-modal__stepper-connector"
+								:class="{
+									'application-modal__stepper-connector--completed': highestStepReached > i || currentStep >= 5
+								}"
+							/>
 						</div>
-						<div
-							v-for="i in 3"
-							:key="'connector-' + i"
-							class="application-modal__stepper-connector"
-							:class="{ 'application-modal__stepper-connector--completed': highestStepReached > i || currentStep >= 5 }"
-						/>
 					</div>
 				</div>
-			</div>
 
-			<!-- Navigation Buttons (outside modal box, below) -->
-			<div v-if="currentStep < 4" class="modal-wrapper__actions">
-				<!-- During quiz (step 2+): show back arrow, otherwise show X (rotated) -->
-				<button v-if="currentStep > 1" @click="previousStep" class="modal-nav-btn modal-nav-btn--dark">
-					<el-icon :size="24">
-						<ArrowLeft />
-					</el-icon>
-				</button>
-				<button v-else @click="handleClose" class="modal-nav-btn modal-nav-btn--dark modal-nav-btn--close">
-					<el-icon :size="24">
-						<Plus />
-					</el-icon>
-				</button>
-				<button @click="nextStep" :disabled="!canProceed" class="modal-nav-btn modal-nav-btn--yellow">
-					<el-icon :size="24">
-						<ArrowRight />
-					</el-icon>
-				</button>
-			</div>
+				<!-- Navigation Buttons (outside modal box, below) -->
+				<div v-if="currentStep < 4" class="modal-wrapper__actions">
+					<!-- During quiz (step 2+): show back arrow, otherwise show X (rotated) -->
+					<button v-if="currentStep > 1" @click="previousStep" class="modal-nav-btn modal-nav-btn--dark">
+						<el-icon :size="24">
+							<ArrowLeft />
+						</el-icon>
+					</button>
+					<button v-else @click="handleClose" class="modal-nav-btn modal-nav-btn--dark modal-nav-btn--close">
+						<el-icon :size="24">
+							<Plus />
+						</el-icon>
+					</button>
+					<button @click="nextStep" :disabled="!canProceed" class="modal-nav-btn modal-nav-btn--yellow">
+						<el-icon :size="24">
+							<ArrowRight />
+						</el-icon>
+					</button>
+				</div>
 
-			<!-- Step 4: Send step with Send button -->
-			<div v-else-if="currentStep === 4" class="modal-wrapper__actions">
-				<button @click="previousStep" class="modal-nav-btn modal-nav-btn--dark">
-					<el-icon :size="24">
-						<ArrowLeft />
-					</el-icon>
-				</button>
-				<button @click="handleSubmit" class="modal-nav-btn modal-nav-btn--yellow">
-					Send
-				</button>
-			</div>
+				<!-- Step 4: Send step with Send button -->
+				<div v-else-if="currentStep === 4" class="modal-wrapper__actions">
+					<button @click="previousStep" class="modal-nav-btn modal-nav-btn--dark">
+						<el-icon :size="24">
+							<ArrowLeft />
+						</el-icon>
+					</button>
+					<button @click="handleSubmit" class="modal-nav-btn modal-nav-btn--yellow">Send</button>
+				</div>
 
-			<!-- Step 5: Not Qualified -->
-			<div v-else-if="currentStep === 5" class="modal-wrapper__actions">
-				<button @click="handleClose" class="modal-nav-btn modal-nav-btn--dark modal-nav-btn--full">
-					Luk
-				</button>
-			</div>
+				<!-- Step 5: Not Qualified -->
+				<div v-else-if="currentStep === 5" class="modal-wrapper__actions">
+					<button @click="handleClose" class="modal-nav-btn modal-nav-btn--dark modal-nav-btn--full">Luk</button>
+				</div>
 
-			<!-- Step 6: Success with Færdig button -->
-			<div v-else-if="currentStep === 6" class="modal-wrapper__actions">
-				<button @click="handleClose" class="modal-nav-btn modal-nav-btn--yellow modal-nav-btn--full">
-					Færdig
-				</button>
+				<!-- Step 6: Success with Færdig button -->
+				<div v-else-if="currentStep === 6" class="modal-wrapper__actions">
+					<button @click="handleClose" class="modal-nav-btn modal-nav-btn--yellow modal-nav-btn--full">Færdig</button>
+				</div>
 			</div>
-		</div>
 		</div>
 	</Transition>
 
@@ -335,7 +355,9 @@
 							<span :key="calendarKey" class="calendar-modal__title">{{ formatMonthYear('') }}</span>
 						</Transition>
 						<Transition name="fade" mode="out-in">
-							<button v-if="!isCurrentMonth" key="today-btn" class="calendar-modal__today-btn" @click="goToToday">I dag</button>
+							<button v-if="!isCurrentMonth" key="today-btn" class="calendar-modal__today-btn" @click="goToToday">
+								I dag
+							</button>
 							<span v-else key="today-placeholder" class="calendar-modal__today-placeholder"></span>
 						</Transition>
 						<div class="calendar-modal__controls">
@@ -352,11 +374,7 @@
 					</div>
 					<div class="calendar-modal__calendar-wrapper">
 						<Transition :name="calendarSlideDirection" mode="out-in">
-							<el-calendar
-								v-model="calendarDate"
-								class="calendar-modal__calendar"
-								:key="calendarKey"
-							>
+							<el-calendar v-model="calendarDate" class="calendar-modal__calendar" :key="calendarKey">
 								<template #header>
 									<span></span>
 								</template>
@@ -365,7 +383,8 @@
 										class="calendar-modal__day"
 										:class="{
 											'calendar-modal__day--has-slots': hasTimeSlotsOnDate(data.day) && !isDateInPast(data.day),
-											'calendar-modal__day--selected': selectedDate === data.day && hasTimeSlotsOnDate(data.day) && !isDateInPast(data.day),
+											'calendar-modal__day--selected':
+												selectedDate === data.day && hasTimeSlotsOnDate(data.day) && !isDateInPast(data.day),
 											'calendar-modal__day--disabled': !hasTimeSlotsOnDate(data.day) || isDateInPast(data.day),
 											'calendar-modal__day--other-month': isOtherMonth(data.day) || isDateInPast(data.day),
 											'calendar-modal__day--today': isToday(data.day)
@@ -414,7 +433,15 @@ import {
 	WarningFilled
 } from '@element-plus/icons-vue'
 import { discQuestions, QUALIFICATION_THRESHOLD } from '@/config/discQuestions'
-import type { ApplicationFormData, DiscAnswers, DiscResult, DiscOption, DiscProfile, InterviewSlot, JobPosition } from '@/types'
+import type {
+	ApplicationFormData,
+	DiscAnswers,
+	DiscResult,
+	DiscOption,
+	DiscProfile,
+	InterviewSlot,
+	JobPosition
+} from '@/types'
 import api from '@/config/api'
 
 // Generate unique session ID for this user's session
@@ -443,21 +470,24 @@ const dialogVisible = computed({
 })
 
 // Lås/frigiv body scroll når modal åbner/lukker
-watch(() => props.visible, (newVal) => {
-	if (newVal) {
-		const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
-		document.body.style.overflow = 'hidden'
-		document.body.style.paddingRight = `${scrollbarWidth}px`
-		document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`)
-	} else {
-		document.body.style.overflow = ''
-		document.body.style.paddingRight = ''
-		document.documentElement.style.setProperty('--scrollbar-width', '0px')
-		// Release reservations when modal closes
-		stopPolling()
-		releaseAllReservations()
+watch(
+	() => props.visible,
+	(newVal) => {
+		if (newVal) {
+			const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
+			document.body.style.overflow = 'hidden'
+			document.body.style.paddingRight = `${scrollbarWidth}px`
+			document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`)
+		} else {
+			document.body.style.overflow = ''
+			document.body.style.paddingRight = ''
+			document.documentElement.style.setProperty('--scrollbar-width', '0px')
+			// Release reservations when modal closes
+			stopPolling()
+			releaseAllReservations()
+		}
 	}
-})
+)
 
 // Form ref
 const personalFormRef = ref<FormInstance>()
@@ -534,7 +564,10 @@ const releaseAllReservations = async () => {
 const handleBeforeUnload = () => {
 	// Use sendBeacon for reliable cleanup on page unload
 	const data = JSON.stringify({ sessionId: sessionId.value })
-	navigator.sendBeacon(`${api.defaults.baseURL}/interview-slots/release-all`, new Blob([data], { type: 'application/json' }))
+	navigator.sendBeacon(
+		`${api.defaults.baseURL}/interview-slots/release-all`,
+		new Blob([data], { type: 'application/json' })
+	)
 }
 
 // Setup and cleanup
@@ -587,12 +620,7 @@ watch(
 // Computed: Can proceed to next step
 const canProceed = computed(() => {
 	if (currentStep.value === 1) {
-		return (
-			formData.value.fullName &&
-			formData.value.phone &&
-			formData.value.email &&
-			formData.value.jobPosition
-		)
+		return formData.value.fullName && formData.value.phone && formData.value.email && formData.value.jobPosition
 	}
 	if (currentStep.value === 2) {
 		return discAnswers.value[currentQuestion.value] !== undefined
@@ -691,7 +719,6 @@ const loadAvailableSlots = async () => {
 		allTimeSlots.value = response.data
 
 		// Clean up selectedSlots - remove any slots that no longer exist or are no longer available
-		const allSlotIds = allTimeSlots.value.map((slot: InterviewSlot) => slot.id)
 		const validSelectedSlots = selectedSlots.value.filter((slotId) => {
 			const slot = allTimeSlots.value.find((s: InterviewSlot) => s.id === slotId)
 			// Keep slot if it exists and is either available or reserved by this session
@@ -705,7 +732,9 @@ const loadAvailableSlots = async () => {
 
 		// Update available slots if a date is selected (exclude booked and held slots)
 		if (selectedDate.value) {
-			availableSlots.value = allTimeSlots.value.filter((slot) => slot.date === selectedDate.value && !slot.isBooked && !slot.heldBy)
+			availableSlots.value = allTimeSlots.value.filter(
+				(slot) => slot.date === selectedDate.value && !slot.isBooked && !slot.heldBy
+			)
 		}
 	} catch (error) {
 		console.error('Failed to load slots:', error)
@@ -752,8 +781,7 @@ const isToday = (dateString: string): boolean => {
 // Check if calendar is showing the current month
 const isCurrentMonth = computed(() => {
 	const now = new Date()
-	return calendarDate.value.getMonth() === now.getMonth() &&
-		   calendarDate.value.getFullYear() === now.getFullYear()
+	return calendarDate.value.getMonth() === now.getMonth() && calendarDate.value.getFullYear() === now.getFullYear()
 })
 
 // Calendar navigation functions
@@ -1580,7 +1608,6 @@ const handleClose = async () => {
 		padding: $spacing-md;
 		padding-top: 0;
 	}
-
 }
 
 // Application modal scroll-area padding (content area)
@@ -1815,7 +1842,9 @@ const handleClose = async () => {
 		color: $color-dark-gray;
 		cursor: default;
 		border-radius: $border-radius-sm;
-		transition: background-color 0.15s ease, color 0.15s ease;
+		transition:
+			background-color 0.15s ease,
+			color 0.15s ease;
 		background-color: transparent;
 
 		&--today {

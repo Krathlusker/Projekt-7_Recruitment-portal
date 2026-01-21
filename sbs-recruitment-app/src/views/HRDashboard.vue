@@ -17,9 +17,7 @@
 							@keyup.enter="handleLogin"
 						/>
 					</el-form-item>
-					<el-button :loading="isLoading" @click="handleLogin" class="btn-red">
-						Log ind
-					</el-button>
+					<el-button :loading="isLoading" @click="handleLogin" class="btn-red"> Log ind </el-button>
 				</el-form>
 
 				<p v-if="loginError" class="hr-dashboard__login-error">
@@ -46,103 +44,78 @@
 
 			<!-- Scrollable Content -->
 			<OverlayScrollbarsComponent
+				ref="scrollableRef"
 				class="hr-dashboard__scrollable"
 				:options="{ scrollbars: { theme: 'os-theme-dark', autoHide: 'scroll', autoHideDelay: 1000 } }"
 			>
-			<!-- Stats Section -->
-			<section class="hr-dashboard__stats">
-				<h2 class="hr-dashboard__section-title">Statistik</h2>
-				<div class="hr-dashboard__stats-grid">
-					<div class="stat-card">
-						<span class="stat-card__value">{{ stats.totalApplications }}</span>
-						<span class="stat-card__label">Ansøgninger i alt</span>
-					</div>
-					<div class="stat-card">
-						<span class="stat-card__value">{{ stats.scheduledInterviews }}</span>
-						<span class="stat-card__label">Planlagte samtaler</span>
-					</div>
-				</div>
-			</section>
-
-			<!-- Upcoming Interviews Section -->
-			<section ref="upcomingSection" class="hr-dashboard__upcoming">
-				<h2 class="hr-dashboard__section-title">Kommende samtaler</h2>
-				<div class="hr-dashboard__upcoming-list">
-					<div v-for="interview in upcomingInterviews" :key="interview.id" class="interview-card">
-						<div class="interview-card__date">
-							<span class="interview-card__day">{{ formatDay(interview.confirmedSlot?.date) }}</span>
-							<span class="interview-card__month">{{ formatMonth(interview.confirmedSlot?.date) }}</span>
-						</div>
-						<div class="interview-card__info">
-							<h3 class="interview-card__name">{{ interview.fullName }}</h3>
-							<p class="interview-card__detail">Job: {{ formatJobPosition(interview.jobPosition) }}</p>
-							<p class="interview-card__detail">Email: {{ interview.email }}</p>
-							<p class="interview-card__detail">Telefon: {{ interview.phone }}</p>
-							<p class="interview-card__detail">Tid: {{ interview.confirmedSlot?.time }}</p>
-						</div>
-						<div class="interview-card__actions">
-							<el-button @click="viewApplication(interview)" class="btn-dark"> Se ansøgning </el-button>
-							<el-button @click="markInterviewCompleted(interview.id)" class="btn-yellow"> Afholdt </el-button>
-						</div>
-					</div>
-
-					<div v-if="upcomingInterviews.length === 0" class="hr-dashboard__empty">Ingen kommende samtaler</div>
-				</div>
-			</section>
-
-			<!-- All Applications Section -->
-			<section ref="applicationsSection" class="hr-dashboard__applications">
-				<h2 class="hr-dashboard__section-title">Alle ansøgninger</h2>
-
-				<!-- Filters -->
-				<div class="hr-dashboard__filters">
-					<div class="hr-dashboard__filter-group">
-						<span class="hr-dashboard__filter-label">Vis antal:</span>
-						<el-select v-model="pagination.itemsPerPage" @change="handleItemsPerPageChange">
-							<el-option :value="9" label="9 per side" />
-							<el-option :value="18" label="18 per side" />
-							<el-option :value="27" label="27 per side" />
-						</el-select>
-					</div>
-					<div class="hr-dashboard__filter-group">
-						<span class="hr-dashboard__filter-label">Filtrer status:</span>
-						<el-select v-model="filters.status" @change="handleFilterChange">
-							<el-option value="all" label="Alle" />
-							<el-option value="pending" label="Afventer" />
-							<el-option value="reviewing" label="Under behandling" />
-							<el-option value="interview-scheduled" label="Samtale planlagt" />
-							<el-option value="interview-completed" label="Samtale afholdt" />
-							<el-option value="accepted" label="Accepteret" />
-							<el-option value="rejected" label="Afvist" />
-						</el-select>
-					</div>
-					<div class="hr-dashboard__filter-info">
-						<span>Side {{ pagination.currentPage }} af {{ totalPages }}</span>
-						<span>Viser {{ paginatedApplications.length }} af {{ filteredApplications.length }}</span>
-					</div>
-				</div>
-
-				<!-- Applications Grid -->
-				<div class="hr-dashboard__applications-grid">
-					<div v-for="application in paginatedApplications" :key="application.id" class="application-card">
-						<div class="application-card__header">
-							<span class="application-card__name">{{ application.fullName }}</span>
-							<span class="application-card__age">{{ application.age }}</span>
-						</div>
-
-						<div class="application-card__body">
-							<div class="application-card__row">
-								<span class="application-card__label">Modtaget:</span>
-								<span class="application-card__value">{{ formatDate(application.createdAt) }}</span>
+				<div class="hr-dashboard__scrollable-content">
+					<!-- Stats Section -->
+					<section class="hr-dashboard__stats">
+						<h2 class="hr-dashboard__section-title">Statistik</h2>
+						<div class="hr-dashboard__stats-grid">
+							<div class="stat-card stat-card--clickable" @click="scrollToApplications('all')">
+								<span class="stat-card__value">{{ stats.totalApplications }}</span>
+								<span class="stat-card__label">Ansøgninger i alt</span>
 							</div>
-							<div class="application-card__row application-card__row--status">
-								<span class="application-card__label">Status:</span>
-								<el-select
-									v-model="application.status"
-									size="small"
-									class="application-card__status-select"
-									@change="updateApplicationStatus(application.id, application.status)"
-								>
+							<div class="stat-card stat-card--clickable" @click="scrollToApplications('pending')">
+								<span class="stat-card__value">{{ stats.pendingApplications }}</span>
+								<span class="stat-card__label">Afventer behandling</span>
+							</div>
+							<div class="stat-card stat-card--clickable" @click="scrollToApplications('reserved')">
+								<span class="stat-card__value">{{ pendingWithReservedSlots }}</span>
+								<span class="stat-card__label">Reserveret - ikke booket</span>
+							</div>
+							<div class="stat-card stat-card--clickable" @click="scrollToApplications('interview-scheduled')">
+								<span class="stat-card__value">{{ stats.scheduledInterviews }}</span>
+								<span class="stat-card__label">Planlagte samtaler</span>
+							</div>
+						</div>
+					</section>
+
+					<!-- Upcoming Interviews Section -->
+					<section ref="upcomingSection" class="hr-dashboard__upcoming">
+						<h2 class="hr-dashboard__section-title">Kommende samtaler</h2>
+						<div class="hr-dashboard__upcoming-list">
+							<div v-for="interview in upcomingInterviews" :key="interview.id" class="interview-card">
+								<div class="interview-card__date">
+									<span class="interview-card__day">{{ formatDay(interview.confirmedSlot?.date) }}</span>
+									<span class="interview-card__month">{{ formatMonth(interview.confirmedSlot?.date) }}</span>
+								</div>
+								<div class="interview-card__info">
+									<h3 class="interview-card__name">{{ interview.fullName }}</h3>
+									<p class="interview-card__detail">Job: {{ formatJobPosition(interview.jobPosition) }}</p>
+									<p class="interview-card__detail">Email: {{ interview.email }}</p>
+									<p class="interview-card__detail">Telefon: {{ interview.phone }}</p>
+									<p class="interview-card__detail">Tid: {{ interview.confirmedSlot?.time }}</p>
+								</div>
+								<div class="interview-card__actions">
+									<el-button @click="viewApplication(interview)" class="btn-dark"> Se ansøgning </el-button>
+									<el-button @click="markInterviewCompleted(interview.id)" class="btn-yellow"> Afholdt </el-button>
+								</div>
+							</div>
+
+							<div v-if="upcomingInterviews.length === 0" class="hr-dashboard__empty">Ingen kommende samtaler</div>
+						</div>
+					</section>
+
+					<!-- All Applications Section -->
+					<section ref="applicationsSection" class="hr-dashboard__applications">
+						<h2 class="hr-dashboard__section-title">Alle ansøgninger</h2>
+
+						<!-- Filters -->
+						<div class="hr-dashboard__filters">
+							<div class="hr-dashboard__filter-group">
+								<span class="hr-dashboard__filter-label">Vis antal:</span>
+								<el-select v-model="pagination.itemsPerPage" @change="handleItemsPerPageChange">
+									<el-option :value="9" label="9 per side" />
+									<el-option :value="18" label="18 per side" />
+									<el-option :value="27" label="27 per side" />
+								</el-select>
+							</div>
+							<div class="hr-dashboard__filter-group">
+								<span class="hr-dashboard__filter-label">Filtrer status:</span>
+								<el-select v-model="filters.status" @change="handleFilterChange">
+									<el-option value="all" label="Alle" />
 									<el-option value="pending" label="Afventer" />
 									<el-option value="reviewing" label="Under behandling" />
 									<el-option value="interview-scheduled" label="Samtale planlagt" />
@@ -151,183 +124,248 @@
 									<el-option value="rejected" label="Afvist" />
 								</el-select>
 							</div>
-							<div class="application-card__row">
-						<span class="application-card__label">
-							<el-icon><User /></el-icon>
-							Alder:
-						</span>
-						<span class="application-card__value">{{ application.age }}</span>
-					</div>
-					<div class="application-card__row">
-						<span class="application-card__label">
-							<el-icon><Message /></el-icon>
-							Email:
-						</span>
-						<span class="application-card__value">{{ application.email }}</span>
-					</div>
-					<div class="application-card__row">
-						<span class="application-card__label">
-							<el-icon><Phone /></el-icon>
-							Telefon:
-						</span>
-						<span class="application-card__value">{{ application.phone }}</span>
-					</div>
+							<div class="hr-dashboard__filter-info">
+								<span>Side {{ pagination.currentPage }} af {{ totalPages }}</span>
+								<span>Viser {{ paginatedApplications.length }} af {{ filteredApplications.length }}</span>
+							</div>
+						</div>
 
-					<div class="application-card__row application-card__row--confirmed">
-						<span class="application-card__label">
-							<el-icon><Calendar /></el-icon>
-							Bekræftet samtale tid:
-						</span>
-						<span class="application-card__value">{{ application.confirmedSlot ? formatDateTime(application.confirmedSlot) : 'Ikke aftalt' }}</span>
-					</div>
+						<!-- Applications Grid -->
+						<div
+							ref="gridContainerRef"
+							class="hr-dashboard__applications-grid-wrapper"
+							:style="{ minHeight: gridMinHeight + 'px' }"
+						>
+							<Transition name="fade" mode="out-in">
+								<div
+									:key="filters.status + '-' + pagination.itemsPerPage + '-' + pagination.currentPage"
+									class="hr-dashboard__applications-grid"
+								>
+									<div v-for="application in paginatedApplications" :key="application.id" class="application-card">
+										<div class="application-card__header">
+											<span class="application-card__name">{{ application.fullName }}</span>
+											<span class="application-card__age">{{ application.age }}</span>
+										</div>
 
-					<div class="application-card__row application-card__row--button">
-						<el-button @click="viewApplication(application)" class="btn-dark">
-							DETALJER
-						</el-button>
-					</div>
-				</div>
-			</div>
-				</div>
+										<div class="application-card__body">
+											<div class="application-card__row">
+												<span class="application-card__label">Modtaget:</span>
+												<span class="application-card__value">{{ formatDate(application.createdAt) }}</span>
+											</div>
+											<div class="application-card__row application-card__row--status">
+												<span class="application-card__label">Status:</span>
+												<el-select
+													v-model="application.status"
+													size="small"
+													class="application-card__status-select"
+													@change="updateApplicationStatus(application.id, application.status)"
+												>
+													<el-option value="pending" label="Afventer" />
+													<el-option value="reviewing" label="Under behandling" />
+													<el-option value="interview-scheduled" label="Samtale planlagt" />
+													<el-option value="interview-completed" label="Samtale afholdt" />
+													<el-option value="accepted" label="Accepteret" />
+													<el-option value="rejected" label="Afvist" />
+												</el-select>
+											</div>
+											<div class="application-card__row">
+												<span class="application-card__label">
+													<el-icon><User /></el-icon>
+													Alder:
+												</span>
+												<span class="application-card__value">{{ application.age }}</span>
+											</div>
+											<div class="application-card__row">
+												<span class="application-card__label">
+													<el-icon><Message /></el-icon>
+													Email:
+												</span>
+												<span class="application-card__value">{{ application.email }}</span>
+											</div>
+											<div class="application-card__row">
+												<span class="application-card__label">
+													<el-icon><Phone /></el-icon>
+													Telefon:
+												</span>
+												<span class="application-card__value">{{ application.phone }}</span>
+											</div>
 
-				<!-- Pagination -->
-				<div class="hr-dashboard__pagination">
-					<el-pagination
-						v-model:current-page="pagination.currentPage"
-						:page-size="pagination.itemsPerPage"
-						:total="filteredApplications.length"
-						layout="prev, pager, next"
-						@current-change="handlePageChange"
-					/>
+											<div class="application-card__row application-card__row--confirmed">
+												<span class="application-card__label">
+													<el-icon><Calendar /></el-icon>
+													Bekræftet samtale tid:
+												</span>
+												<span class="application-card__value">{{
+													application.confirmedSlot ? formatDateTime(application.confirmedSlot) : 'Ikke aftalt'
+												}}</span>
+											</div>
+
+											<div class="application-card__row application-card__row--button">
+												<el-button @click="viewApplication(application)" class="btn-dark"> DETALJER </el-button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</Transition>
+						</div>
+
+						<!-- Pagination -->
+						<div class="hr-dashboard__pagination">
+							<el-pagination
+								v-model:current-page="pagination.currentPage"
+								:page-size="pagination.itemsPerPage"
+								:total="filteredApplications.length"
+								layout="prev, pager, next"
+								@current-change="handlePageChange"
+							/>
+						</div>
+					</section>
 				</div>
-			</section>
 			</OverlayScrollbarsComponent>
 		</div>
 
 		<!-- Application Detail Dialog -->
-		<el-dialog v-model="showDetailDialog" title="Ansøgning detaljer" transition="dialog-scale">
-			<div v-if="selectedApplication" class="application-detail">
-				<div class="application-detail__section">
-					<h3>Personlige oplysninger</h3>
-					<p><strong>Navn:</strong> {{ selectedApplication.fullName }}</p>
-					<p><strong>Email:</strong> {{ selectedApplication.email }}</p>
-					<p><strong>Telefon:</strong> {{ selectedApplication.phone }}</p>
-					<p><strong>Alder:</strong> {{ selectedApplication.age }}</p>
-					<p><strong>Stilling:</strong> {{ formatJobPosition(selectedApplication.jobPosition) }}</p>
-				</div>
-
-				<div class="application-detail__section">
-					<h3>DISC Resultat</h3>
-					<p><strong>Total point:</strong> {{ selectedApplication.discResult?.totalPoints }} / 15</p>
-					<p><strong>Kvalificeret:</strong> {{ selectedApplication.discResult?.isQualified ? 'Ja' : 'Nej' }}</p>
-					<p><strong>Dominant profil:</strong> {{ selectedApplication.discResult?.dominantProfile }}</p>
-				</div>
-
-				<div v-if="selectedApplication.cvFileName" class="application-detail__section">
-					<h3>CV</h3>
-					<el-button @click="downloadCV(selectedApplication.cvFileName)" class="btn-dark"> Download CV </el-button>
-				</div>
-
-				<div class="application-detail__section">
-					<h3>Ønskede tidspunkter</h3>
-					<div v-if="selectedApplication.selectedSlots && selectedApplication.selectedSlots.length > 0">
-						<div
-							v-for="(slotId, index) in selectedApplication.selectedSlots"
-							:key="slotId"
-							class="application-detail__slot"
-						>
-							<div class="application-detail__slot-info">
-								<span class="application-detail__slot-priority">{{ index + 1 }}. prioritet</span>
-								<span class="application-detail__slot-date">{{ getSlotInfo(slotId)?.date || 'Dato ikke fundet' }}</span>
-								<span class="application-detail__slot-time">{{ getSlotInfo(slotId)?.time || 'Tid ikke fundet' }}</span>
-								<span class="application-detail__slot-type">
-									{{ getSlotInfo(slotId)?.type === 'fysisk' ? 'Fysisk (45 min)' : 'Virtuel (60 min)' }}
-								</span>
-							</div>
-							<div class="application-detail__slot-actions">
-								<el-button
-									v-if="!selectedApplication.confirmedSlot"
-									@click="confirmInterviewSlot(selectedApplication.id, slotId)"
-									class="btn-yellow"
-								>
-									Bekræft tid
-								</el-button>
-								<span v-else-if="slotId === selectedApplication.confirmedSlot?.id" class="application-detail__confirmed-badge">
-									Bekræftet
-								</span>
-								<el-button
-									v-else
-									@click="changeToSelectedSlot(selectedApplication.id, slotId)"
-									class="btn-dark"
-								>
-									Skift til denne tid
-								</el-button>
-							</div>
-						</div>
-					</div>
-					<p v-else>Ingen tidspunkter valgt</p>
-
-					<!-- Change confirmed time section -->
-					<div v-if="selectedApplication.confirmedSlot" class="application-detail__change-time">
-						<h4>Skift bekræftet tid</h4>
-
-						<!-- Custom date and time pickers -->
-						<div class="application-detail__custom-time">
-							<el-date-picker
-								v-model="customDate"
-								type="date"
-								placeholder="Vælg dato"
-								format="YYYY-MM-DD"
-								value-format="YYYY-MM-DD"
-								style="width: 48%; margin-right: 4%"
-							/>
-							<el-time-select
-								v-model="customTime"
-								placeholder="Vælg tid"
-								start="08:00"
-								step="00:15"
-								end="17:00"
-								style="width: 48%"
-							/>
-						</div>
-						<div class="application-detail__custom-time" style="margin-top: 12px">
-							<el-select v-model="customType" placeholder="Vælg type" style="width: 100%">
-								<el-option label="Fysisk (45 min)" value="fysisk" />
-								<el-option label="Virtuel (60 min)" value="virtuel" />
-							</el-select>
-						</div>
-						<el-button
-							:disabled="!customDate || !customTime || !customType"
-							@click="changeToCustomSlot(selectedApplication.id)"
-							class="btn-dark"
-							style="width: 100%; margin-top: 12px"
-						>
-							Skift til valgt tid
-						</el-button>
-					</div>
-				</div>
-
-				<div class="application-detail__section">
-					<h3>Status</h3>
-					<el-select
-						v-model="selectedApplication.status"
-						@change="updateApplicationStatus(selectedApplication.id, selectedApplication.status)"
+		<Transition name="modal">
+			<div v-if="showDetailDialog" class="modal-wrapper">
+				<div class="modal-wrapper__backdrop" @click="showDetailDialog = false"></div>
+				<div class="modal-wrapper__container modal-wrapper__container--fullscreen">
+					<ModalCloseButton @click="showDetailDialog = false" />
+					<OverlayScrollbarsComponent
+						class="modal-wrapper__modal"
+						:options="{ scrollbars: { autoHide: 'scroll', autoHideDelay: 1000 } }"
 					>
-						<el-option value="pending" label="Afventer" />
-						<el-option value="reviewing" label="Under behandling" />
-						<el-option value="interview-scheduled" label="Samtale planlagt" />
-						<el-option value="interview-completed" label="Samtale afholdt" />
-						<el-option value="accepted" label="Accepteret" />
-						<el-option value="rejected" label="Afvist" />
-					</el-select>
+						<div v-if="selectedApplication" class="application-detail">
+							<h2 class="application-detail__title">Ansøgning detaljer</h2>
+							<div class="application-detail__section">
+								<h3>Personlige oplysninger</h3>
+								<p><strong>Navn:</strong> {{ selectedApplication.fullName }}</p>
+								<p><strong>Email:</strong> {{ selectedApplication.email }}</p>
+								<p><strong>Telefon:</strong> {{ selectedApplication.phone }}</p>
+								<p><strong>Alder:</strong> {{ selectedApplication.age }}</p>
+								<p><strong>Stilling:</strong> {{ formatJobPosition(selectedApplication.jobPosition) }}</p>
+							</div>
+
+							<div class="application-detail__section">
+								<h3>DISC Resultat</h3>
+								<p><strong>Total point:</strong> {{ selectedApplication.discResult?.totalPoints }} / 15</p>
+								<p><strong>Kvalificeret:</strong> {{ selectedApplication.discResult?.isQualified ? 'Ja' : 'Nej' }}</p>
+								<p><strong>Dominant profil:</strong> {{ selectedApplication.discResult?.dominantProfile }}</p>
+							</div>
+
+							<div v-if="selectedApplication.cvFileName" class="application-detail__section">
+								<h3>CV</h3>
+								<el-button @click="downloadCV(selectedApplication.cvFileName)" class="btn-dark">
+									Download CV
+								</el-button>
+							</div>
+
+							<div class="application-detail__section">
+								<h3>Ønskede tidspunkter</h3>
+								<div v-if="selectedApplication.selectedSlots && selectedApplication.selectedSlots.length > 0">
+									<div
+										v-for="(slotId, index) in selectedApplication.selectedSlots"
+										:key="slotId"
+										class="application-detail__slot"
+									>
+										<div class="application-detail__slot-info">
+											<span class="application-detail__slot-priority">{{ index + 1 }}. prioritet</span>
+											<span class="application-detail__slot-date">{{
+												getSlotInfo(slotId)?.date || 'Dato ikke fundet'
+											}}</span>
+											<span class="application-detail__slot-time">{{
+												getSlotInfo(slotId)?.time || 'Tid ikke fundet'
+											}}</span>
+											<span class="application-detail__slot-type">
+												{{ getSlotInfo(slotId)?.type === 'fysisk' ? 'Fysisk (45 min)' : 'Virtuel (60 min)' }}
+											</span>
+										</div>
+										<div class="application-detail__slot-actions">
+											<el-button
+												v-if="!selectedApplication.confirmedSlot"
+												@click="confirmInterviewSlot(selectedApplication.id, slotId)"
+												class="btn-yellow"
+											>
+												Bekræft tid
+											</el-button>
+											<span
+												v-else-if="slotId === selectedApplication.confirmedSlot?.id"
+												class="application-detail__confirmed-badge"
+											>
+												Bekræftet
+											</span>
+											<el-button v-else @click="changeToSelectedSlot(selectedApplication.id, slotId)" class="btn-dark">
+												Skift til denne tid
+											</el-button>
+										</div>
+									</div>
+								</div>
+								<p v-else>Ingen tidspunkter valgt</p>
+
+								<!-- Change confirmed time section -->
+								<div v-if="selectedApplication.confirmedSlot" class="application-detail__change-time">
+									<h4>Skift bekræftet tid</h4>
+
+									<!-- Custom date and time pickers -->
+									<div class="application-detail__custom-time">
+										<el-date-picker
+											v-model="customDate"
+											type="date"
+											placeholder="Vælg dato"
+											format="YYYY-MM-DD"
+											value-format="YYYY-MM-DD"
+											style="width: 48%; margin-right: 4%"
+										/>
+										<el-time-select
+											v-model="customTime"
+											placeholder="Vælg tid"
+											start="08:00"
+											step="00:15"
+											end="17:00"
+											style="width: 48%"
+										/>
+									</div>
+									<div class="application-detail__custom-time" style="margin-top: 12px">
+										<el-select v-model="customType" placeholder="Vælg type" style="width: 100%">
+											<el-option label="Fysisk (45 min)" value="fysisk" />
+											<el-option label="Virtuel (60 min)" value="virtuel" />
+										</el-select>
+									</div>
+									<el-button
+										:disabled="!customDate || !customTime || !customType"
+										@click="changeToCustomSlot(selectedApplication.id)"
+										class="btn-dark"
+										style="width: 100%; margin-top: 12px"
+									>
+										Skift til valgt tid
+									</el-button>
+								</div>
+							</div>
+
+							<div class="application-detail__section">
+								<h3>Status</h3>
+								<el-select
+									v-model="selectedApplication.status"
+									@change="updateApplicationStatus(selectedApplication.id, selectedApplication.status)"
+								>
+									<el-option value="pending" label="Afventer" />
+									<el-option value="reviewing" label="Under behandling" />
+									<el-option value="interview-scheduled" label="Samtale planlagt" />
+									<el-option value="interview-completed" label="Samtale afholdt" />
+									<el-option value="accepted" label="Accepteret" />
+									<el-option value="rejected" label="Afvist" />
+								</el-select>
+								<div class="application-detail__actions">
+									<el-button @click="showDetailDialog = false" class="btn-dark">Luk</el-button>
+									<el-button @click="deleteApplication(selectedApplication?.id)" class="btn-red"
+										>Slet ansøgning</el-button
+									>
+								</div>
+							</div>
+						</div>
+					</OverlayScrollbarsComponent>
 				</div>
 			</div>
-
-			<template #footer>
-				<el-button @click="showDetailDialog = false" class="btn-dark">Luk</el-button>
-				<el-button @click="deleteApplication(selectedApplication?.id)" class="btn-red"> Slet ansøgning </el-button>
-			</template>
-		</el-dialog>
+		</Transition>
 
 		<!-- Time Slots Modal -->
 		<Transition name="modal">
@@ -339,93 +377,114 @@
 						class="modal-wrapper__modal"
 						:options="{ scrollbars: { autoHide: 'scroll', autoHideDelay: 1000 } }"
 					>
-				<div class="time-slots-manager">
-					<h2 class="time-slots-manager__title">Administrer tilgængelige tider</h2>
-					<p class="time-slots-manager__description">
-						Klik på en dag i kalenderen for at tilføje eller se tilgængelige tider. Ansøgere kan vælge 1. og 2. prioritet.
-					</p>
+						<div class="time-slots-manager">
+							<h2 class="time-slots-manager__title">Administrer tilgængelige tider</h2>
+							<p class="time-slots-manager__description">
+								Klik på en dag i kalenderen for at tilføje eller se tilgængelige tider. Ansøgere kan vælge 1. og 2.
+								prioritet.
+							</p>
 
-					<!-- Calendar Overview -->
-					<div class="time-slots-manager__calendar">
-						<el-calendar v-model="calendarDate">
-							<template #date-cell="{ data }">
-								<div
-									class="calendar-day"
-									:class="{
-										'calendar-day--has-slots': hasTimeSlotsOnDate(data.day) && !isDateInPast(data.day),
-										'calendar-day--selected': selectedDate === data.day && !isDateInPast(data.day),
-										'calendar-day--past': isDateInPast(data.day)
-									}"
-									@click="selectDate(data.day)"
-								>
-									<div class="calendar-day__date">{{ data.day.split('-')[2] }}</div>
-									<div v-if="getTimeSlotsForDate(data.day).length > 0" class="calendar-day__chips">
-										<span class="calendar-day__chip calendar-day__chip--available">{{ getAvailableSlotsCount(data.day) }}/{{ getTimeSlotsForDate(data.day).length }}</span>
-										<span class="calendar-day__chip calendar-day__chip--reserved">{{ getReservedSlotsCount(data.day) }}/{{ getTimeSlotsForDate(data.day).length }}</span>
-										<span class="calendar-day__chip calendar-day__chip--booked">{{ getBookedSlotsCount(data.day) }}/{{ getTimeSlotsForDate(data.day).length }}</span>
+							<!-- Calendar Overview -->
+							<div class="time-slots-manager__calendar">
+								<el-calendar v-model="calendarDate">
+									<template #date-cell="{ data }">
+										<div
+											class="calendar-day"
+											:class="{
+												'calendar-day--has-slots': hasTimeSlotsOnDate(data.day) && !isDateInPast(data.day),
+												'calendar-day--selected': selectedDate === data.day && !isDateInPast(data.day),
+												'calendar-day--past': isDateInPast(data.day)
+											}"
+											@click="selectDate(data.day)"
+										>
+											<div class="calendar-day__date">{{ data.day.split('-')[2] }}</div>
+											<div v-if="getTimeSlotsForDate(data.day).length > 0" class="calendar-day__chips">
+												<span class="calendar-day__chip calendar-day__chip--available"
+													>{{ getAvailableSlotsCount(data.day) }}/{{ getTimeSlotsForDate(data.day).length }}</span
+												>
+												<span class="calendar-day__chip calendar-day__chip--reserved"
+													>{{ getReservedSlotsCount(data.day) }}/{{ getTimeSlotsForDate(data.day).length }}</span
+												>
+												<span class="calendar-day__chip calendar-day__chip--booked"
+													>{{ getBookedSlotsCount(data.day) }}/{{ getTimeSlotsForDate(data.day).length }}</span
+												>
+											</div>
+										</div>
+									</template>
+								</el-calendar>
+
+								<!-- Calendar Legend -->
+								<div class="calendar-legend">
+									<div class="calendar-legend__item">
+										<span class="calendar-legend__color calendar-legend__color--available"></span>
+										<span class="calendar-legend__label">Ledige tider</span>
+									</div>
+									<div class="calendar-legend__item">
+										<span class="calendar-legend__color calendar-legend__color--reserved"></span>
+										<span class="calendar-legend__label">Reserveret</span>
+									</div>
+									<div class="calendar-legend__item">
+										<span class="calendar-legend__color calendar-legend__color--booked"></span>
+										<span class="calendar-legend__label">Booket</span>
 									</div>
 								</div>
-							</template>
-						</el-calendar>
+							</div>
 
-						<!-- Calendar Legend -->
-						<div class="calendar-legend">
-							<div class="calendar-legend__item">
-								<span class="calendar-legend__color calendar-legend__color--available"></span>
-								<span class="calendar-legend__label">Ledige tider</span>
-							</div>
-							<div class="calendar-legend__item">
-								<span class="calendar-legend__color calendar-legend__color--reserved"></span>
-								<span class="calendar-legend__label">Reserveret</span>
-							</div>
-							<div class="calendar-legend__item">
-								<span class="calendar-legend__color calendar-legend__color--booked"></span>
-								<span class="calendar-legend__label">Booket</span>
-							</div>
-						</div>
-					</div>
+							<!-- Selected Date Details -->
+							<Transition name="slide-fade">
+								<div v-if="selectedDate" class="time-slots-manager__selected">
+									<div class="time-slots-manager__selected-header">
+										<h3>{{ formatSelectedDate(selectedDate) }}</h3>
+										<el-button @click="selectedDate = null" class="btn-dark">Luk</el-button>
+									</div>
 
-					<!-- Selected Date Details -->
-					<div v-if="selectedDate" class="time-slots-manager__selected">
-						<div class="time-slots-manager__selected-header">
-							<h3>{{ formatSelectedDate(selectedDate) }}</h3>
-							<el-button @click="selectedDate = null" class="btn-dark">Luk</el-button>
-						</div>
+									<!-- Add time slot for selected date -->
+									<div class="time-slots-manager__add">
+										<div class="time-slots-manager__form">
+											<el-select v-model="newTimeSlot.type" placeholder="Vælg type" style="width: 138px">
+												<el-option label="Fysisk (45 min)" value="fysisk" />
+												<el-option label="Virtuel (60 min)" value="virtuel" />
+											</el-select>
+											<el-time-select
+												v-model="newTimeSlot.time"
+												placeholder="Vælg tidspunkt"
+												start="08:00"
+												step="00:30"
+												end="17:00"
+											/>
+											<el-button @click="addTimeSlotForSelectedDate" class="btn-dark">Tilføj tid</el-button>
+										</div>
+									</div>
 
-						<!-- Add time slot for selected date -->
-						<div class="time-slots-manager__add">
-							<div class="time-slots-manager__form">
-								<el-select v-model="newTimeSlot.type" placeholder="Vælg type" style="width: 138px">
-									<el-option label="Fysisk (45 min)" value="fysisk" />
-									<el-option label="Virtuel (60 min)" value="virtuel" />
-								</el-select>
-								<el-time-select
-									v-model="newTimeSlot.time"
-									placeholder="Vælg tidspunkt"
-									start="08:00"
-									step="00:30"
-									end="17:00"
-								/>
-								<el-button @click="addTimeSlotForSelectedDate" class="btn-dark">Tilføj tid</el-button>
-							</div>
-						</div>
-
-						<!-- Time slots for selected date -->
-						<div class="time-slots-manager__list">
-							<div v-if="getTimeSlotsForDate(selectedDate).length === 0" class="time-slots-manager__empty">
-								Ingen tider tilgængelige på denne dato
-							</div>
-							<div v-else class="time-slots-manager__items">
-								<div v-for="slot in getTimeSlotsForDate(selectedDate)" :key="slot.id" class="time-slot-item" :class="getSlotStatusClass(slot)">
-									<span class="time-slot-item__time">{{ slot.time }}</span>
-									<span class="time-slot-item__type">{{ slot.type === 'fysisk' ? 'Fysisk (45 min)' : 'Virtuel (60 min)' }}</span>
-									<span class="time-slot-item__status">{{ getSlotStatusLabel(slot) }}</span>
-									<el-button @click="removeTimeSlot(slot.id)" class="btn-red" :disabled="!!slot.isBooked || !!slot.heldBy">Slet</el-button>
+									<!-- Time slots for selected date -->
+									<div class="time-slots-manager__list">
+										<div v-if="getTimeSlotsForDate(selectedDate).length === 0" class="time-slots-manager__empty">
+											Ingen tider tilgængelige på denne dato
+										</div>
+										<div v-else class="time-slots-manager__items">
+											<div
+												v-for="slot in getTimeSlotsForDate(selectedDate)"
+												:key="slot.id"
+												class="time-slot-item"
+												:class="getSlotStatusClass(slot)"
+											>
+												<span class="time-slot-item__time">{{ slot.time }}</span>
+												<span class="time-slot-item__type">{{
+													slot.type === 'fysisk' ? 'Fysisk (45 min)' : 'Virtuel (60 min)'
+												}}</span>
+												<span class="time-slot-item__status">{{ getSlotStatusLabel(slot) }}</span>
+												<el-button
+													@click="removeTimeSlot(slot.id)"
+													class="btn-red"
+													:disabled="!!slot.isBooked || !!slot.heldBy"
+													>Slet</el-button
+												>
+											</div>
+										</div>
+									</div>
 								</div>
-							</div>
+							</Transition>
 						</div>
-					</div>
-				</div>
 					</OverlayScrollbarsComponent>
 				</div>
 			</div>
@@ -467,7 +526,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { User, Message, Phone, Calendar, Close } from '@element-plus/icons-vue'
+import { User, Message, Phone, Calendar } from '@element-plus/icons-vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 import ModalCloseButton from '@/components/ModalCloseButton.vue'
 import api, { setAuthHeader, clearAuthHeader } from '@/config/api'
@@ -497,6 +556,10 @@ const showDetailDialog = ref(false)
 const selectedApplication = ref<Application | null>(null)
 const showTimeSlotsModal = ref(false)
 const showCleanupModal = ref(false)
+const scrollableRef = ref<InstanceType<typeof OverlayScrollbarsComponent> | null>(null)
+const applicationsSection = ref<HTMLElement | null>(null)
+const gridContainerRef = ref<HTMLElement | null>(null)
+const gridColumns = ref(3)
 
 // Time slots management
 const availableTimeSlots = ref<InterviewSlot[]>([])
@@ -535,6 +598,11 @@ const stats = computed<DashboardStats>(() => ({
 	completedInterviews: applications.value.filter((a) => a.status === 'interview-completed').length
 }))
 
+// Applications with reserved slots but not yet booked
+const pendingWithReservedSlots = computed(() => {
+	return applications.value.filter((a) => a.selectedSlots && a.selectedSlots.length > 0 && !a.confirmedSlot).length
+})
+
 // Filtered applications
 const filteredApplications = computed(() => {
 	let result = [...applications.value]
@@ -561,6 +629,26 @@ const paginatedApplications = computed(() => {
 const totalPages = computed(() => {
 	return Math.ceil(filteredApplications.value.length / pagination.value.itemsPerPage) || 1
 })
+
+// Calculate grid min-height based on columns and items per page
+const CARD_HEIGHT = 290 // Approximate card height in pixels
+const CARD_GAP = 16 // Gap between cards ($spacing-md)
+const MIN_CARD_WIDTH = 420 // minmax(420px, 1fr)
+
+const gridMinHeight = computed(() => {
+	const itemsPerPage = pagination.value.itemsPerPage
+	const columns = gridColumns.value
+	const rows = Math.ceil(itemsPerPage / columns)
+	return rows * CARD_HEIGHT + (rows - 1) * CARD_GAP
+})
+
+// Update grid columns on resize
+const updateGridColumns = () => {
+	if (gridContainerRef.value) {
+		const containerWidth = gridContainerRef.value.offsetWidth
+		gridColumns.value = Math.max(1, Math.floor(containerWidth / MIN_CARD_WIDTH))
+	}
+}
 
 // Upcoming interviews
 const upcomingInterviews = computed(() => {
@@ -687,6 +775,30 @@ const handleItemsPerPageChange = () => {
 
 const handleFilterChange = () => {
 	pagination.value.currentPage = 1
+}
+
+// Scroll to applications and filter
+const scrollToApplications = (filterType: string) => {
+	// Set filter based on clicked stat
+	if (filterType === 'all') {
+		filters.value.status = 'all'
+	} else if (filterType === 'reserved') {
+		// For reserved, we show all and let the user see those with reserved slots
+		filters.value.status = 'all'
+	} else {
+		filters.value.status = filterType as ApplicationStatus | 'all'
+	}
+
+	pagination.value.currentPage = 1
+
+	// Scroll to applications section using OverlayScrollbars
+	const section = applicationsSection.value
+	const osInstance = scrollableRef.value?.osInstance()
+	if (section && osInstance) {
+		const viewport = osInstance.elements().viewport
+		const sectionTop = section.offsetTop - 24 // Small offset for padding
+		viewport.scrollTo({ top: sectionTop, behavior: 'smooth' })
+	}
 }
 
 // Format helpers
@@ -878,25 +990,29 @@ const getTimeSlotsForDate = (dateString: string) => {
 }
 
 const getAvailableSlotsCount = (dateString: string): number => {
-	return availableTimeSlots.value.filter((slot) => slot.date === dateString && !slot.isBooked && !slot.heldBy && !slot.reservedBy).length
+	return availableTimeSlots.value.filter(
+		(slot) => slot.date === dateString && !slot.isBooked && !slot.heldBy && !slot.reservedBy
+	).length
 }
 
 const getReservedSlotsCount = (dateString: string): number => {
 	// Includes both reservedBy and heldBy slots (all pending/reserved states)
-	return availableTimeSlots.value.filter((slot) => slot.date === dateString && (slot.reservedBy || slot.heldBy) && !slot.isBooked).length
+	return availableTimeSlots.value.filter(
+		(slot) => slot.date === dateString && (slot.reservedBy || slot.heldBy) && !slot.isBooked
+	).length
 }
 
 const getBookedSlotsCount = (dateString: string): number => {
 	return availableTimeSlots.value.filter((slot) => slot.date === dateString && slot.isBooked).length
 }
 
-const getSlotStatusClass = (slot: TimeSlot): string => {
+const getSlotStatusClass = (slot: InterviewSlot): string => {
 	if (slot.isBooked) return 'time-slot-item--booked'
 	if (slot.heldBy || slot.reservedBy) return 'time-slot-item--reserved'
 	return 'time-slot-item--available'
 }
 
-const getSlotStatusLabel = (slot: TimeSlot): string => {
+const getSlotStatusLabel = (slot: InterviewSlot): string => {
 	if (slot.isBooked) return 'Booket'
 	if (slot.heldBy || slot.reservedBy) return 'Reserveret'
 	return 'Ledig'
@@ -976,13 +1092,28 @@ const performCleanup = async () => {
 	}
 }
 
+// Resize observer for grid columns
+let resizeObserver: ResizeObserver | null = null
+
 // Lifecycle
 onMounted(() => {
-	// Check if already authenticated (e.g., from session storage)
+	// Setup resize observer for grid columns
+	resizeObserver = new ResizeObserver(() => {
+		updateGridColumns()
+	})
+
+	// Observe after a short delay to ensure element is rendered
+	setTimeout(() => {
+		if (gridContainerRef.value) {
+			resizeObserver?.observe(gridContainerRef.value)
+			updateGridColumns()
+		}
+	}, 100)
 })
 
 onUnmounted(() => {
 	stopAutoRefresh()
+	resizeObserver?.disconnect()
 })
 </script>
 
@@ -1043,7 +1174,7 @@ onUnmounted(() => {
 		flex-shrink: 0;
 		padding: $spacing-lg;
 		padding-bottom: 0;
-		max-width: 1440px;
+		max-width: 1344px;
 		margin: 0 auto;
 		width: 100%;
 		box-sizing: border-box;
@@ -1054,13 +1185,12 @@ onUnmounted(() => {
 	&__scrollable {
 		flex: 1;
 		overflow: hidden;
-		padding: 12px;
+	}
 
-		> div {
-			max-width: 1440px;
-			margin: 0 auto;
-			padding: $spacing-lg;
-		}
+	&__scrollable-content {
+		max-width: 1344px;
+		margin: 0 auto;
+		padding: $spacing-lg;
 	}
 
 	&__header-left {
@@ -1129,8 +1259,18 @@ onUnmounted(() => {
 
 	&__stats-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		grid-template-columns: 1fr;
 		gap: $spacing-lg;
+
+		// 2 columns at medium screens
+		@media (min-width: 600px) {
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		// 4 columns at large screens
+		@media (min-width: 1200px) {
+			grid-template-columns: repeat(4, 1fr);
+		}
 	}
 
 	// Upcoming
@@ -1158,10 +1298,21 @@ onUnmounted(() => {
 		display: flex;
 		align-items: center;
 		gap: $spacing-sm;
+
+		// First dropdown (Vis antal)
+		&:first-child .el-select {
+			width: 130px;
+		}
+
+		// Second dropdown (Filtrer status)
+		&:nth-child(2) .el-select {
+			width: 170px;
+		}
 	}
 
 	&__filter-label {
 		@include body-font;
+		white-space: nowrap;
 	}
 
 	&__filter-info {
@@ -1169,6 +1320,11 @@ onUnmounted(() => {
 		gap: $spacing-lg;
 		@include body-font;
 		color: $color-gray;
+	}
+
+	&__applications-grid-wrapper {
+		transition: min-height 0.3s ease;
+		overflow: hidden;
 	}
 
 	&__applications-grid {
@@ -1197,6 +1353,22 @@ onUnmounted(() => {
 	@include flex-center;
 	gap: $spacing-sm;
 	padding: $spacing-xl;
+
+	&--clickable {
+		cursor: pointer;
+		transition:
+			transform 0.2s ease,
+			box-shadow 0.2s ease;
+
+		&:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+		}
+
+		&:active {
+			transform: translateY(0);
+		}
+	}
 
 	&__value {
 		font-size: 48px;
@@ -1365,6 +1537,20 @@ onUnmounted(() => {
 .application-detail {
 	@include flex-column;
 	gap: $spacing-lg;
+	padding: $spacing-xl;
+
+	&__title {
+		@include title-font;
+		margin: 0;
+	}
+
+	&__actions {
+		display: flex;
+		gap: $spacing-md;
+		margin-top: $spacing-lg;
+		padding-top: $spacing-lg;
+		border-top: 1px solid $color-light-gray;
+	}
 
 	&__section {
 		@include flex-column;
@@ -1753,6 +1939,36 @@ onUnmounted(() => {
 }
 
 // Cleanup Manager
+// Fade transition for grid changes
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
+}
+
+// Slide-fade transition for calendar selection
+.slide-fade-enter-active {
+	transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+	transition: all 0.2s ease-in;
+}
+
+.slide-fade-enter-from {
+	transform: translateY(-10px);
+	opacity: 0;
+}
+
+.slide-fade-leave-to {
+	transform: translateY(-10px);
+	opacity: 0;
+}
+
 .cleanup-manager {
 	@include flex-column;
 	gap: $spacing-xl;
@@ -1789,4 +2005,3 @@ onUnmounted(() => {
 	}
 }
 </style>
-
