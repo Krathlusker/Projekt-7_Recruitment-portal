@@ -8,7 +8,8 @@ $color-white: #ffffff;
 $color-red: #ee3123;
 $color-light-gray: #ebebeb;
 $color-yellow: #f1db53;
-$color-gray: #919191;
+$color-green: #2ec700;
+$color-gray: $color-dark-gray;
 
 // Typography - Font Families
 $font-title: 'Neo Sans W1G', 'Segoe UI', sans-serif;
@@ -33,14 +34,14 @@ $spacing-md: 12px;
 $spacing-lg: 24px;
 $spacing-xl: 48px;
 
-// Border Radius
-$border-radius-sm: 4px;
+// Border Radius (alle deleligt med 6)
+$border-radius-sm: 6px;
 $border-radius-md: 6px;
 $border-radius-lg: 12px;
 
 // Shadows
-$shadow-modal: 0px 0px 15px 5px rgba(0, 0, 0, 0.25);
-$shadow-card: 0px 2px 8px rgba(0, 0, 0, 0.1);
+$shadow-modal: 0px 0px 15px 5px rgba($color-dark-gray, 0.25);
+$shadow-card: 0px 2px 8px rgba($color-dark-gray, 0.1);
 
 // Breakpoints
 $breakpoint-sm: 576px;

@@ -77,15 +77,15 @@ a {
 // Button utilities
 .btn {
 	&--primary {
-		@include button-primary;
+		@include button-red;
 	}
 
 	&--secondary {
-		@include button-secondary;
+		@include button-dark;
 	}
 
 	&--outline {
-		@include button-outline;
+		@include button-yellow;
 	}
 
 	&--full-width {

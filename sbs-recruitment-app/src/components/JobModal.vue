@@ -1,75 +1,70 @@
 <template>
-	<el-dialog
-		v-model="dialogVisible"
-		:show-close="false"
-		:close-on-click-modal="true"
-		:close-on-press-escape="true"
-		class="job-modal"
-		width="341px"
-		align-center
-		@close="handleClose"
-	>
-		<template #header>
-			<button class="job-modal__close-btn" @click="handleClose">
-				<el-icon :size="20"><Close /></el-icon>
-			</button>
-		</template>
+	<Transition name="modal">
+		<div v-if="dialogVisible" class="modal-wrapper">
+			<div class="modal-wrapper__backdrop" @click="handleClose"></div>
+			<div class="modal-wrapper__container">
+				<!-- Close button (rotated X in corner) -->
+				<ModalCloseButton @click="handleClose" />
 
-		<div class="job-modal__content">
-			<!-- Image -->
-			<div class="job-modal__image">
-				<img :src="currentJob.image" :alt="currentJob.title" />
-			</div>
+				<!-- Modal content -->
+				<OverlayScrollbarsComponent
+					class="modal-wrapper__modal"
+					:options="{
+						scrollbars: {
+							autoHide: 'scroll',
+							autoHideDelay: 1000
+						}
+					}"
+					defer
+				>
+					<div class="job-modal__content">
+						<!-- Image -->
+						<div class="job-modal__image">
+							<img :src="currentJob.image" :alt="currentJob.title" />
+						</div>
 
-			<!-- Section -->
-			<div class="job-modal__section">
-				<!-- Title -->
-				<h2 class="job-modal__title">{{ currentJob.title }}</h2>
+						<!-- Section -->
+						<div class="job-modal__section">
+							<!-- Title -->
+							<h2 class="job-modal__title">{{ currentJob.title }}</h2>
 
-				<!-- Quote -->
-				<p class="job-modal__quote">"INSÆT CITAT HER" - FORNAVN</p>
+							<!-- Quote -->
+							<p class="job-modal__quote">"INSÆT CITAT HER" - FORNAVN</p>
 
-				<!-- Description -->
-				<p class="job-modal__description">{{ currentJob.description }}</p>
+							<!-- Description -->
+							<p class="job-modal__description">{{ currentJob.description }}</p>
 
-				<!-- Tasks List -->
-				<ul class="job-modal__tasks">
-					<li v-for="(task, index) in currentJob.tasks" :key="index" class="job-modal__task">
-						<el-icon :size="15" class="job-modal__task-icon"><Check /></el-icon>
-						<span>{{ task }}</span>
-					</li>
-				</ul>
+							<!-- Tasks List -->
+							<ul class="job-modal__tasks">
+								<li v-for="(task, index) in currentJob.tasks" :key="index" class="job-modal__task">
+									<el-icon :size="15" class="job-modal__task-icon"><Check /></el-icon>
+									<span>{{ task }}</span>
+								</li>
+							</ul>
 
-				<!-- Requirements -->
-				<p class="job-modal__requirements">{{ currentJob.requirements }}</p>
+							<!-- Requirements -->
+							<p class="job-modal__requirements">{{ currentJob.requirements }}</p>
+						</div>
+					</div>
+				</OverlayScrollbarsComponent>
+
+				<!-- CTA Button (outside modal, below) -->
+				<div class="modal-wrapper__actions">
+					<button @click="handleApply" class="modal-nav-btn modal-nav-btn--red modal-nav-btn--full">
+						ANSØG NU
+						<el-icon :size="24"><Right /></el-icon>
+					</button>
+				</div>
 			</div>
 		</div>
-
-		<!-- Navigation Buttons -->
-		<div class="job-modal__navigation">
-			<button class="job-modal__nav-btn job-modal__nav-btn--prev" @click="prevJob">
-				<el-icon :size="15"><ArrowLeft /></el-icon>
-			</button>
-			<button class="job-modal__nav-btn job-modal__nav-btn--next" @click="nextJob">
-				<el-icon :size="15"><ArrowRight /></el-icon>
-			</button>
-		</div>
-
-		<!-- CTA Button -->
-		<template #footer>
-			<div class="job-modal__footer">
-				<el-button type="primary" class="job-modal__cta" @click="handleApply">
-					ANSØG NU
-					<el-icon :size="20" class="job-modal__cta-icon"><Right /></el-icon>
-				</el-button>
-			</div>
-		</template>
-	</el-dialog>
+	</Transition>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { Close, Check, ArrowLeft, ArrowRight, Right } from '@element-plus/icons-vue'
+import { Check, Right } from '@element-plus/icons-vue'
+import ModalCloseButton from '@/components/ModalCloseButton.vue'
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 
 interface JobData {
 	id: string
@@ -99,7 +94,7 @@ const jobsData: JobData[] = [
 	{
 		id: 'pakkeriet',
 		title: 'Pakkeriet',
-		image: '/images/pakkeriet.jpg',
+		image: 'https://picsum.photos/seed/pakkeriet/400/300',
 		description:
 			'Med job i vores pakkeri får du muligheden for et ufaglært job, hvor du kan blive så længe det passer dig. Oplæringen er kort og simpel hvorefter du kommer til at stå i vores pakkeri, sammen med en masse andre vikarer, studerende og ufaglærte. Der er fokus på det sociale, med rig mulighed for at danne venskaber mens man arbejder og kvalitetssikre.',
 		tasks: [
@@ -114,7 +109,7 @@ const jobsData: JobData[] = [
 	{
 		id: 'produktion',
 		title: 'Produktion',
-		image: '/images/produktion.jpg',
+		image: 'https://picsum.photos/seed/produktion/400/300',
 		description:
 			'Som produktionsmedarbejder er du ude på gulvet og er med til at producere de bremseklodser vi sender ud til hele verden. Du vil få indgående kendskab til vores specifikke maskiner og processer og blive en del af et socialt team med en masse erfaring at dele ud af. Arbejdet består af følgende opgaver:',
 		tasks: [
@@ -130,7 +125,7 @@ const jobsData: JobData[] = [
 	{
 		id: 'andre',
 		title: 'Andre stillinger',
-		image: '/images/andre.jpg',
+		image: 'https://picsum.photos/seed/andre/400/300',
 		description:
 			'SBS er en stor international virksomhed i vækst, og derfor mangler vi ofte folk i andre afdelinger til vores team. Har du andre erfaringer end maskineri, så send en uopfordret ansøgning og så vil vi vende tilbage til dig i tilfælde af en stilling er ledig. Dette kan for eksempel være:',
 		tasks: ['HR (Human Resource)', 'Salg- og marketing', 'Køkken/kantine', 'Fragt', 'Kundesupport og kontor'],
@@ -156,19 +151,22 @@ watch(
 
 watch(dialogVisible, (newVal) => {
 	emit('update:visible', newVal)
+	// Lås/frigiv body scroll uden at fjerne scrollbar visuelt
+	if (newVal) {
+		const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
+		document.body.style.overflow = 'hidden'
+		document.body.style.paddingRight = `${scrollbarWidth}px`
+		document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`)
+	} else {
+		document.body.style.overflow = ''
+		document.body.style.paddingRight = ''
+		document.documentElement.style.setProperty('--scrollbar-width', '0px')
+	}
 })
 
 const handleClose = () => {
 	dialogVisible.value = false
 	emit('close')
-}
-
-const prevJob = () => {
-	currentJobIndex.value = currentJobIndex.value === 0 ? jobsData.length - 1 : currentJobIndex.value - 1
-}
-
-const nextJob = () => {
-	currentJobIndex.value = currentJobIndex.value === jobsData.length - 1 ? 0 : currentJobIndex.value + 1
 }
 
 const handleApply = () => {
@@ -183,19 +181,17 @@ const handleApply = () => {
 		display: flex;
 		flex-direction: column;
 		gap: $spacing-md;
-
-		@media (max-width: $breakpoint-md) {
-			max-height: calc($modal-max-height-mobile - 200px);
-			overflow-y: auto;
-		}
+		padding-bottom: $spacing-md;
 	}
 
 	&__image {
 		width: 100%;
-		height: 200px;
-		border-radius: $border-radius-lg;
+		height: 300px;
+		min-height: 300px;
+		flex-shrink: 0;
 		overflow: hidden;
 		background-color: $color-light-gray;
+		border-radius: 0 0 $border-radius-lg $border-radius-lg; // Runding på nedre hjørner
 
 		img {
 			width: 100%;
@@ -256,7 +252,7 @@ const handleApply = () => {
 	&__task-icon {
 		color: $color-dark-gray;
 		flex-shrink: 0;
-		margin-top: 2px;
+		margin-top: 6px;
 	}
 
 	&__requirements {
@@ -267,109 +263,11 @@ const handleApply = () => {
 		margin: 0;
 	}
 
-	&__navigation {
-		display: flex;
-		justify-content: space-between;
-		padding: $spacing-md;
-		position: absolute;
-		bottom: 80px;
-		left: 0;
-		right: 0;
-	}
-
-	&__nav-btn {
-		width: 44px;
-		height: 44px;
-		border-radius: 50%;
-		border: 1px solid transparent;
-		background-color: $color-light-gray;
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		box-shadow: $shadow-modal;
-		transition: transform 0.2s ease;
-
-		&:hover {
-			transform: scale(1.1);
-		}
-	}
-
-	&__close-btn {
-		position: absolute;
-		top: 0;
-		right: 0;
-		width: 55px;
-		height: 55px;
-		background-color: $color-light-gray;
-		border: none;
-		border-bottom-left-radius: $border-radius-lg;
-		cursor: pointer;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		box-shadow: $shadow-modal;
-		z-index: 10;
-		transition: background-color 0.2s ease;
-
-		&:hover {
-			background-color: #dedede;
-		}
-	}
-
 	&__footer {
 		width: 100%;
 		padding: 0 $spacing-md $spacing-md;
 	}
-
-	&__cta {
-		width: 100%;
-		height: 50px;
-		background-color: $color-red;
-		border: none;
-		border-radius: $border-radius-sm;
-		font-family: 'Neo Sans W1G', sans-serif;
-		font-weight: 500;
-		font-size: 24px;
-		color: $color-white;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: $spacing-sm;
-		cursor: pointer;
-		box-shadow: $shadow-modal;
-		transition: background-color 0.2s ease;
-
-		&:hover {
-			background-color: #c5281d;
-		}
-	}
-
-	&__cta-icon {
-		margin-left: $spacing-sm;
-	}
 }
 
-// Override Element Plus dialog styles
-:deep(.el-dialog) {
-	border-radius: $border-radius-lg;
-	overflow: hidden;
-	box-shadow: $shadow-modal;
-	padding: 0;
-	max-height: 595px;
-	overflow-y: auto;
-
-	.el-dialog__header {
-		padding: 0;
-		margin: 0;
-	}
-
-	.el-dialog__body {
-		padding: 0;
-	}
-
-	.el-dialog__footer {
-		padding: 0;
-	}
-}
+// Modal wrapper og nav-btn styles er defineret globalt i _global.scss
 </style>

@@ -2,6 +2,8 @@
 
 ## Projektbeskrivelse
 
+### START SYSTEM MED npm run dev:all
+
 Rekrutteringsportal for SBS Friction A/S. Portalen består af:
 
 1. **Landing Page** - Offentlig side hvor ansøgere kan se ledige stillinger og ansøge

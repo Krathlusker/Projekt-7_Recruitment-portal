@@ -28,6 +28,9 @@ export interface InterviewSlot {
 	type: 'fysisk' | 'virtuel'
 	isBooked: boolean
 	bookedBy?: string
+	reservedBy?: string
+	reservedAt?: string
+	heldBy?: string
 }
 
 // DISC Question option

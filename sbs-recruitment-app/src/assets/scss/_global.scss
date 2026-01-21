@@ -2,6 +2,8 @@
 // SBS Recruitment App - Global SCSS (injected via Vite)
 // ==============================================
 
+@use 'sass:color';
+
 // ==================== VARIABLES ====================
 
 // Colors
@@ -10,7 +12,8 @@ $color-white: #ffffff;
 $color-red: #ee3123;
 $color-light-gray: #ebebeb;
 $color-yellow: #f1db53;
-$color-gray: #919191;
+$color-green: #2ec700;
+$color-gray: $color-dark-gray;
 
 // Typography - Font Families
 $font-title: 'Neo Sans W1G', 'Segoe UI', sans-serif;
@@ -19,35 +22,35 @@ $font-body: 'Helvetica Neue LT Pro', 'Helvetica Neue', Helvetica, Arial, sans-se
 // Typography - Font Sizes
 $font-size-title: 36px;
 $font-size-subtitle: 24px;
-$font-size-button: 20px;
+$font-size-button: 18px;
 $font-size-body: 12px;
-$font-size-small: 9px;
+$font-size-small: 12px;
 
 // Typography - Font Weights
 $font-weight-regular: 400;
 $font-weight-medium: 500;
 $font-weight-bold: 700;
 
-// Spacing
-$spacing-xs: 4px;
-$spacing-sm: 6px;
-$spacing-md: 12px;
+// Spacing (alle værdier deleligt med 6)
+$spacing-xs: 6px;
+$spacing-sm: 12px;
+$spacing-md: 18px;
 $spacing-lg: 24px;
 $spacing-xl: 48px;
 
 // Border Radius
-$border-radius-sm: 4px;
+$border-radius-sm: 6px;
 $border-radius-md: 6px;
 $border-radius-lg: 12px;
 
 // Shadows
-$shadow-modal: 0px 0px 15px 5px rgba(0, 0, 0, 0.25);
-$shadow-card: 0px 2px 8px rgba(0, 0, 0, 0.1);
+$shadow-modal: 0px 0px 18px 6px rgba($color-dark-gray, 0.25);
+$shadow-card: 0px 6px 6px rgba($color-dark-gray, 0.1);
 
 // Breakpoints
 $breakpoint-sm: 576px;
 $breakpoint-md: 768px;
-$breakpoint-lg: 992px;
+$breakpoint-lg: 990px;
 $breakpoint-xl: 1200px;
 
 // Z-index layers
@@ -56,7 +59,7 @@ $z-index-floating-button: 900;
 $z-index-header: 100;
 
 // Layout
-$max-content-width: 1024px;
+$max-content-width: 1020px;
 $modal-max-height-mobile: 657px;
 
 // ==================== MIXINS ====================
@@ -123,7 +126,7 @@ $modal-max-height-mobile: 657px;
 
 @mixin button-font {
 	font-family: $font-title;
-	font-weight: $font-weight-medium;
+	font-weight: $font-weight-bold;
 	font-size: $font-size-button;
 	line-height: 1;
 	text-transform: uppercase;
@@ -181,8 +184,40 @@ $modal-max-height-mobile: 657px;
 	box-shadow: $shadow-card;
 }
 
-// Button base mixin
+// Button reset mixin - nulstiller alle knapper før styling
+@mixin button-reset {
+	// Reset all browser defaults
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background: none;
+	border: none;
+	margin: 0;
+	padding: 0;
+	font: inherit;
+	color: inherit;
+	cursor: pointer;
+	outline: none;
+	box-shadow: none;
+	text-decoration: none;
+	// Reset Element Plus variables
+	--el-button-bg-color: transparent;
+	--el-button-text-color: inherit;
+	--el-button-border-color: transparent;
+	--el-button-hover-bg-color: transparent;
+	--el-button-hover-text-color: inherit;
+	--el-button-hover-border-color: transparent;
+	--el-button-active-bg-color: transparent;
+	--el-button-active-text-color: inherit;
+	--el-button-active-border-color: transparent;
+	--el-button-disabled-bg-color: transparent;
+	--el-button-disabled-text-color: inherit;
+	--el-button-disabled-border-color: transparent;
+}
+
+// Button base mixin (includes reset)
 @mixin button-base {
+	@include button-reset;
 	@include button-font;
 	@include flex-center;
 	border: none;
@@ -196,40 +231,350 @@ $modal-max-height-mobile: 657px;
 	}
 }
 
-// Primary button mixin
-@mixin button-primary {
-	@include button-base;
-	background-color: $color-red;
-	color: $color-white;
-	padding: $spacing-md $spacing-lg;
-
-	&:hover:not(:disabled) {
-		background-color: #c9281e; // Darker red
-	}
-}
-
-// Secondary button mixin
-@mixin button-secondary {
+// Button styles (only allowed variants)
+@mixin button-dark {
 	@include button-base;
 	background-color: $color-dark-gray;
 	color: $color-white;
 	padding: $spacing-md $spacing-lg;
 
-	&:hover:not(:disabled) {
-		background-color: #4a4a4a; // Lighter gray
+	&:hover {
+		background-color: $color-light-gray;
+		color: $color-dark-gray;
 	}
 }
 
-// Outline button mixin
-@mixin button-outline {
+@mixin button-yellow {
 	@include button-base;
-	background-color: transparent;
+	background-color: $color-yellow;
 	color: $color-dark-gray;
-	border: 2px solid $color-dark-gray;
 	padding: $spacing-md $spacing-lg;
 
-	&:hover:not(:disabled) {
+	&:hover {
+		filter: brightness(0.9);
+	}
+}
+
+@mixin button-red {
+	@include button-base;
+	background-color: $color-red;
+	color: $color-white;
+	padding: $spacing-md $spacing-lg;
+
+	&:hover {
+		filter: brightness(0.9);
+	}
+}
+
+@mixin button-light {
+	@include button-base;
+	background-color: $color-white;
+	color: $color-dark-gray;
+	padding: $spacing-md $spacing-lg;
+	box-shadow: $shadow-modal;
+
+	&:hover {
+		background-color: $color-light-gray;
+	}
+}
+
+// Global Element Plus button normalization - all become dark by default
+.el-button {
+	@include button-dark;
+}
+
+// Override for specific btn classes - must come after .el-button
+.el-button.btn-light,
+.btn-light {
+	@include button-light;
+}
+
+.el-button.btn-yellow,
+.btn-yellow {
+	@include button-yellow;
+}
+
+.el-button.btn-red,
+.btn-red {
+	@include button-red;
+}
+
+.el-button.btn-dark,
+.btn-dark {
+	@include button-dark;
+}
+
+.el-button--default,
+.el-button--primary,
+.el-button--info {
+	@include button-dark;
+}
+
+.el-button--danger {
+	@include button-red;
+}
+
+.el-button--success,
+.el-button--warning {
+	@include button-yellow;
+}
+
+.el-button.is-plain,
+.el-button.is-text {
+	@include button-dark;
+}
+
+// Global Element Plus focus styling - gul focus ring
+:root {
+	--el-color-primary: #{$color-yellow};
+	--el-color-primary-light-3: #{$color-yellow};
+	--el-color-primary-light-5: #{$color-yellow};
+	--el-color-primary-light-7: #{$color-yellow};
+	--el-color-primary-light-9: #{$color-yellow};
+}
+
+// Input/Select focus
+.el-input.is-focus .el-input__wrapper,
+.el-input__wrapper:focus-within,
+.el-select .el-input.is-focus .el-input__wrapper,
+.el-textarea__inner:focus {
+	box-shadow: inset 0 0 0 1px $color-yellow !important;
+	border-color: $color-yellow !important;
+}
+
+// Button focus - only on keyboard navigation, not click/touch
+.el-button:focus {
+	outline: none !important;
+}
+
+.el-button:focus-visible {
+	outline: 2px solid $color-yellow !important;
+	outline-offset: 2px;
+}
+
+// Switch focus
+.el-switch.is-checked {
+	--el-switch-on-color: #{$color-yellow};
+}
+
+.el-switch:focus .el-switch__core {
+	outline: 2px solid $color-yellow;
+	outline-offset: 2px;
+}
+
+// Prevent layout shift when modal opens and body scroll is disabled
+body.modal-open {
+	overflow: hidden;
+	padding-right: var(--scrollbar-width, 0);
+}
+
+// Global Element Plus dialog (modal) styling
+// Max 950px bred på PC/tablet, altid luft til siderne
+.el-dialog {
+	max-width: 950px;
+	width: calc(100% - #{$spacing-lg * 2}) !important;
+	margin: $spacing-lg auto;
+}
+
+// Tooltip styling - overskriver Element Plus CSS custom properties
+.el-popper.is-light {
+	--el-popper-bg-color-light: #{$color-white};
+	color: $color-dark-gray;
+	margin: 0 6px;
+}
+
+.el-select-dropdown__item.is-selected{
+	color: $color-dark-gray;
+	background-color: $color-yellow;
+}
+
+// ==================== MODAL WRAPPER (genbruges i JobModal og ApplicationModal) ====================
+
+// Modal Wrapper - custom modal container
+// Højde: 660px (eller viewport - 24px padding hvis for lille)
+// Max bredde PC: 950px, Altid 12px padding i siderne
+.modal-wrapper {
+	position: fixed;
+	inset: 0;
+	z-index: $z-index-modal;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: $spacing-md; // 12px padding på alle sider
+
+	&__backdrop {
+		position: absolute;
+		inset: 0;
+		background-color: rgba($color-dark-gray, 0.5);
+	}
+
+	&__container {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: $spacing-sm;
+		max-width: 950px; // Max bredde på PC
+		width: 100%;
+		z-index: 1;
+		height: 660px; // Total højde inklusiv knapper
+		max-height: calc(100vh - #{$spacing-md * 2}); // Viewport minus padding
+	}
+
+	&__modal {
+		background-color: $color-white;
+		border-radius: $border-radius-lg;
+		box-shadow: $shadow-modal;
+		overflow: hidden; // OverlayScrollbars handles overflow
+		flex: 1; // Fyld resten af container (660px - knaphøjde - gap)
+		display: flex;
+		flex-direction: column;
+	}
+
+	&__actions {
+		display: flex;
+		gap: $spacing-sm;
+		width: 100%;
+	}
+}
+
+// Modal Navigation Buttons (outside modal)
+.modal-nav-btn {
+	flex: 1;
+	height: 48px;
+	border: none;
+	border-radius: $border-radius-md;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: $spacing-xs;
+	transition: all 0.2s ease;
+	font-family: $font-title;
+	font-weight: $font-weight-medium;
+	font-size: 24px;
+	text-transform: uppercase;
+	box-shadow: $shadow-modal;
+
+	&:focus,
+	&:focus-visible {
+		outline: none;
+		box-shadow: $shadow-modal;
+	}
+
+	&--dark {
 		background-color: $color-dark-gray;
 		color: $color-white;
+
+		&:hover {
+			background-color: color.adjust($color-dark-gray, $lightness: 10%);
+		}
 	}
+
+	// Close button with rotated X icon (45 degrees)
+	&--close {
+		.el-icon {
+			transform: rotate(45deg);
+		}
+	}
+
+	&--yellow {
+		background-color: $color-yellow;
+		color: $color-dark-gray;
+
+		&:hover {
+			filter: brightness(0.95);
+		}
+
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+	}
+
+	&--red {
+		background-color: $color-red;
+		color: $color-white;
+
+		&:hover {
+			filter: brightness(0.9);
+		}
+	}
+
+	&--full {
+		flex: none;
+		width: 100%;
+	}
+}
+
+// ==================== MODAL ANIMATIONS ====================
+
+// Combined modal animation (fade backdrop + scale container)
+.modal-enter-active,
+.modal-leave-active {
+	transition: opacity 0.3s ease;
+
+	.modal-wrapper__container {
+		transition: all 0.3s ease;
+	}
+}
+
+.modal-enter-from,
+.modal-leave-to {
+	opacity: 0;
+
+	.modal-wrapper__container {
+		opacity: 0;
+		transform: scale(0.9);
+	}
+}
+
+// Slide left animation (forward navigation)
+.slide-left-enter-active,
+.slide-left-leave-active {
+	transition: all 0.3s ease;
+}
+
+.slide-left-enter-from {
+	opacity: 0;
+	transform: translateX(30px);
+}
+
+.slide-left-leave-to {
+	opacity: 0;
+	transform: translateX(-30px);
+}
+
+// Slide right animation (backward navigation)
+.slide-right-enter-active,
+.slide-right-leave-active {
+	transition: all 0.3s ease;
+}
+
+.slide-right-enter-from {
+	opacity: 0;
+	transform: translateX(-30px);
+}
+
+.slide-right-leave-to {
+	opacity: 0;
+	transform: translateX(30px);
+}
+
+// ==================== OVERLAYSCROLLBARS STYLING ====================
+// Custom styling for OverlayScrollbars in modals
+.os-theme-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
+	background: rgba($color-dark-gray, 0.3);
+	border-radius: 4px;
+
+	&:hover {
+		background: rgba($color-dark-gray, 0.5);
+	}
+}
+
+.os-theme-dark > .os-scrollbar-vertical {
+	width: 8px;
+}
+
+.os-theme-dark > .os-scrollbar > .os-scrollbar-track {
+	background: transparent;
 }

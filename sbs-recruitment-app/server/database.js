@@ -16,7 +16,7 @@ let db = null;
 export const initDatabase = async () => {
   const dataDir = path.join(__dirname, 'data');
   const uploadsDir = path.join(__dirname, 'uploads');
-  
+
   // Create directories if they don't exist
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
@@ -59,7 +59,11 @@ export const initDatabase = async () => {
       type TEXT NOT NULL,
       isBooked INTEGER DEFAULT 0,
       bookedBy TEXT,
-      FOREIGN KEY (bookedBy) REFERENCES applications(id) ON DELETE SET NULL
+      reservedBy TEXT,
+      reservedAt TEXT,
+      heldBy TEXT,
+      FOREIGN KEY (bookedBy) REFERENCES applications(id) ON DELETE SET NULL,
+      FOREIGN KEY (heldBy) REFERENCES applications(id) ON DELETE SET NULL
     );
 
     -- Create indexes
@@ -68,6 +72,27 @@ export const initDatabase = async () => {
     CREATE INDEX IF NOT EXISTS idx_slots_date ON interview_slots(date);
     CREATE INDEX IF NOT EXISTS idx_slots_isBooked ON interview_slots(isBooked);
   `);
+
+  // Migration: Add reservedBy and reservedAt columns if they don't exist
+  try {
+    const tableInfo = db.prepare("PRAGMA table_info(interview_slots)").all();
+    const columnNames = tableInfo.map(col => col.name);
+
+    if (!columnNames.includes('reservedBy')) {
+      db.exec('ALTER TABLE interview_slots ADD COLUMN reservedBy TEXT');
+      console.log('Added reservedBy column to interview_slots');
+    }
+    if (!columnNames.includes('reservedAt')) {
+      db.exec('ALTER TABLE interview_slots ADD COLUMN reservedAt TEXT');
+      console.log('Added reservedAt column to interview_slots');
+    }
+    if (!columnNames.includes('heldBy')) {
+      db.exec('ALTER TABLE interview_slots ADD COLUMN heldBy TEXT');
+      console.log('Added heldBy column to interview_slots');
+    }
+  } catch (migrationError) {
+    console.error('Migration error:', migrationError);
+  }
 
   // Seed some initial interview slots if table is empty
   const slotsCount = db.prepare('SELECT COUNT(*) as count FROM interview_slots').get();

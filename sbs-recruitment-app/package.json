@@ -12,8 +12,11 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.2",
     "axios": "^1.6.0",
     "element-plus": "^2.4.4",
+    "overlayscrollbars": "^2.13.0",
+    "overlayscrollbars-vue": "^0.5.9",
     "vue": "^3.4.0",
     "vue-router": "^4.2.5"
   },

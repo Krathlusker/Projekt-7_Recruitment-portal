@@ -5,7 +5,7 @@
 			<div class="hr-dashboard__login-card">
 				<img src="/logo.svg" alt="SBS Friction A/S" class="hr-dashboard__login-logo" />
 				<h1 class="hr-dashboard__login-title">HR Dashboard</h1>
-				<p class="hr-dashboard__login-text">Indtast adgangskode for at fortsaette</p>
+				<p class="hr-dashboard__login-text">Indtast adgangskode for at fortsætte</p>
 
 				<el-form @submit.prevent="handleLogin">
 					<el-form-item>
@@ -17,7 +17,7 @@
 							@keyup.enter="handleLogin"
 						/>
 					</el-form-item>
-					<el-button type="primary" :loading="isLoading" @click="handleLogin" class="hr-dashboard__login-btn">
+					<el-button :loading="isLoading" @click="handleLogin" class="btn-red">
 						Log ind
 					</el-button>
 				</el-form>
@@ -37,23 +37,25 @@
 					<p class="hr-dashboard__subtitle">Sidst opdateret: {{ lastUpdated }}</p>
 				</div>
 				<div class="hr-dashboard__header-right">
-					<el-button @click="loadApplications">
-						<el-icon><Refresh /></el-icon>
-						Opdater
-					</el-button>
-					<el-button @click="scrollToUpcoming"> Kommende samtaler </el-button>
-					<el-button @click="scrollToApplications"> Alle ansgninger </el-button>
-					<el-button type="danger" @click="handleLogout"> Log ud </el-button>
+					<el-button @click="loadApplications" class="btn-dark">Opdater</el-button>
+					<el-button @click="openTimeSlotsModal" class="btn-dark">Tider</el-button>
+					<el-button @click="openCleanupModal" class="btn-yellow">Ryd Op</el-button>
+					<el-button @click="handleLogout" class="btn-red">Log ud</el-button>
 				</div>
 			</header>
 
+			<!-- Scrollable Content -->
+			<OverlayScrollbarsComponent
+				class="hr-dashboard__scrollable"
+				:options="{ scrollbars: { theme: 'os-theme-dark', autoHide: 'scroll', autoHideDelay: 1000 } }"
+			>
 			<!-- Stats Section -->
 			<section class="hr-dashboard__stats">
 				<h2 class="hr-dashboard__section-title">Statistik</h2>
 				<div class="hr-dashboard__stats-grid">
 					<div class="stat-card">
 						<span class="stat-card__value">{{ stats.totalApplications }}</span>
-						<span class="stat-card__label">Ansgninger i alt</span>
+						<span class="stat-card__label">Ansøgninger i alt</span>
 					</div>
 					<div class="stat-card">
 						<span class="stat-card__value">{{ stats.scheduledInterviews }}</span>
@@ -79,8 +81,8 @@
 							<p class="interview-card__detail">Tid: {{ interview.confirmedSlot?.time }}</p>
 						</div>
 						<div class="interview-card__actions">
-							<el-button type="primary" @click="viewApplication(interview)"> Se ansgning </el-button>
-							<el-button type="success" @click="markInterviewCompleted(interview.id)"> Afholdt </el-button>
+							<el-button @click="viewApplication(interview)" class="btn-dark"> Se ansøgning </el-button>
+							<el-button @click="markInterviewCompleted(interview.id)" class="btn-yellow"> Afholdt </el-button>
 						</div>
 					</div>
 
@@ -90,7 +92,7 @@
 
 			<!-- All Applications Section -->
 			<section ref="applicationsSection" class="hr-dashboard__applications">
-				<h2 class="hr-dashboard__section-title">Alle ansgninger</h2>
+				<h2 class="hr-dashboard__section-title">Alle ansøgninger</h2>
 
 				<!-- Filters -->
 				<div class="hr-dashboard__filters">
@@ -125,21 +127,20 @@
 					<div v-for="application in paginatedApplications" :key="application.id" class="application-card">
 						<div class="application-card__header">
 							<span class="application-card__name">{{ application.fullName }}</span>
-							<span class="application-card__days">{{ getDaysRemaining(application.expiresAt) }}d</span>
+							<span class="application-card__age">{{ application.age }}</span>
 						</div>
-
-						<div class="application-card__separator" />
 
 						<div class="application-card__body">
 							<div class="application-card__row">
-								<span>Modtaget:</span>
-								<span>{{ formatDate(application.createdAt) }}</span>
+								<span class="application-card__label">Modtaget:</span>
+								<span class="application-card__value">{{ formatDate(application.createdAt) }}</span>
 							</div>
-							<div class="application-card__row">
-								<span>Status:</span>
+							<div class="application-card__row application-card__row--status">
+								<span class="application-card__label">Status:</span>
 								<el-select
 									v-model="application.status"
 									size="small"
+									class="application-card__status-select"
 									@change="updateApplicationStatus(application.id, application.status)"
 								>
 									<el-option value="pending" label="Afventer" />
@@ -151,32 +152,42 @@
 								</el-select>
 							</div>
 							<div class="application-card__row">
-								<span>Alder:</span>
-								<span>{{ application.age }}</span>
-							</div>
-							<div class="application-card__row">
-								<span>Email:</span>
-								<span>{{ application.email }}</span>
-							</div>
-							<div class="application-card__row">
-								<span>Telefon:</span>
-								<span>{{ application.phone }}</span>
-							</div>
-
-							<div class="application-card__separator" />
-
-							<div class="application-card__row">
-								<span>Samtale aftalt:</span>
-								<span>{{ application.confirmedSlot ? formatDateTime(application.confirmedSlot) : 'Ikke aftalt' }}</span>
-							</div>
-						</div>
-
-						<el-button type="primary" class="application-card__btn" @click="viewApplication(application)">
-							Se fuld ansgning
-						</el-button>
+						<span class="application-card__label">
+							<el-icon><User /></el-icon>
+							Alder:
+						</span>
+						<span class="application-card__value">{{ application.age }}</span>
+					</div>
+					<div class="application-card__row">
+						<span class="application-card__label">
+							<el-icon><Message /></el-icon>
+							Email:
+						</span>
+						<span class="application-card__value">{{ application.email }}</span>
+					</div>
+					<div class="application-card__row">
+						<span class="application-card__label">
+							<el-icon><Phone /></el-icon>
+							Telefon:
+						</span>
+						<span class="application-card__value">{{ application.phone }}</span>
 					</div>
 
-					<div v-if="paginatedApplications.length === 0" class="hr-dashboard__empty">Ingen ansgninger fundet</div>
+					<div class="application-card__row application-card__row--confirmed">
+						<span class="application-card__label">
+							<el-icon><Calendar /></el-icon>
+							Bekræftet samtale tid:
+						</span>
+						<span class="application-card__value">{{ application.confirmedSlot ? formatDateTime(application.confirmedSlot) : 'Ikke aftalt' }}</span>
+					</div>
+
+					<div class="application-card__row application-card__row--button">
+						<el-button @click="viewApplication(application)" class="btn-dark">
+							DETALJER
+						</el-button>
+					</div>
+				</div>
+			</div>
 				</div>
 
 				<!-- Pagination -->
@@ -190,10 +201,11 @@
 					/>
 				</div>
 			</section>
+			</OverlayScrollbarsComponent>
 		</div>
 
 		<!-- Application Detail Dialog -->
-		<el-dialog v-model="showDetailDialog" title="Ansgning detaljer" width="600px">
+		<el-dialog v-model="showDetailDialog" title="Ansøgning detaljer">
 			<div v-if="selectedApplication" class="application-detail">
 				<div class="application-detail__section">
 					<h3>Personlige oplysninger</h3>
@@ -213,7 +225,86 @@
 
 				<div v-if="selectedApplication.cvFileName" class="application-detail__section">
 					<h3>CV</h3>
-					<el-button type="primary" @click="downloadCV(selectedApplication.cvFileName)"> Download CV </el-button>
+					<el-button @click="downloadCV(selectedApplication.cvFileName)" class="btn-dark"> Download CV </el-button>
+				</div>
+
+				<div class="application-detail__section">
+					<h3>Ønskede tidspunkter</h3>
+					<div v-if="selectedApplication.selectedSlots && selectedApplication.selectedSlots.length > 0">
+						<div
+							v-for="(slotId, index) in selectedApplication.selectedSlots"
+							:key="slotId"
+							class="application-detail__slot"
+						>
+							<div class="application-detail__slot-info">
+								<span class="application-detail__slot-priority">{{ index + 1 }}. prioritet</span>
+								<span class="application-detail__slot-date">{{ getSlotInfo(slotId)?.date || 'Dato ikke fundet' }}</span>
+								<span class="application-detail__slot-time">{{ getSlotInfo(slotId)?.time || 'Tid ikke fundet' }}</span>
+								<span class="application-detail__slot-type">
+									{{ getSlotInfo(slotId)?.type === 'fysisk' ? 'Fysisk (45 min)' : 'Virtuel (60 min)' }}
+								</span>
+							</div>
+							<div class="application-detail__slot-actions">
+								<el-button
+									v-if="!selectedApplication.confirmedSlot"
+									@click="confirmInterviewSlot(selectedApplication.id, slotId)"
+									class="btn-yellow"
+								>
+									Bekræft tid
+								</el-button>
+								<span v-else-if="slotId === selectedApplication.confirmedSlot?.id" class="application-detail__confirmed-badge">
+									Bekræftet
+								</span>
+								<el-button
+									v-else
+									@click="changeToSelectedSlot(selectedApplication.id, slotId)"
+									class="btn-dark"
+								>
+									Skift til denne tid
+								</el-button>
+							</div>
+						</div>
+					</div>
+					<p v-else>Ingen tidspunkter valgt</p>
+
+					<!-- Change confirmed time section -->
+					<div v-if="selectedApplication.confirmedSlot" class="application-detail__change-time">
+						<h4>Skift bekræftet tid</h4>
+
+						<!-- Custom date and time pickers -->
+						<div class="application-detail__custom-time">
+							<el-date-picker
+								v-model="customDate"
+								type="date"
+								placeholder="Vælg dato"
+								format="YYYY-MM-DD"
+								value-format="YYYY-MM-DD"
+								style="width: 48%; margin-right: 4%"
+							/>
+							<el-time-select
+								v-model="customTime"
+								placeholder="Vælg tid"
+								start="08:00"
+								step="00:15"
+								end="17:00"
+								style="width: 48%"
+							/>
+						</div>
+						<div class="application-detail__custom-time" style="margin-top: 12px">
+							<el-select v-model="customType" placeholder="Vælg type" style="width: 100%">
+								<el-option label="Fysisk (45 min)" value="fysisk" />
+								<el-option label="Virtuel (60 min)" value="virtuel" />
+							</el-select>
+						</div>
+						<el-button
+							:disabled="!customDate || !customTime || !customType"
+							@click="changeToCustomSlot(selectedApplication.id)"
+							class="btn-dark"
+							style="width: 100%; margin-top: 12px"
+						>
+							Skift til valgt tid
+						</el-button>
+					</div>
 				</div>
 
 				<div class="application-detail__section">
@@ -233,8 +324,115 @@
 			</div>
 
 			<template #footer>
-				<el-button @click="showDetailDialog = false">Luk</el-button>
-				<el-button type="danger" @click="deleteApplication(selectedApplication?.id)"> Slet ansgning </el-button>
+				<el-button @click="showDetailDialog = false" class="btn-dark">Luk</el-button>
+				<el-button @click="deleteApplication(selectedApplication?.id)" class="btn-red"> Slet ansøgning </el-button>
+			</template>
+		</el-dialog>
+
+		<!-- Time Slots Modal -->
+		<el-dialog v-model="showTimeSlotsModal" title="Administrer tilgængelige tider">
+			<div class="time-slots-manager">
+				<p class="time-slots-manager__description">
+					Klik på en dag i kalenderen for at tilføje eller se tilgængelige tider. Ansøgere kan vælge 1. og 2. prioritet.
+				</p>
+
+				<!-- Calendar Overview -->
+				<div class="time-slots-manager__calendar">
+					<el-calendar v-model="calendarDate">
+						<template #date-cell="{ data }">
+							<div
+								class="calendar-day"
+								:class="{
+									'calendar-day--has-slots': hasTimeSlotsOnDate(data.day) && !isDateInPast(data.day),
+									'calendar-day--selected': selectedDate === data.day && !isDateInPast(data.day),
+									'calendar-day--past': isDateInPast(data.day)
+								}"
+								@click="selectDate(data.day)"
+							>
+								<div class="calendar-day__date">{{ data.day.split('-')[2] }}</div>
+								<div v-if="getTimeSlotsForDate(data.day).length > 0" class="calendar-day__slots">
+									<span class="calendar-day__count">{{ getTimeSlotsForDate(data.day).length }} tider</span>
+								</div>
+							</div>
+						</template>
+					</el-calendar>
+				</div>
+
+				<!-- Selected Date Details -->
+				<div v-if="selectedDate" class="time-slots-manager__selected">
+					<div class="time-slots-manager__selected-header">
+						<h3>{{ formatSelectedDate(selectedDate) }}</h3>
+						<el-button @click="selectedDate = null" class="btn-dark">Luk</el-button>
+					</div>
+
+					<!-- Add time slot for selected date -->
+					<div class="time-slots-manager__add">
+						<div class="time-slots-manager__form">
+							<el-select v-model="newTimeSlot.type" placeholder="Vælg type" style="width: 138px">
+								<el-option label="Fysisk (45 min)" value="fysisk" />
+								<el-option label="Virtuel (60 min)" value="virtuel" />
+							</el-select>
+							<el-time-select
+								v-model="newTimeSlot.time"
+								placeholder="Vælg tidspunkt"
+								start="08:00"
+								step="00:30"
+								end="17:00"
+							/>
+							<el-button @click="addTimeSlotForSelectedDate" class="btn-dark">Tilføj tid</el-button>
+						</div>
+					</div>
+
+					<!-- Time slots for selected date -->
+					<div class="time-slots-manager__list">
+						<div v-if="getTimeSlotsForDate(selectedDate).length === 0" class="time-slots-manager__empty">
+							Ingen tider tilgængelige på denne dato
+						</div>
+						<div v-else class="time-slots-manager__items">
+							<div v-for="slot in getTimeSlotsForDate(selectedDate)" :key="slot.id" class="time-slot-item">
+								<span class="time-slot-item__time">{{ slot.time }}</span>
+								<span class="time-slot-item__type">{{ slot.type === 'fysisk' ? 'Fysisk (45 min)' : 'Virtuel (60 min)' }}</span>
+								<el-button @click="removeTimeSlot(slot.id)" class="btn-red">Slet</el-button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<template #footer>
+				<el-button @click="showTimeSlotsModal = false" class="btn-dark">Luk</el-button>
+			</template>
+		</el-dialog>
+
+		<!-- Cleanup Modal -->
+		<el-dialog v-model="showCleanupModal" title="Ryd op i gamle ansøgninger">
+			<div class="cleanup-manager">
+				<p class="cleanup-manager__description">
+					Slet alle ansøgninger som er ældre end det valgte antal måneder fra modtagelsesdato.
+				</p>
+
+				<div class="cleanup-manager__form">
+					<div class="cleanup-manager__field">
+						<label>Slet ansøgninger ældre end:</label>
+						<el-select v-model="cleanupMonths" placeholder="Vælg antal måneder">
+							<el-option :value="1" label="1 måned" />
+							<el-option :value="3" label="3 måneder" />
+							<el-option :value="6" label="6 måneder" />
+							<el-option :value="12" label="12 måneder" />
+						</el-select>
+					</div>
+
+					<div v-if="cleanupMonths" class="cleanup-manager__preview">
+						<p><strong>Antal ansøgninger som vil blive slettet:</strong> {{ oldApplicationsCount }}</p>
+					</div>
+				</div>
+			</div>
+
+			<template #footer>
+				<el-button @click="showCleanupModal = false" class="btn-dark">Annuller</el-button>
+				<el-button :disabled="!cleanupMonths || oldApplicationsCount === 0" @click="performCleanup" class="btn-red">
+					Slet {{ oldApplicationsCount }} ansøgninger
+				</el-button>
 			</template>
 		</el-dialog>
 	</div>
@@ -242,7 +440,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { Refresh } from '@element-plus/icons-vue'
+import { User, Message, Phone, Calendar } from '@element-plus/icons-vue'
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 import api, { setAuthHeader, clearAuthHeader } from '@/config/api'
 import type {
 	Application,
@@ -268,10 +467,25 @@ const refreshInterval = ref<ReturnType<typeof setInterval> | null>(null)
 // UI state
 const showDetailDialog = ref(false)
 const selectedApplication = ref<Application | null>(null)
+const showTimeSlotsModal = ref(false)
+const showCleanupModal = ref(false)
 
-// Refs for scrolling
-const upcomingSection = ref<HTMLElement | null>(null)
-const applicationsSection = ref<HTMLElement | null>(null)
+// Time slots management
+const availableTimeSlots = ref<InterviewSlot[]>([])
+const calendarDate = ref(new Date())
+const selectedDate = ref<string | null>(null)
+const newTimeSlot = ref({
+	date: '',
+	time: '',
+	type: 'fysisk'
+})
+const customSlotSelection = ref<string>('')
+const customDate = ref<string>('')
+const customTime = ref<string>('')
+const customType = ref<string>('fysisk')
+
+// Cleanup management
+const cleanupMonths = ref<number | null>(null)
 
 // Filters and pagination
 const filters = ref<FilterOptions>({
@@ -344,6 +558,7 @@ const handleLogin = async () => {
 	try {
 		setAuthHeader(password.value)
 		await loadApplications()
+		await loadTimeSlots()
 		isAuthenticated.value = true
 		startAutoRefresh()
 	} catch {
@@ -423,16 +638,11 @@ const downloadCV = (filename: string) => {
 // View application details
 const viewApplication = (application: Application) => {
 	selectedApplication.value = { ...application }
+	customSlotSelection.value = ''
+	customDate.value = ''
+	customTime.value = ''
+	customType.value = 'fysisk'
 	showDetailDialog.value = true
-}
-
-// Scroll handlers
-const scrollToUpcoming = () => {
-	upcomingSection.value?.scrollIntoView({ behavior: 'smooth' })
-}
-
-const scrollToApplications = () => {
-	applicationsSection.value?.scrollIntoView({ behavior: 'smooth' })
 }
 
 // Pagination handlers
@@ -480,11 +690,234 @@ const formatJobPosition = (position: JobPosition): string => {
 	return positions[position] || position
 }
 
-const getDaysRemaining = (expiresAt: string): number => {
-	const now = new Date()
-	const expires = new Date(expiresAt)
-	const diff = expires.getTime() - now.getTime()
-	return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)))
+// Time slots functions
+const openTimeSlotsModal = async () => {
+	await loadTimeSlots()
+	selectedDate.value = null
+	showTimeSlotsModal.value = true
+}
+
+const loadTimeSlots = async () => {
+	try {
+		const response = await api.get('/interview-slots')
+		availableTimeSlots.value = response.data
+	} catch (error) {
+		console.error('Failed to load time slots:', error)
+	}
+}
+
+// Get slot info by ID
+const getSlotInfo = (slotId: string): InterviewSlot | undefined => {
+	return availableTimeSlots.value.find((slot) => slot.id === slotId)
+}
+
+// Confirm interview slot
+const confirmInterviewSlot = async (applicationId: string, slotId: string) => {
+	try {
+		// Use the confirm-slot endpoint which handles:
+		// 1. Booking the slot
+		// 2. Releasing other held slots for this application
+		// 3. Updating application status
+		await api.post(`/applications/${applicationId}/confirm-slot`, {
+			slotId
+		})
+
+		// Reload data
+		await loadApplications()
+		await loadTimeSlots()
+
+		// Update selected application if dialog is open
+		if (selectedApplication.value) {
+			const updated = applications.value.find((app) => app.id === applicationId)
+			if (updated) {
+				selectedApplication.value = { ...updated }
+			}
+		}
+
+		// Reset custom slot selection
+		customSlotSelection.value = ''
+	} catch (error) {
+		console.error('Failed to confirm interview slot:', error)
+	}
+}
+
+// Change to one of the selected slots (not currently confirmed)
+const changeToSelectedSlot = async (applicationId: string, slotId: string) => {
+	if (!selectedApplication.value?.confirmedSlot) return
+
+	try {
+		const oldSlotId = selectedApplication.value.confirmedSlot.id
+
+		// Unbook the old slot
+		await api.patch(`/interview-slots/${oldSlotId}/unbook`)
+
+		// Book the new slot
+		await api.patch(`/interview-slots/${slotId}/book`, {
+			applicationId
+		})
+
+		// Update application with new confirmed slot
+		await api.patch(`/applications/${applicationId}`, {
+			confirmedSlot: slotId
+		})
+
+		// Reload data
+		await loadApplications()
+		await loadTimeSlots()
+
+		// Update selected application
+		const updated = applications.value.find((app) => app.id === applicationId)
+		if (updated) {
+			selectedApplication.value = { ...updated }
+		}
+	} catch (error) {
+		console.error('Failed to change to selected slot:', error)
+	}
+}
+
+// Change to custom date/time
+const changeToCustomSlot = async (applicationId: string) => {
+	if (!selectedApplication.value?.confirmedSlot || !customDate.value || !customTime.value || !customType.value) return
+
+	try {
+		const oldSlotId = selectedApplication.value.confirmedSlot.id
+
+		// Create the custom slot
+		const customSlot: InterviewSlot = {
+			id: `custom-${Date.now()}`,
+			date: customDate.value,
+			time: customTime.value,
+			type: customType.value as 'fysisk' | 'virtuel',
+			isBooked: true,
+			bookedBy: applicationId
+		}
+
+		// Unbook the old slot (only if it's not a custom slot)
+		if (!oldSlotId.startsWith('custom-')) {
+			await api.patch(`/interview-slots/${oldSlotId}/unbook`)
+		}
+
+		// Update application with custom confirmed slot
+		await api.patch(`/applications/${applicationId}`, {
+			confirmedSlot: customSlot
+		})
+
+		// Reload data
+		await loadApplications()
+		await loadTimeSlots()
+
+		// Update selected application
+		const updated = applications.value.find((app) => app.id === applicationId)
+		if (updated) {
+			selectedApplication.value = { ...updated }
+		}
+
+		// Reset custom inputs
+		customDate.value = ''
+		customTime.value = ''
+		customType.value = 'fysisk'
+	} catch (error) {
+		console.error('Failed to change to custom slot:', error)
+	}
+}
+
+const selectDate = (dateString: string) => {
+	// Don't allow selecting past dates
+	if (isDateInPast(dateString)) return
+
+	selectedDate.value = dateString
+	newTimeSlot.value.time = ''
+}
+
+const hasTimeSlotsOnDate = (dateString: string): boolean => {
+	return availableTimeSlots.value.some((slot) => slot.date === dateString)
+}
+
+const isDateInPast = (dateString: string): boolean => {
+	const date = new Date(dateString)
+	const today = new Date()
+	today.setHours(0, 0, 0, 0)
+	return date < today
+}
+
+const getTimeSlotsForDate = (dateString: string) => {
+	return availableTimeSlots.value
+		.filter((slot) => slot.date === dateString)
+		.sort((a, b) => a.time.localeCompare(b.time))
+}
+
+const formatSelectedDate = (dateString: string): string => {
+	const date = new Date(dateString)
+	return date.toLocaleDateString('da-DK', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+}
+
+const addTimeSlotForSelectedDate = async () => {
+	if (!selectedDate.value || !newTimeSlot.value.time || !newTimeSlot.value.type) {
+		return
+	}
+
+	try {
+		await api.post('/interview-slots', {
+			date: selectedDate.value,
+			time: newTimeSlot.value.time,
+			type: newTimeSlot.value.type
+		})
+		newTimeSlot.value.time = ''
+		newTimeSlot.value.type = 'fysisk'
+		await loadTimeSlots()
+	} catch (error) {
+		console.error('Failed to add time slot:', error)
+	}
+}
+
+const removeTimeSlot = async (slotId: string) => {
+	try {
+		await api.delete(`/interview-slots/${slotId}`)
+		await loadTimeSlots()
+	} catch (error) {
+		console.error('Failed to remove time slot:', error)
+	}
+}
+
+// Cleanup functions
+const openCleanupModal = () => {
+	cleanupMonths.value = null
+	showCleanupModal.value = true
+}
+
+const oldApplicationsCount = computed(() => {
+	if (!cleanupMonths.value) return 0
+
+	const cutoffDate = new Date()
+	cutoffDate.setMonth(cutoffDate.getMonth() - cleanupMonths.value)
+
+	return applications.value.filter((app) => {
+		const submittedDate = new Date(app.createdAt)
+		return submittedDate < cutoffDate
+	}).length
+})
+
+const performCleanup = async () => {
+	if (!cleanupMonths.value) return
+
+	try {
+		const cutoffDate = new Date()
+		cutoffDate.setMonth(cutoffDate.getMonth() - cleanupMonths.value)
+
+		const toDelete = applications.value.filter((app) => {
+			const submittedDate = new Date(app.createdAt)
+			return submittedDate < cutoffDate
+		})
+
+		for (const app of toDelete) {
+			await api.delete(`/applications/${app.id}`)
+		}
+
+		showCleanupModal.value = false
+		await loadApplications()
+	} catch (error) {
+		console.error('Failed to cleanup applications:', error)
+	}
 }
 
 // Lifecycle
@@ -498,6 +931,8 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:color';
+
 .hr-dashboard {
 	min-height: 100vh;
 	background-color: $color-light-gray;
@@ -515,7 +950,7 @@ onUnmounted(() => {
 		@include flex-center;
 		gap: $spacing-lg;
 		width: 100%;
-		max-width: 400px;
+		max-width: 402px;
 		padding: $spacing-xl;
 	}
 
@@ -533,11 +968,6 @@ onUnmounted(() => {
 		text-align: center;
 	}
 
-	&__login-btn {
-		@include button-primary;
-		width: 100%;
-	}
-
 	&__login-error {
 		@include body-font;
 		color: $color-red;
@@ -545,17 +975,36 @@ onUnmounted(() => {
 
 	// Content
 	&__content {
-		max-width: 1440px;
-		margin: 0 auto;
-		padding: $spacing-lg;
+		display: flex;
+		flex-direction: column;
+		height: 100vh;
+		background-color: $color-light-gray;
 	}
 
 	// Header
 	&__header {
 		@include flex-between;
-		margin-bottom: $spacing-xl;
+		flex-shrink: 0;
+		padding: $spacing-lg;
+		padding-bottom: 0;
+		max-width: 1440px;
+		margin: 0 auto;
+		width: 100%;
+		box-sizing: border-box;
 		flex-wrap: wrap;
 		gap: $spacing-md;
+	}
+
+	&__scrollable {
+		flex: 1;
+		overflow: hidden;
+		padding: 12px;
+
+		> div {
+			max-width: 1440px;
+			margin: 0 auto;
+			padding: $spacing-lg;
+		}
 	}
 
 	&__header-left {
@@ -575,6 +1024,40 @@ onUnmounted(() => {
 		display: flex;
 		gap: $spacing-sm;
 		flex-wrap: wrap;
+	}
+
+	&__header-btn {
+		height: 42px;
+		padding: 12px 6px;
+		border-radius: $border-radius-md;
+		border: none;
+		text-transform: uppercase;
+		font-family: $font-title;
+		font-weight: $font-weight-bold;
+		font-size: 24px;
+		line-height: 1;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	&__header-btn--dark {
+		@include button-dark;
+		padding: 12px 6px;
+	}
+
+	&__header-btn--border {
+		border: 1px solid $color-dark-gray;
+	}
+
+	&__header-btn--yellow {
+		@include button-yellow;
+		padding: 12px 6px;
+	}
+
+	&__header-btn--red {
+		@include button-red;
+		padding: 12px 6px;
 	}
 
 	// Section title
@@ -611,7 +1094,6 @@ onUnmounted(() => {
 
 	&__filters {
 		@include flex-between;
-		flex-wrap: wrap;
 		gap: $spacing-md;
 		margin-bottom: $spacing-lg;
 	}
@@ -669,6 +1151,13 @@ onUnmounted(() => {
 	&__label {
 		@include body-font;
 		color: $color-gray;
+		display: flex;
+		align-items: center;
+		gap: $spacing-xs;
+
+		.el-icon {
+			font-size: 18px;
+		}
 	}
 }
 
@@ -725,10 +1214,15 @@ onUnmounted(() => {
 .application-card {
 	@include card;
 	@include flex-column;
-	gap: $spacing-sm;
+	gap: 0;
+	padding: 0;
+	overflow: hidden;
 
 	&__header {
 		@include flex-between;
+		padding: $spacing-md;
+		background-color: $color-white;
+		border-bottom: 1px solid $color-light-gray;
 	}
 
 	&__name {
@@ -736,31 +1230,78 @@ onUnmounted(() => {
 		font-size: 18px;
 	}
 
-	&__days {
+	&__age {
 		@include subtitle-font;
 		font-size: 18px;
 		color: $color-gray;
 	}
 
-	&__separator {
-		height: 1px;
-		background-color: $color-light-gray;
-		margin: $spacing-xs 0;
-	}
-
 	&__body {
 		@include flex-column;
-		gap: $spacing-xs;
+		gap: 8px;
+		padding: $spacing-md;
 	}
 
 	&__row {
-		@include flex-between;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
 		@include body-font;
+		gap: $spacing-md;
+		min-height: 28px;
+
+		&--status {
+			align-items: center;
+		}
+
+		&--confirmed {
+			padding-top: $spacing-sm;
+			border-top: 1px solid $color-light-gray;
+			margin-top: $spacing-xs;
+		}
+
+		&--button {
+			margin-top: $spacing-sm;
+			justify-content: flex-start;
+		}
 	}
 
-	&__btn {
-		@include button-primary;
-		margin-top: $spacing-sm;
+	&__label {
+		flex-shrink: 0;
+		font-weight: $font-weight-regular;
+		color: $color-dark-gray;
+		min-width: 80px;
+	}
+
+	&__value {
+		flex: 1;
+		text-align: right;
+		font-weight: $font-weight-regular;
+		color: $color-dark-gray;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&__status-select {
+		flex: 1;
+		max-width: 60%;
+
+		:deep(.el-input__wrapper) {
+			padding: 2px 8px;
+			min-height: 28px;
+			font-size: 12px;
+		}
+
+		:deep(.el-input__inner) {
+			height: 24px;
+			font-size: 12px;
+		}
+
+		:deep(.el-input__suffix) {
+			display: flex;
+			align-items: center;
+		}
 	}
 }
 
@@ -783,5 +1324,326 @@ onUnmounted(() => {
 			@include body-font;
 		}
 	}
+
+	&__slot {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: $spacing-md;
+		background-color: $color-light-gray;
+		border-radius: $border-radius-md;
+		border: 1px solid $color-dark-gray;
+	}
+
+	&__slot-actions {
+		display: flex;
+		gap: $spacing-sm;
+		align-items: center;
+	}
+
+	&__slot-info {
+		display: flex;
+		gap: $spacing-md;
+		align-items: center;
+		flex-wrap: wrap;
+	}
+
+	&__slot-priority {
+		@include body-bold-font;
+		min-width: 80px;
+	}
+
+	&__slot-date {
+		@include body-font;
+		min-width: 100px;
+	}
+
+	&__slot-time {
+		@include body-font;
+		font-weight: $font-weight-medium;
+		min-width: 60px;
+	}
+
+	&__slot-type {
+		@include body-font;
+		font-size: 11px;
+		padding: 2px 8px;
+		background-color: $color-white;
+		border-radius: $border-radius-sm;
+	}
+
+	&__change-time {
+		margin-top: $spacing-lg;
+		padding: $spacing-md;
+		background-color: $color-yellow;
+		border-radius: $border-radius-md;
+		border: 1px dashed $color-yellow;
+
+		h4 {
+			@include body-bold-font;
+			margin-bottom: $spacing-md;
+		}
+	}
+
+	&__custom-time {
+		display: flex;
+		gap: $spacing-sm;
+		align-items: center;
+	}
+
+	&__confirmed-badge {
+		@include body-bold-font;
+		font-size: 11px;
+		padding: 4px 12px;
+		background-color: $color-green;
+		color: $color-white;
+		border-radius: $border-radius-sm;
+		white-space: nowrap;
+	}
+}
+
+// Time Slots Manager
+.time-slots-manager {
+	@include flex-column;
+	gap: $spacing-xl;
+
+	&__description {
+		@include body-font;
+		color: $color-dark-gray;
+	}
+
+	&__calendar {
+		width: 100%;
+		border: 1px solid $color-light-gray;
+		border-radius: $border-radius-md;
+		overflow: hidden;
+
+		// Remove Element Plus default padding from calendar cells
+		:deep(.el-calendar-table) {
+			td {
+				padding: 0;
+				border: 1px solid $color-light-gray;
+			}
+
+			// Override Element Plus is-selected styling
+			td.is-selected,
+			td.is-today {
+				background-color: transparent !important;
+			}
+
+			.el-calendar-day {
+				padding: 0;
+
+				&:hover {
+					background-color: transparent !important;
+				}
+			}
+		}
+	}
+
+	&__selected {
+		@include flex-column;
+		gap: $spacing-md;
+		padding: $spacing-lg;
+		background-color: $color-light-gray;
+		border-radius: $border-radius-md;
+	}
+
+	&__selected-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+		h3 {
+			@include subtitle-font;
+			font-size: 18px;
+			margin: 0;
+		}
+	}
+
+	&__add {
+		@include flex-column;
+		gap: $spacing-md;
+
+		h3 {
+			@include subtitle-font;
+			font-size: 18px;
+		}
+	}
+
+	&__form {
+		display: flex;
+		gap: $spacing-md;
+		flex-wrap: wrap;
+		align-items: center;
+	}
+
+	&__list {
+		@include flex-column;
+		gap: $spacing-md;
+
+		h3 {
+			@include subtitle-font;
+			font-size: 18px;
+		}
+	}
+
+	&__empty {
+		@include body-font;
+		color: $color-dark-gray;
+		padding: $spacing-lg;
+		text-align: center;
+		background-color: $color-white;
+		border-radius: $border-radius-md;
+		border: 1px dashed $color-light-gray;
+	}
+
+	&__items {
+		@include flex-column;
+		gap: $spacing-sm;
+	}
+}
+
+.calendar-day {
+	min-height: 80px;
+	padding: $spacing-sm;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	@include flex-column;
+	align-items: flex-start;
+	justify-content: flex-start;
+	gap: $spacing-xs;
+	width: 100%;
+	height: 100%;
+
+	&:hover {
+		background-color: #e8e8e8;
+	}
+
+	&--has-slots {
+		background-color: $color-dark-gray;
+		color: $color-white;
+
+		&:hover {
+			background-color: color.adjust($color-dark-gray, $lightness: 10%);
+		}
+
+		.calendar-day__date {
+			color: $color-white;
+		}
+
+		.calendar-day__count {
+			color: $color-dark-gray;
+			background-color: $color-white;
+		}
+	}
+
+	&--past {
+		opacity: 0.4;
+		pointer-events: none;
+		cursor: default;
+	}
+
+	&--selected {
+		background-color: $color-yellow !important;
+		color: $color-dark-gray !important;
+
+		.calendar-day__date {
+			color: $color-dark-gray;
+		}
+
+		.calendar-day__count {
+			color: $color-yellow;
+			background-color: $color-dark-gray;
+		}
+	}
+
+	&__date {
+		@include body-font;
+		font-weight: $font-weight-medium;
+		font-size: 14px;
+	}
+
+	&__slots {
+		width: 100%;
+	}
+
+	&__count {
+		@include body-font;
+		font-size: 12px;
+		color: $color-red;
+		background-color: $color-light-gray;
+		padding: 2px 6px;
+		border-radius: $border-radius-sm;
+		display: inline-block;
+	}
+}
+
+.time-slot-item {
+	display: flex;
+	align-items: center;
+	gap: $spacing-md;
+	padding: $spacing-md;
+	background-color: $color-white;
+	border-radius: $border-radius-md;
+	border: 1px solid $color-light-gray;
+
+	&__date {
+		flex: 1;
+		@include body-font;
+		font-weight: $font-weight-medium;
+	}
+
+	&__time {
+		@include body-font;
+		color: $color-dark-gray;
+	}
+
+	&__type {
+		@include body-font;
+		font-size: 12px;
+		color: $color-dark-gray;
+		padding: 2px 8px;
+		background-color: $color-light-gray;
+		border-radius: $border-radius-sm;
+	}
+}
+
+// Cleanup Manager
+.cleanup-manager {
+	@include flex-column;
+	gap: $spacing-xl;
+
+	&__description {
+		@include body-font;
+		color: $color-dark-gray;
+	}
+
+	&__form {
+		@include flex-column;
+		gap: $spacing-md;
+	}
+
+	&__field {
+		@include flex-column;
+		gap: $spacing-sm;
+
+		label {
+			@include body-font;
+			font-weight: $font-weight-medium;
+		}
+	}
+
+	&__preview {
+		padding: $spacing-md;
+		background-color: $color-light-gray;
+		border-radius: $border-radius-md;
+
+		p {
+			@include body-font;
+			margin: 0;
+		}
+	}
 }
 </style>
+

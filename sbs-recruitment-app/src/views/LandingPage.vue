@@ -1,15 +1,27 @@
 <template>
 	<div class="landing-page">
 		<!-- Header -->
-		<header class="landing-page__header">
+		<header class="landing-page__header" :class="{ 'landing-page__header--scrolled': isScrolled }">
 			<div class="landing-page__header-container">
 				<img src="/logo.svg" alt="SBS Friction A/S" class="landing-page__logo" />
 				<h1 class="landing-page__header-title">JOB PORTAL</h1>
 			</div>
 		</header>
 
-		<!-- Hero Section -->
-		<section class="landing-page__hero">
+		<OverlayScrollbarsComponent
+			class="landing-page__scrollable"
+			:options="{
+				scrollbars: {
+					theme: 'os-theme-dark',
+					autoHide: 'scroll',
+					autoHideDelay: 1000
+				}
+			}"
+			defer
+			@osScroll="handleScroll"
+		>
+			<!-- Hero Section -->
+			<section class="landing-page__hero">
 			<div class="landing-page__hero-content">
 				<div class="landing-page__hero-video">
 					<div class="landing-page__hero-video-placeholder">
@@ -59,7 +71,7 @@
 						<div class="job-card__content">
 							<h3 class="job-card__title">{{ job.title }}</h3>
 						</div>
-						<button class="job-card__button">Læs mere</button>
+					<el-button class="btn-light job-card__button">Læs mere</el-button>
 					</div>
 				</div>
 			</div>
@@ -73,7 +85,7 @@
 					Hos SBS er der en række medarbejder fordele som alle vores ansatte nyder godt af!
 				</p>
 				<div class="landing-page__benefits-grid">
-					<div v-for="benefit in benefits" :key="benefit.id" class="benefit-card">
+					<div v-for="benefit in benefits.slice(0, 6)" :key="benefit.id" class="benefit-card">
 						<div class="benefit-card__icon">
 							<el-icon :size="48">
 								<component :is="benefit.icon" />
@@ -81,6 +93,17 @@
 						</div>
 						<h3 class="benefit-card__title">{{ benefit.title }}</h3>
 						<p class="benefit-card__text">{{ benefit.text }}</p>
+					</div>
+					<div class="landing-page__benefits-last-row">
+						<div v-for="benefit in benefits.slice(6)" :key="benefit.id" class="benefit-card">
+							<div class="benefit-card__icon">
+								<el-icon :size="48">
+									<component :is="benefit.icon" />
+								</el-icon>
+							</div>
+							<h3 class="benefit-card__title">{{ benefit.title }}</h3>
+							<p class="benefit-card__text">{{ benefit.text }}</p>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -168,6 +191,7 @@
 				</div>
 			</div>
 		</footer>
+		</OverlayScrollbarsComponent>
 
 		<!-- Floating Apply Button -->
 		<FloatingApplyButton @click="openApplicationModal()" />
@@ -190,7 +214,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef } from 'vue'
+import { ref, shallowRef, onMounted, onUnmounted } from 'vue'
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 import {
 	VideoPlay,
 	Link,
@@ -214,6 +239,61 @@ import ApplicationModal from '@/components/ApplicationModal.vue'
 import JobModal from '@/components/JobModal.vue'
 import type { JobPosition } from '@/types'
 
+// Scroll state
+const isScrolled = ref(false)
+let lastScrollY = 0
+let isAutoScrolling = false
+let scrollTimeout: number | null = null
+
+const handleScroll = (instance: any) => {
+	const viewport = instance.elements().viewport
+	const scrollY = viewport?.scrollTop || 0
+	const scrollingUp = scrollY < lastScrollY
+
+	// Clear eksisterende timeout
+	if (scrollTimeout) {
+		clearTimeout(scrollTimeout)
+		scrollTimeout = null
+	}
+
+	if (scrollingUp && scrollY > 0 && scrollY <= 50) {
+		// Vent 150ms efter sidste scroll før auto-scroll starter
+		scrollTimeout = window.setTimeout(() => {
+			const currentScrollY = viewport?.scrollTop || 0
+			if (currentScrollY > 0 && currentScrollY <= 50 && viewport) {
+				isAutoScrolling = true
+				viewport.scrollTo({ top: 0, behavior: 'smooth' })
+				setTimeout(() => {
+					isAutoScrolling = false
+				}, 300)
+			}
+		}, 150)
+	} else {
+		isScrolled.value = scrollY > 50
+	}
+
+	lastScrollY = scrollY
+}
+
+const handleWheel = (e: WheelEvent) => {
+	// Blokér scroll op mens vi auto-scroller, men tillad scroll ned
+	if (isAutoScrolling && e.deltaY < 0) {
+		e.preventDefault()
+	}
+}
+
+onMounted(() => {
+	// Window scroll listeners not needed when using OverlayScrollbars
+	window.addEventListener('wheel', handleWheel, { passive: false })
+})
+
+onUnmounted(() => {
+	window.removeEventListener('wheel', handleWheel)
+	if (scrollTimeout) {
+		clearTimeout(scrollTimeout)
+	}
+})
+
 // Modal states
 const showJobModal = ref(false)
 const showApplicationModal = ref(false)
@@ -225,17 +305,17 @@ const jobs = ref([
 	{
 		id: 'pakkeriet',
 		title: 'Pakkeriet',
-		image: '/images/job-pakkeriet.jpg'
+		image: 'https://picsum.photos/seed/pakkeriet/400/300'
 	},
 	{
 		id: 'produktion',
 		title: 'Produktion',
-		image: '/images/job-produktion.jpg'
+		image: 'https://picsum.photos/seed/produktion/400/300'
 	},
 	{
 		id: 'andre',
 		title: 'Andre stillinger',
-		image: '/images/job-andre.jpg'
+		image: 'https://picsum.photos/seed/andre/400/300'
 	}
 ])
 
@@ -323,15 +403,34 @@ const closeApplicationModal = () => {
 <style lang="scss" scoped>
 .landing-page {
 	min-height: 100vh;
+	height: 100vh;
 	background-color: $color-white;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+
+	&__scrollable {
+		flex: 1;
+		overflow: hidden;
+	}
 
 	// Header
 	&__header {
 		background-color: $color-white;
 		border-bottom: 1px solid $color-light-gray;
-		position: sticky;
-		top: 0;
 		z-index: $z-index-header;
+		transition: all 0.3s ease-in-out;
+		flex-shrink: 0;
+
+		&--scrolled {
+			.landing-page__logo {
+				height: 18px;
+			}
+
+			.landing-page__header-title {
+				font-size: 18px;
+			}
+		}
 	}
 
 	&__header-container {
@@ -342,8 +441,9 @@ const closeApplicationModal = () => {
 	}
 
 	&__logo {
-		height: 40px;
+		height: 42px;
 		width: auto;
+		transition: height 0.3s ease-in-out;
 	}
 
 	&__header-title {
@@ -353,6 +453,7 @@ const closeApplicationModal = () => {
 		color: $color-dark-gray;
 		margin: 0;
 		text-transform: uppercase;
+		transition: font-size 0.3s ease-in-out;
 	}
 
 	// Hero
@@ -454,8 +555,37 @@ const closeApplicationModal = () => {
 
 	&__benefits-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		grid-template-columns: repeat(3, 1fr);
 		gap: $spacing-xl;
+
+		@include tablet {
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		@include mobile {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	&__benefits-last-row {
+		grid-column: 1 / -1;
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: $spacing-xl;
+		max-width: 66.666%;
+		margin: 0 auto;
+
+		@include tablet {
+			grid-column: 1 / -1;
+			max-width: 100%;
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		@include mobile {
+			grid-column: auto;
+			max-width: 100%;
+			grid-template-columns: 1fr;
+		}
 	}
 
 	// Footer
@@ -514,7 +644,7 @@ const closeApplicationModal = () => {
 	&__footer-link {
 		font-family: 'Helvetica Neue LT Pro', sans-serif;
 		font-weight: 700;
-		font-size: 16px;
+		font-size: 18px;
 		color: $color-white;
 		text-decoration: none;
 		border-bottom: 1px solid $color-white;
@@ -541,7 +671,7 @@ const closeApplicationModal = () => {
 		span {
 			font-family: 'Helvetica Neue LT Pro', sans-serif;
 			font-weight: 700;
-			font-size: 16px;
+			font-size: 18px;
 			border-bottom: 1px solid $color-white;
 		}
 
@@ -580,8 +710,8 @@ const closeApplicationModal = () => {
 	}
 
 	&__legal-separator {
-		width: 3px;
-		height: 3px;
+		width: 6px;
+		height: 6px;
 		background-color: $color-white;
 		border-radius: 50%;
 	}
@@ -596,10 +726,10 @@ const closeApplicationModal = () => {
 		box-shadow 0.2s ease;
 	border-radius: $border-radius-lg;
 	overflow: hidden;
-	height: 280px;
+	height: 282px;
 
 	&:hover {
-		transform: translateY(-4px);
+		transform: translateY(-6px);
 		box-shadow: $shadow-modal;
 	}
 
@@ -620,7 +750,7 @@ const closeApplicationModal = () => {
 
 	&__content {
 		position: absolute;
-		bottom: 70px;
+		bottom: 72px;
 		left: 12px;
 	}
 
@@ -630,37 +760,24 @@ const closeApplicationModal = () => {
 		font-size: 24px;
 		color: $color-white;
 		margin: 0;
-		text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+		text-shadow: 0 2px 4px rgba($color-dark-gray, 0.5);
 	}
 
 	&__description {
 		@include body-font;
 	}
 
+	// Job card button - position and size based on Figma
 	&__button {
 		position: absolute;
 		left: 12px;
 		bottom: 12px;
-		display: flex;
 		width: 97px;
 		height: 44px;
-		padding: 6px;
-		justify-content: center;
-		align-items: center;
-		border-radius: 6px;
-		background-color: $color-white;
-		box-shadow: $shadow-modal;
-		border: none;
-		cursor: pointer;
-		font-family: $font-title;
+		padding: $spacing-sm;
+		font-size: 16px;
 		font-weight: $font-weight-medium;
-		font-size: 14px;
-		text-transform: uppercase;
-		color: $color-dark-gray;
-
-		&:hover {
-			background-color: $color-light-gray;
-		}
+		text-transform: none;
 	}
 }
 
