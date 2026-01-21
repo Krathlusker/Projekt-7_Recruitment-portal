@@ -1,5 +1,2 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-
-# Exclude EXAMPLE APP from GitHub language statistics
-EXAMPLE\ APP/** linguist-vendored
