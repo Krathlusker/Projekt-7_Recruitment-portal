@@ -49,3 +49,4 @@ EXAMPLE APP/sbs-recruitment/vitest.config.ts
 EXAMPLE APP/sbs-recruitment/.vscode/extensions.json
 EXAMPLE APP/sbs-recruitment/server/uploads/.gitkeep
 nul
+sbs-recruitment-app/DEPENDENCIES.md
