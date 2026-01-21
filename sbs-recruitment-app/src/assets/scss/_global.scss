@@ -418,16 +418,28 @@ body.modal-open {
 		z-index: 1;
 		height: 660px; // Total højde inklusiv knapper
 		max-height: calc(100vh - #{$spacing-md * 2}); // Viewport minus padding
+
+		&--fullscreen {
+			max-width: calc(100vw - 48px);
+			height: calc(100vh - 48px);
+			max-height: calc(100vh - 48px);
+		}
 	}
 
 	&__modal {
 		background-color: $color-white;
 		border-radius: $border-radius-lg;
 		box-shadow: $shadow-modal;
-		overflow: hidden; // OverlayScrollbars handles overflow
+		overflow: hidden;
 		flex: 1; // Fyld resten af container (660px - knaphøjde - gap)
 		display: flex;
 		flex-direction: column;
+		position: relative; // For close button positioning
+	}
+
+	&__scroll-area {
+		flex: 1;
+		overflow: hidden; // OverlayScrollbars handles overflow
 	}
 
 	&__actions {
@@ -577,4 +589,26 @@ body.modal-open {
 
 .os-theme-dark > .os-scrollbar > .os-scrollbar-track {
 	background: transparent;
+}
+
+// ==================== DIALOG SCALE ANIMATION ====================
+
+// Custom scale transition for el-dialog (matches frontend modal)
+.dialog-scale-enter-active,
+.dialog-scale-leave-active {
+	transition: opacity 0.3s ease;
+
+	.el-dialog {
+		transition: all 0.3s ease;
+	}
+}
+
+.dialog-scale-enter-from,
+.dialog-scale-leave-to {
+	opacity: 0;
+
+	.el-dialog {
+		opacity: 0;
+		transform: scale(0.9);
+	}
 }

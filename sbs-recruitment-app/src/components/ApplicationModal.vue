@@ -3,12 +3,14 @@
 		<div v-if="dialogVisible" class="modal-wrapper">
 			<div class="modal-wrapper__backdrop"></div>
 			<div class="modal-wrapper__container">
-				<!-- Close button (rotated X in corner) -->
-				<ModalCloseButton @click="handleClose" />
+				<!-- Modal white box containing scrollable content + stepper -->
+				<div class="modal-wrapper__modal">
+					<!-- Close button (rotated X in corner) -->
+					<ModalCloseButton @click="handleClose" />
 
-					<!-- Modal content -->
+					<!-- Scrollable content area -->
 					<OverlayScrollbarsComponent
-						class="modal-wrapper__modal"
+						class="modal-wrapper__scroll-area"
 						:options="{
 							scrollbars: {
 								autoHide: 'scroll',
@@ -57,7 +59,7 @@
 							<el-select
 								v-model="formData.age"
 								placeholder="Vælg her..."
-								style="width: 100%"
+								class="application-modal__select"
 								clearable
 							@focus="isAgeFocused = true"
 							@visible-change="handleAgeVisibleChange"
@@ -68,7 +70,7 @@
 				</el-form-item>
 
 				<el-form-item label="Hvilket job ønsker du at søge?" prop="jobPosition">
-					<el-select v-model="formData.jobPosition" placeholder="Select option" style="width: 100%">
+					<el-select v-model="formData.jobPosition" placeholder="Select option" class="application-modal__select">
 						<el-option label="Pakkeriet" value="pakkeriet" />
 						<el-option label="Produktion" value="produktion" />
 						<el-option label="Andre stillinger" value="andre" />
@@ -92,7 +94,7 @@
 								@change="handleFileChange"
 							>
 								<span class="application-modal__cv-dropzone-text">
-									{{ formData.cvFile ? formData.cvFile.name : 'Træk fil hertil eller klik for at uploade' }}
+									{{ formData.cvFile ? formData.cvFile.name : 'Træk eller klik for at uploade' }}
 								</span>
 							</el-upload>
 						</div>
@@ -235,90 +237,91 @@
 				<p class="application-modal__description">Vi glæder os til at møde dig!</p>
 			</div>
 
-					</div>
-						</Transition>
-					</OverlayScrollbarsComponent>
-
-						<!-- Stepper (outside Transition for fixed position) -->
-						<div class="application-modal__footer">
-							<div class="application-modal__stepper">
-								<div
-									v-for="step in steps"
-									:key="step.id"
-									class="application-modal__stepper-step"
-									:class="{
-										'application-modal__stepper-step--active': currentStep === step.id && currentStep < 5,
-										'application-modal__stepper-step--completed': highestStepReached > step.id || currentStep >= 5
-									}"
-									@click="goToStep(step.id)"
-								>
-									<div class="application-modal__stepper-icon-wrapper">
-										<div class="application-modal__stepper-icon">
-											<el-icon v-if="highestStepReached > step.id || currentStep >= 5">
-												<Check />
-											</el-icon>
-											<el-icon v-else>
-												<component :is="step.icon" />
-											</el-icon>
-										</div>
-									</div>
-									<span class="application-modal__stepper-label">{{ step.label }}</span>
-								</div>
-								<div
-									v-for="i in 3"
-									:key="'connector-' + i"
-									class="application-modal__stepper-connector"
-									:class="{ 'application-modal__stepper-connector--completed': highestStepReached > i || currentStep >= 5 }"
-								/>
-							</div>
 						</div>
-					</div>
+					</Transition>
+				</OverlayScrollbarsComponent>
 
-					<!-- Navigation Buttons (outside modal, below) -->
-					<div v-if="currentStep < 4" class="modal-wrapper__actions">
-						<!-- During quiz (step 2+): show back arrow, otherwise show X (rotated) -->
-						<button v-if="currentStep > 1" @click="previousStep" class="modal-nav-btn modal-nav-btn--dark">
-							<el-icon :size="24">
-								<ArrowLeft />
-							</el-icon>
-						</button>
-						<button v-else @click="handleClose" class="modal-nav-btn modal-nav-btn--dark modal-nav-btn--close">
-							<el-icon :size="24">
-								<Plus />
-							</el-icon>
-						</button>
-						<button @click="nextStep" :disabled="!canProceed" class="modal-nav-btn modal-nav-btn--yellow">
-							<el-icon :size="24">
-								<ArrowRight />
-							</el-icon>
-						</button>
+				<!-- Stepper (inside modal box, at bottom) -->
+				<div class="application-modal__footer">
+					<div class="application-modal__stepper">
+						<div
+							v-for="step in steps"
+							:key="step.id"
+							class="application-modal__stepper-step"
+							:class="{
+								'application-modal__stepper-step--active': currentStep === step.id && currentStep < 5,
+								'application-modal__stepper-step--completed': highestStepReached > step.id || currentStep >= 5
+							}"
+							@click="goToStep(step.id)"
+						>
+							<div class="application-modal__stepper-icon-wrapper">
+								<div class="application-modal__stepper-icon">
+									<el-icon v-if="highestStepReached > step.id || currentStep >= 5">
+										<Check />
+									</el-icon>
+									<el-icon v-else>
+										<component :is="step.icon" />
+									</el-icon>
+								</div>
+							</div>
+							<span class="application-modal__stepper-label">{{ step.label }}</span>
+						</div>
+						<div
+							v-for="i in 3"
+							:key="'connector-' + i"
+							class="application-modal__stepper-connector"
+							:class="{ 'application-modal__stepper-connector--completed': highestStepReached > i || currentStep >= 5 }"
+						/>
 					</div>
+				</div>
+			</div>
 
-					<!-- Step 4: Send step with Send button -->
-					<div v-else-if="currentStep === 4" class="modal-wrapper__actions">
-						<button @click="previousStep" class="modal-nav-btn modal-nav-btn--dark">
-							<el-icon :size="24">
-								<ArrowLeft />
-							</el-icon>
-						</button>
-						<button @click="handleSubmit" class="modal-nav-btn modal-nav-btn--yellow">
-							Send
-						</button>
-					</div>
+			<!-- Navigation Buttons (outside modal box, below) -->
+			<div v-if="currentStep < 4" class="modal-wrapper__actions">
+				<!-- During quiz (step 2+): show back arrow, otherwise show X (rotated) -->
+				<button v-if="currentStep > 1" @click="previousStep" class="modal-nav-btn modal-nav-btn--dark">
+					<el-icon :size="24">
+						<ArrowLeft />
+					</el-icon>
+				</button>
+				<button v-else @click="handleClose" class="modal-nav-btn modal-nav-btn--dark modal-nav-btn--close">
+					<el-icon :size="24">
+						<Plus />
+					</el-icon>
+				</button>
+				<button @click="nextStep" :disabled="!canProceed" class="modal-nav-btn modal-nav-btn--yellow">
+					<el-icon :size="24">
+						<ArrowRight />
+					</el-icon>
+				</button>
+			</div>
 
-					<!-- Step 5: Not Qualified -->
-					<div v-else-if="currentStep === 5" class="modal-wrapper__actions">
-						<button @click="handleClose" class="modal-nav-btn modal-nav-btn--dark modal-nav-btn--full">
-							Luk
-						</button>
-					</div>
+			<!-- Step 4: Send step with Send button -->
+			<div v-else-if="currentStep === 4" class="modal-wrapper__actions">
+				<button @click="previousStep" class="modal-nav-btn modal-nav-btn--dark">
+					<el-icon :size="24">
+						<ArrowLeft />
+					</el-icon>
+				</button>
+				<button @click="handleSubmit" class="modal-nav-btn modal-nav-btn--yellow">
+					Send
+				</button>
+			</div>
 
-					<!-- Step 6: Success with Færdig button -->
-					<div v-else-if="currentStep === 6" class="modal-wrapper__actions">
-						<button @click="handleClose" class="modal-nav-btn modal-nav-btn--yellow modal-nav-btn--full">
-							Færdig
-						</button>
-					</div>
+			<!-- Step 5: Not Qualified -->
+			<div v-else-if="currentStep === 5" class="modal-wrapper__actions">
+				<button @click="handleClose" class="modal-nav-btn modal-nav-btn--dark modal-nav-btn--full">
+					Luk
+				</button>
+			</div>
+
+			<!-- Step 6: Success with Færdig button -->
+			<div v-else-if="currentStep === 6" class="modal-wrapper__actions">
+				<button @click="handleClose" class="modal-nav-btn modal-nav-btn--yellow modal-nav-btn--full">
+					Færdig
+				</button>
+			</div>
+		</div>
 		</div>
 	</Transition>
 
@@ -374,6 +377,18 @@
 								</template>
 							</el-calendar>
 						</Transition>
+
+						<!-- Calendar Legend -->
+						<div class="calendar-modal__legend">
+							<div class="calendar-modal__legend-item">
+								<span class="calendar-modal__legend-color calendar-modal__legend-color--available"></span>
+								<span class="calendar-modal__legend-label">Ledige tider</span>
+							</div>
+							<div class="calendar-modal__legend-item">
+								<span class="calendar-modal__legend-color calendar-modal__legend-color--unavailable"></span>
+								<span class="calendar-modal__legend-label">Ingen ledige tider</span>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -674,11 +689,26 @@ const loadAvailableSlots = async () => {
 	try {
 		const response = await api.get('/interview-slots')
 		allTimeSlots.value = response.data
+
+		// Clean up selectedSlots - remove any slots that no longer exist or are no longer available
+		const allSlotIds = allTimeSlots.value.map((slot: InterviewSlot) => slot.id)
+		const validSelectedSlots = selectedSlots.value.filter((slotId) => {
+			const slot = allTimeSlots.value.find((s: InterviewSlot) => s.id === slotId)
+			// Keep slot if it exists and is either available or reserved by this session
+			return slot && !slot.isBooked && !slot.heldBy && (!slot.reservedBy || slot.reservedBy === sessionId.value)
+		})
+
+		// If some slots were removed, update the array
+		if (validSelectedSlots.length !== selectedSlots.value.length) {
+			selectedSlots.value = validSelectedSlots
+		}
+
 		// Update available slots if a date is selected (exclude booked and held slots)
 		if (selectedDate.value) {
 			availableSlots.value = allTimeSlots.value.filter((slot) => slot.date === selectedDate.value && !slot.isBooked && !slot.heldBy)
 		}
-	} catch {
+	} catch (error) {
+		console.error('Failed to load slots:', error)
 		// Mock data if API fails
 		allTimeSlots.value = [
 			{ id: '1', date: '2024-04-22', time: '8:30', type: 'fysisk', isBooked: false },
@@ -695,11 +725,15 @@ const loadAvailableSlots = async () => {
 
 // Calendar functions
 const hasTimeSlotsOnDate = (date: string): boolean => {
-	return getAvailableTimeSlotsForDate(date).length > 0
+	const slots = getAvailableTimeSlotsForDate(date)
+	return slots.length > 0
 }
 
 const getAvailableTimeSlotsForDate = (date: string): InterviewSlot[] => {
-	return allTimeSlots.value.filter((slot) => slot.date === date && !slot.isBooked && !slot.heldBy)
+	// Note: SQLite returns isBooked as 0/1, so check for falsy values
+	const slotsForDate = allTimeSlots.value.filter((slot) => slot.date === date)
+	const filtered = slotsForDate.filter((slot) => !slot.isBooked && !slot.heldBy)
+	return filtered
 }
 
 const isDateInPast = (dateString: string): boolean => {
@@ -761,7 +795,9 @@ const goToToday = () => {
 }
 
 // Calendar modal functions
-const openCalendarModal = () => {
+const openCalendarModal = async () => {
+	// Refresh available slots before showing calendar
+	await loadAvailableSlots()
 	calendarModalVisible.value = true
 }
 
@@ -833,14 +869,15 @@ const nextStep = async () => {
 			// Quiz completed - check qualification
 			const result = calculateDiscResult()
 			if (result.isQualified) {
+				// Qualified - go to date selection
 				currentStep.value = 3
 				highestStepReached.value = Math.max(highestStepReached.value, 3)
 				loadAvailableSlots()
 				startPolling() // Start polling for live slot updates
 			} else {
-				// Not qualified - go to rejection page
-				currentStep.value = 5
-				submitApplication()
+				// Not qualified - skip date selection, go directly to Send step
+				currentStep.value = 4
+				highestStepReached.value = Math.max(highestStepReached.value, 4)
 			}
 		}
 	} else if (currentStep.value === 3) {
@@ -899,7 +936,14 @@ const goToStep = (stepId: number) => {
 const handleSubmit = async () => {
 	await submitApplication()
 	slideDirection.value = 'slide-left'
-	currentStep.value = 6
+
+	// Check qualification to determine result page
+	const result = calculateDiscResult()
+	if (result.isQualified) {
+		currentStep.value = 6 // Success
+	} else {
+		currentStep.value = 5 // Not qualified
+	}
 }
 
 // Reset and close
@@ -1357,13 +1401,14 @@ const handleClose = async () => {
 		cursor: pointer;
 		transition: all 0.2s ease;
 		position: relative;
+		background-color: $color-white;
 
-		&:hover:not(&--disabled):not(&--reserved) {
+		&:hover:not(&--disabled):not(&--reserved):not(&--selected) {
 			background-color: $color-light-gray;
 		}
 
 		&--selected {
-			background-color: $color-dark-gray;
+			background-color: $color-dark-gray !important;
 			color: $color-white;
 		}
 
@@ -1441,7 +1486,7 @@ const handleClose = async () => {
 		align-items: flex-start;
 		justify-content: space-between;
 		position: relative;
-		padding-top: $spacing-md;
+		padding-top: $spacing-sm;
 	}
 
 	&__stepper-step {
@@ -1532,13 +1577,22 @@ const handleClose = async () => {
 
 	&__footer {
 		flex-shrink: 0;
+		padding: $spacing-md;
+		padding-top: 0;
 	}
 
 }
 
-// Application modal content padding (JobModal har ikke padding)
-.modal-wrapper__modal {
-	padding: $spacing-md;
+// Application modal scroll-area padding (content area)
+:deep(.modal-wrapper__scroll-area) {
+	[data-overlayscrollbars-contents] {
+		padding: $spacing-md $spacing-md 0 $spacing-md !important;
+	}
+}
+
+// Full width select elements
+.application-modal__select {
+	width: 100%;
 }
 
 // Modal wrapper og nav-btn styles er defineret globalt i _global.scss
@@ -1553,7 +1607,7 @@ const handleClose = async () => {
 }
 
 :deep(.el-form-item--label-top .el-form-item__label) {
-	margin-bottom: 6px;
+	margin-bottom: 0;
 }
 
 // Required field asterisk styling - after label, red color
@@ -1799,6 +1853,41 @@ const handleClose = async () => {
 			pointer-events: none;
 			background-color: transparent !important;
 		}
+	}
+
+	&__legend {
+		display: flex;
+		gap: $spacing-lg;
+		justify-content: center;
+		padding: $spacing-md;
+		margin-top: $spacing-sm;
+	}
+
+	&__legend-item {
+		display: flex;
+		align-items: center;
+		gap: $spacing-sm;
+	}
+
+	&__legend-color {
+		width: 14px;
+		height: 14px;
+		border-radius: $border-radius-sm;
+
+		&--available {
+			background-color: $color-light-gray;
+		}
+
+		&--unavailable {
+			background-color: transparent;
+			border: 1px solid $color-light-gray;
+		}
+	}
+
+	&__legend-label {
+		font-family: $font-body;
+		font-size: 12px;
+		color: $color-dark-gray;
 	}
 }
 

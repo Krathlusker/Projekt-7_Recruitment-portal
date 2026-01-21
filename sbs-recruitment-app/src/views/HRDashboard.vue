@@ -205,7 +205,7 @@
 		</div>
 
 		<!-- Application Detail Dialog -->
-		<el-dialog v-model="showDetailDialog" title="Ansøgning detaljer">
+		<el-dialog v-model="showDetailDialog" title="Ansøgning detaljer" transition="dialog-scale">
 			<div v-if="selectedApplication" class="application-detail">
 				<div class="application-detail__section">
 					<h3>Personlige oplysninger</h3>
@@ -330,82 +330,109 @@
 		</el-dialog>
 
 		<!-- Time Slots Modal -->
-		<el-dialog v-model="showTimeSlotsModal" title="Administrer tilgængelige tider">
-			<div class="time-slots-manager">
-				<p class="time-slots-manager__description">
-					Klik på en dag i kalenderen for at tilføje eller se tilgængelige tider. Ansøgere kan vælge 1. og 2. prioritet.
-				</p>
+		<Transition name="modal">
+			<div v-if="showTimeSlotsModal" class="modal-wrapper">
+				<div class="modal-wrapper__backdrop" @click="showTimeSlotsModal = false"></div>
+				<div class="modal-wrapper__container modal-wrapper__container--fullscreen">
+					<ModalCloseButton @click="showTimeSlotsModal = false" />
+					<OverlayScrollbarsComponent
+						class="modal-wrapper__modal"
+						:options="{ scrollbars: { autoHide: 'scroll', autoHideDelay: 1000 } }"
+					>
+				<div class="time-slots-manager">
+					<h2 class="time-slots-manager__title">Administrer tilgængelige tider</h2>
+					<p class="time-slots-manager__description">
+						Klik på en dag i kalenderen for at tilføje eller se tilgængelige tider. Ansøgere kan vælge 1. og 2. prioritet.
+					</p>
 
-				<!-- Calendar Overview -->
-				<div class="time-slots-manager__calendar">
-					<el-calendar v-model="calendarDate">
-						<template #date-cell="{ data }">
-							<div
-								class="calendar-day"
-								:class="{
-									'calendar-day--has-slots': hasTimeSlotsOnDate(data.day) && !isDateInPast(data.day),
-									'calendar-day--selected': selectedDate === data.day && !isDateInPast(data.day),
-									'calendar-day--past': isDateInPast(data.day)
-								}"
-								@click="selectDate(data.day)"
-							>
-								<div class="calendar-day__date">{{ data.day.split('-')[2] }}</div>
-								<div v-if="getTimeSlotsForDate(data.day).length > 0" class="calendar-day__slots">
-									<span class="calendar-day__count">{{ getTimeSlotsForDate(data.day).length }} tider</span>
+					<!-- Calendar Overview -->
+					<div class="time-slots-manager__calendar">
+						<el-calendar v-model="calendarDate">
+							<template #date-cell="{ data }">
+								<div
+									class="calendar-day"
+									:class="{
+										'calendar-day--has-slots': hasTimeSlotsOnDate(data.day) && !isDateInPast(data.day),
+										'calendar-day--selected': selectedDate === data.day && !isDateInPast(data.day),
+										'calendar-day--past': isDateInPast(data.day)
+									}"
+									@click="selectDate(data.day)"
+								>
+									<div class="calendar-day__date">{{ data.day.split('-')[2] }}</div>
+									<div v-if="getTimeSlotsForDate(data.day).length > 0" class="calendar-day__chips">
+										<span class="calendar-day__chip calendar-day__chip--available">{{ getAvailableSlotsCount(data.day) }}/{{ getTimeSlotsForDate(data.day).length }}</span>
+										<span class="calendar-day__chip calendar-day__chip--reserved">{{ getReservedSlotsCount(data.day) }}/{{ getTimeSlotsForDate(data.day).length }}</span>
+										<span class="calendar-day__chip calendar-day__chip--booked">{{ getBookedSlotsCount(data.day) }}/{{ getTimeSlotsForDate(data.day).length }}</span>
+									</div>
+								</div>
+							</template>
+						</el-calendar>
+
+						<!-- Calendar Legend -->
+						<div class="calendar-legend">
+							<div class="calendar-legend__item">
+								<span class="calendar-legend__color calendar-legend__color--available"></span>
+								<span class="calendar-legend__label">Ledige tider</span>
+							</div>
+							<div class="calendar-legend__item">
+								<span class="calendar-legend__color calendar-legend__color--reserved"></span>
+								<span class="calendar-legend__label">Reserveret</span>
+							</div>
+							<div class="calendar-legend__item">
+								<span class="calendar-legend__color calendar-legend__color--booked"></span>
+								<span class="calendar-legend__label">Booket</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- Selected Date Details -->
+					<div v-if="selectedDate" class="time-slots-manager__selected">
+						<div class="time-slots-manager__selected-header">
+							<h3>{{ formatSelectedDate(selectedDate) }}</h3>
+							<el-button @click="selectedDate = null" class="btn-dark">Luk</el-button>
+						</div>
+
+						<!-- Add time slot for selected date -->
+						<div class="time-slots-manager__add">
+							<div class="time-slots-manager__form">
+								<el-select v-model="newTimeSlot.type" placeholder="Vælg type" style="width: 138px">
+									<el-option label="Fysisk (45 min)" value="fysisk" />
+									<el-option label="Virtuel (60 min)" value="virtuel" />
+								</el-select>
+								<el-time-select
+									v-model="newTimeSlot.time"
+									placeholder="Vælg tidspunkt"
+									start="08:00"
+									step="00:30"
+									end="17:00"
+								/>
+								<el-button @click="addTimeSlotForSelectedDate" class="btn-dark">Tilføj tid</el-button>
+							</div>
+						</div>
+
+						<!-- Time slots for selected date -->
+						<div class="time-slots-manager__list">
+							<div v-if="getTimeSlotsForDate(selectedDate).length === 0" class="time-slots-manager__empty">
+								Ingen tider tilgængelige på denne dato
+							</div>
+							<div v-else class="time-slots-manager__items">
+								<div v-for="slot in getTimeSlotsForDate(selectedDate)" :key="slot.id" class="time-slot-item" :class="getSlotStatusClass(slot)">
+									<span class="time-slot-item__time">{{ slot.time }}</span>
+									<span class="time-slot-item__type">{{ slot.type === 'fysisk' ? 'Fysisk (45 min)' : 'Virtuel (60 min)' }}</span>
+									<span class="time-slot-item__status">{{ getSlotStatusLabel(slot) }}</span>
+									<el-button @click="removeTimeSlot(slot.id)" class="btn-red" :disabled="!!slot.isBooked || !!slot.heldBy">Slet</el-button>
 								</div>
 							</div>
-						</template>
-					</el-calendar>
+						</div>
+					</div>
 				</div>
-
-				<!-- Selected Date Details -->
-				<div v-if="selectedDate" class="time-slots-manager__selected">
-					<div class="time-slots-manager__selected-header">
-						<h3>{{ formatSelectedDate(selectedDate) }}</h3>
-						<el-button @click="selectedDate = null" class="btn-dark">Luk</el-button>
-					</div>
-
-					<!-- Add time slot for selected date -->
-					<div class="time-slots-manager__add">
-						<div class="time-slots-manager__form">
-							<el-select v-model="newTimeSlot.type" placeholder="Vælg type" style="width: 138px">
-								<el-option label="Fysisk (45 min)" value="fysisk" />
-								<el-option label="Virtuel (60 min)" value="virtuel" />
-							</el-select>
-							<el-time-select
-								v-model="newTimeSlot.time"
-								placeholder="Vælg tidspunkt"
-								start="08:00"
-								step="00:30"
-								end="17:00"
-							/>
-							<el-button @click="addTimeSlotForSelectedDate" class="btn-dark">Tilføj tid</el-button>
-						</div>
-					</div>
-
-					<!-- Time slots for selected date -->
-					<div class="time-slots-manager__list">
-						<div v-if="getTimeSlotsForDate(selectedDate).length === 0" class="time-slots-manager__empty">
-							Ingen tider tilgængelige på denne dato
-						</div>
-						<div v-else class="time-slots-manager__items">
-							<div v-for="slot in getTimeSlotsForDate(selectedDate)" :key="slot.id" class="time-slot-item">
-								<span class="time-slot-item__time">{{ slot.time }}</span>
-								<span class="time-slot-item__type">{{ slot.type === 'fysisk' ? 'Fysisk (45 min)' : 'Virtuel (60 min)' }}</span>
-								<el-button @click="removeTimeSlot(slot.id)" class="btn-red">Slet</el-button>
-							</div>
-						</div>
-					</div>
+					</OverlayScrollbarsComponent>
 				</div>
 			</div>
-
-			<template #footer>
-				<el-button @click="showTimeSlotsModal = false" class="btn-dark">Luk</el-button>
-			</template>
-		</el-dialog>
+		</Transition>
 
 		<!-- Cleanup Modal -->
-		<el-dialog v-model="showCleanupModal" title="Ryd op i gamle ansøgninger">
+		<el-dialog v-model="showCleanupModal" title="Ryd op i gamle ansøgninger" transition="dialog-scale">
 			<div class="cleanup-manager">
 				<p class="cleanup-manager__description">
 					Slet alle ansøgninger som er ældre end det valgte antal måneder fra modtagelsesdato.
@@ -440,8 +467,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { User, Message, Phone, Calendar } from '@element-plus/icons-vue'
+import { User, Message, Phone, Calendar, Close } from '@element-plus/icons-vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
+import ModalCloseButton from '@/components/ModalCloseButton.vue'
 import api, { setAuthHeader, clearAuthHeader } from '@/config/api'
 import type {
 	Application,
@@ -592,7 +620,10 @@ const loadApplications = async () => {
 
 // Auto refresh
 const startAutoRefresh = () => {
-	refreshInterval.value = setInterval(loadApplications, 5000)
+	refreshInterval.value = setInterval(async () => {
+		await loadApplications()
+		await loadTimeSlots()
+	}, 5000)
 }
 
 const stopAutoRefresh = () => {
@@ -844,6 +875,31 @@ const getTimeSlotsForDate = (dateString: string) => {
 	return availableTimeSlots.value
 		.filter((slot) => slot.date === dateString)
 		.sort((a, b) => a.time.localeCompare(b.time))
+}
+
+const getAvailableSlotsCount = (dateString: string): number => {
+	return availableTimeSlots.value.filter((slot) => slot.date === dateString && !slot.isBooked && !slot.heldBy && !slot.reservedBy).length
+}
+
+const getReservedSlotsCount = (dateString: string): number => {
+	// Includes both reservedBy and heldBy slots (all pending/reserved states)
+	return availableTimeSlots.value.filter((slot) => slot.date === dateString && (slot.reservedBy || slot.heldBy) && !slot.isBooked).length
+}
+
+const getBookedSlotsCount = (dateString: string): number => {
+	return availableTimeSlots.value.filter((slot) => slot.date === dateString && slot.isBooked).length
+}
+
+const getSlotStatusClass = (slot: TimeSlot): string => {
+	if (slot.isBooked) return 'time-slot-item--booked'
+	if (slot.heldBy || slot.reservedBy) return 'time-slot-item--reserved'
+	return 'time-slot-item--available'
+}
+
+const getSlotStatusLabel = (slot: TimeSlot): string => {
+	if (slot.isBooked) return 'Booket'
+	if (slot.heldBy || slot.reservedBy) return 'Reserveret'
+	return 'Ledig'
 }
 
 const formatSelectedDate = (dateString: string): string => {
@@ -1406,6 +1462,12 @@ onUnmounted(() => {
 .time-slots-manager {
 	@include flex-column;
 	gap: $spacing-xl;
+	padding: $spacing-xl;
+
+	&__title {
+		@include title-font;
+		margin: 0;
+	}
 
 	&__description {
 		@include body-font;
@@ -1515,26 +1577,22 @@ onUnmounted(() => {
 	gap: $spacing-xs;
 	width: 100%;
 	height: 100%;
+	background-color: $color-white;
 
-	&:hover {
-		background-color: #e8e8e8;
+	&:hover:not(&--past):not(&--selected) {
+		background-color: $color-light-gray;
 	}
 
 	&--has-slots {
 		background-color: $color-dark-gray;
 		color: $color-white;
 
-		&:hover {
+		&:hover:not(.calendar-day--selected) {
 			background-color: color.adjust($color-dark-gray, $lightness: 10%);
 		}
 
 		.calendar-day__date {
 			color: $color-white;
-		}
-
-		.calendar-day__count {
-			color: $color-dark-gray;
-			background-color: $color-white;
 		}
 	}
 
@@ -1551,11 +1609,6 @@ onUnmounted(() => {
 		.calendar-day__date {
 			color: $color-dark-gray;
 		}
-
-		.calendar-day__count {
-			color: $color-yellow;
-			background-color: $color-dark-gray;
-		}
 	}
 
 	&__date {
@@ -1564,18 +1617,34 @@ onUnmounted(() => {
 		font-size: 14px;
 	}
 
-	&__slots {
+	&__chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 2px;
 		width: 100%;
 	}
 
-	&__count {
+	&__chip {
 		@include body-font;
-		font-size: 12px;
-		color: $color-red;
-		background-color: $color-light-gray;
-		padding: 2px 6px;
+		font-size: 10px;
+		font-weight: $font-weight-medium;
+		padding: 2px 5px;
 		border-radius: $border-radius-sm;
-		display: inline-block;
+		color: $color-white;
+		min-width: 16px;
+		text-align: center;
+
+		&--available {
+			background-color: $color-dark-gray;
+		}
+
+		&--reserved {
+			background-color: #f5a623;
+		}
+
+		&--booked {
+			background-color: $color-red;
+		}
 	}
 }
 
@@ -1606,6 +1675,80 @@ onUnmounted(() => {
 		padding: 2px 8px;
 		background-color: $color-light-gray;
 		border-radius: $border-radius-sm;
+	}
+
+	&__status {
+		@include body-font;
+		font-size: 12px;
+		padding: 2px 8px;
+		border-radius: $border-radius-sm;
+		margin-left: auto;
+	}
+
+	&--available {
+		.time-slot-item__status {
+			color: $color-dark-gray;
+			background-color: $color-light-gray;
+		}
+	}
+
+	&--reserved {
+		border-color: #f5a623;
+		background-color: color.adjust(#f5a623, $lightness: 35%);
+
+		.time-slot-item__status {
+			color: $color-white;
+			background-color: #f5a623;
+		}
+	}
+
+	&--booked {
+		border-color: $color-red;
+		background-color: color.adjust($color-red, $lightness: 35%);
+
+		.time-slot-item__status {
+			color: $color-white;
+			background-color: $color-red;
+		}
+	}
+}
+
+// Calendar Legend
+.calendar-legend {
+	display: flex;
+	gap: $spacing-lg;
+	padding: $spacing-md;
+	justify-content: center;
+	flex-wrap: wrap;
+
+	&__item {
+		display: flex;
+		align-items: center;
+		gap: $spacing-sm;
+	}
+
+	&__color {
+		width: 16px;
+		height: 16px;
+		border-radius: $border-radius-sm;
+
+		&--available {
+			background-color: $color-dark-gray;
+		}
+
+		&--reserved {
+			background-color: #f5a623;
+		}
+
+		&--booked {
+			background-color: $color-red;
+		}
+	}
+
+	&__label {
+		@include body-font;
+		font-size: 13px;
+		color: $color-dark-gray;
 	}
 }
 

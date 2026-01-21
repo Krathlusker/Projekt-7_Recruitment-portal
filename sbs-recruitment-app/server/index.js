@@ -271,53 +271,8 @@ const cleanExpiredReservations = () => {
   }
 };
 
-// Clean past date slots - release held and reserved slots for dates that have passed
-const cleanPastDateSlots = () => {
-  try {
-    const db = getDb();
-    const today = new Date().toISOString().split('T')[0]; // Get YYYY-MM-DD format
-
-    // First, update applications that had selected slots on past dates - remove those slots from selection
-    const applications = db.prepare(`
-      SELECT id, selectedSlots FROM applications WHERE status = 'pending'
-    `).all();
-
-    for (const app of applications) {
-      const slots = JSON.parse(app.selectedSlots || '[]');
-      if (slots.length > 0) {
-        // Get slot dates for these slot IDs
-        const slotPlaceholders = slots.map(() => '?').join(',');
-        const slotData = db.prepare(`SELECT id, date FROM interview_slots WHERE id IN (${slotPlaceholders})`).all(...slots);
-
-        // Filter out past date slots
-        const validSlots = slotData.filter(s => s.date >= today).map(s => s.id);
-
-        if (validSlots.length !== slots.length) {
-          // Update application with only valid slots
-          db.prepare('UPDATE applications SET selectedSlots = ? WHERE id = ?').run(JSON.stringify(validSlots), app.id);
-        }
-      }
-    }
-
-    // Delete all time slots with dates in the past
-    const deletedSlots = db.prepare(`
-      DELETE FROM interview_slots WHERE date < ?
-    `).run(today);
-
-    if (deletedSlots.changes > 0) {
-      console.log(`Deleted ${deletedSlots.changes} time slots for past dates`);
-    }
-  } catch (error) {
-    console.error('Error cleaning past date slots:', error);
-  }
-};
-
 // Run cleanup every minute
 setInterval(cleanExpiredReservations, 60 * 1000);
-
-// Run past date cleanup once a day (or on server start)
-cleanPastDateSlots();
-setInterval(cleanPastDateSlots, 24 * 60 * 60 * 1000);
 
 // Get all interview slots
 app.get('/api/interview-slots', (req, res) => {
