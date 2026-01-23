@@ -1,12 +1,12 @@
 <template>
-	<button class="modal-close-button" @click="$emit('click')" type="button" aria-label="Luk">
+	<el-button class="modal-close-button" @click="$emit('click')" type="button" aria-label="Luk" circle>
 		<div class="modal-close-button__icon-wrapper">
 			<el-icon :size="48">
 				<Plus />
 			</el-icon>
 		</div>
 		<div class="modal-close-button__background"></div>
-	</button>
+	</el-button>
 </template>
 
 <script setup lang="ts">
@@ -27,10 +27,19 @@ defineEmits<{
 	width: 102px;
 	height: 102px;
 	cursor: pointer;
-	border: none;
-	background: transparent;
+	border: none !important;
+	background: transparent !important;
+	background-color: transparent !important;
 	z-index: 10;
 	padding: 0;
+
+	// Override el-button hover/focus backgrounds
+	&:hover,
+	&:focus,
+	&:active {
+		background: transparent !important;
+		background-color: transparent !important;
+	}
 
 	&__icon-wrapper {
 		position: absolute;

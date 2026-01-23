@@ -17,7 +17,6 @@
 								autoHideDelay: 1000
 							}
 						}"
-						defer
 					>
 						<Transition :name="slideDirection" mode="out-in">
 							<div :key="currentStep" class="application-modal__content">
@@ -117,15 +116,15 @@
 
 									<!-- Progress bar -->
 									<div class="application-modal__quiz-progress">
-										<span class="application-modal__quiz-progress-text"
-											>{{ currentQuestion + 1 }} af {{ discQuestions.length }}</span
-										>
-										<div class="application-modal__quiz-progress-bar">
-											<div
-												class="application-modal__quiz-progress-fill"
-												:style="{ width: ((currentQuestion + 1) / discQuestions.length) * 100 + '%' }"
-											></div>
-										</div>
+										<span class="application-modal__quiz-progress-text">
+											{{ currentQuestion + 1 }} af {{ discQuestions.length }}
+										</span>
+										<el-progress
+											:percentage="((currentQuestion + 1) / discQuestions.length) * 100"
+											:show-text="false"
+											:stroke-width="8"
+											class="application-modal__quiz-progress-bar"
+										/>
 									</div>
 
 									<!-- Question -->
@@ -134,23 +133,20 @@
 									</p>
 
 									<!-- Radio options -->
-									<div class="application-modal__quiz-options">
-										<label
+									<el-radio-group
+										:model-value="getSelectedOptionValue(currentQuestion)"
+										class="application-modal__quiz-options"
+										@change="(val: number) => selectOptionByIndex(currentQuestion, val)"
+									>
+										<el-radio
 											v-for="(option, index) in discQuestions[currentQuestion].options"
 											:key="index"
+											:value="index"
 											class="application-modal__quiz-option"
-											:class="{ 'application-modal__quiz-option--selected': isOptionSelected(currentQuestion, option) }"
 										>
-											<input
-												type="radio"
-												:name="'question-' + currentQuestion"
-												:checked="isOptionSelected(currentQuestion, option)"
-												@change="selectOption(currentQuestion, option)"
-												class="application-modal__quiz-radio"
-											/>
-											<span class="application-modal__quiz-option-text">{{ option.text }}</span>
-										</label>
-									</div>
+											{{ option.text }}
+										</el-radio>
+									</el-radio-group>
 								</div>
 
 								<!-- Step 3: Date Selection (Qualified) -->
@@ -161,7 +157,7 @@
 										hverdag.
 									</p>
 
-									<div class="application-modal__date-section">
+									<div class="application-modal__date-section" v-loading="slotsLoading">
 										<!-- Top section: Date header + slots -->
 										<div class="application-modal__date-top">
 											<!-- Date header with selected date and button -->
@@ -169,10 +165,10 @@
 												<span class="application-modal__date-display">{{
 													selectedDate ? formatShortDate(selectedDate) : 'Ingen dato valgt'
 												}}</span>
-												<button class="application-modal__date-btn" @click="openCalendarModal">
+												<el-button class="application-modal__date-btn" @click="openCalendarModal">
 													<el-icon><Calendar /></el-icon>
 													<span>VÆLG DATO</span>
-												</button>
+												</el-button>
 											</div>
 
 											<!-- Time slots for selected date -->
@@ -221,9 +217,7 @@
 															<span class="application-modal__selected-slot-time">{{ getSlotById(selectedSlots[index])?.time }}</span>
 															<span class="application-modal__selected-slot-date">{{ formatShortDate(getSlotById(selectedSlots[index])?.date || '') }}</span>
 														</div>
-														<button class="application-modal__selected-slot-remove" @click="removeSlotByIndex(index)">
-															<el-icon><Delete /></el-icon>
-														</button>
+														<el-button class="application-modal__selected-slot-remove" @click="removeSlotByIndex(index)" :icon="Delete" circle />
 													</template>
 													<template v-else>
 														<span class="application-modal__selected-slot-empty">{{ index + 1 }}. valg</span>
@@ -280,81 +274,46 @@
 						</Transition>
 					</OverlayScrollbarsComponent>
 
-					<!-- Stepper (inside modal box, at bottom) -->
+					<!-- Steps navigation (inside modal box, at bottom) -->
 					<div class="application-modal__footer">
-						<div class="application-modal__stepper">
-							<div
+						<el-steps :active="currentStep - 1" simple :class="{ 'is-completed': currentStep >= 5 }">
+							<el-step
 								v-for="step in steps"
 								:key="step.id"
-								class="application-modal__stepper-step"
-								:class="{
-									'application-modal__stepper-step--active': currentStep === step.id && currentStep < 5,
-									'application-modal__stepper-step--completed': highestStepReached > step.id || currentStep >= 5
-								}"
+								:title="step.label"
+								:icon="getStepIcon(step)"
+								:status="getStepStatus(step.id)"
 								@click="goToStep(step.id)"
-							>
-								<div class="application-modal__stepper-icon-wrapper">
-									<div class="application-modal__stepper-icon">
-										<el-icon v-if="highestStepReached > step.id || currentStep >= 5">
-											<Check />
-										</el-icon>
-										<el-icon v-else>
-											<component :is="step.icon" />
-										</el-icon>
-									</div>
-								</div>
-								<span class="application-modal__stepper-label">{{ step.label }}</span>
-							</div>
-							<div
-								v-for="i in 3"
-								:key="'connector-' + i"
-								class="application-modal__stepper-connector"
-								:class="{
-									'application-modal__stepper-connector--completed': highestStepReached > i || currentStep >= 5
-								}"
 							/>
-						</div>
+						</el-steps>
 					</div>
 				</div>
 
 				<!-- Navigation Buttons (outside modal box, below) -->
 				<div v-if="currentStep < 4" class="modal-wrapper__actions">
 					<!-- During quiz (step 2+): show back arrow, otherwise show X (rotated) -->
-					<button v-if="currentStep > 1" @click="previousStep" class="modal-nav-btn modal-nav-btn--dark">
-						<el-icon :size="24">
-							<ArrowLeft />
-						</el-icon>
-					</button>
-					<button v-else @click="handleClose" class="modal-nav-btn modal-nav-btn--dark modal-nav-btn--close">
-						<el-icon :size="24">
-							<Plus />
-						</el-icon>
-					</button>
-					<button @click="nextStep" :disabled="!canProceed" class="modal-nav-btn modal-nav-btn--yellow">
-						<el-icon :size="24">
-							<ArrowRight />
-						</el-icon>
-					</button>
+					<el-button v-if="currentStep > 1" type="primary" @click="previousStep" class="modal-nav-btn" :icon="ArrowLeft" />
+					<el-button v-else type="primary" @click="handleClose" class="modal-nav-btn modal-nav-btn--close" :icon="Plus" />
+					<el-button type="warning" @click="nextStep" :disabled="!canProceed" class="modal-nav-btn" :icon="ArrowRight" />
 				</div>
 
 				<!-- Step 4: Send step with Send button -->
 				<div v-else-if="currentStep === 4" class="modal-wrapper__actions">
-					<button @click="previousStep" class="modal-nav-btn modal-nav-btn--dark">
-						<el-icon :size="24">
-							<ArrowLeft />
-						</el-icon>
-					</button>
-					<button @click="handleSubmit" :disabled="!consentAccepted" class="modal-nav-btn modal-nav-btn--yellow">Send</button>
+					<el-button type="primary" @click="previousStep" class="modal-nav-btn" :icon="ArrowLeft" />
+					<el-button type="warning" @click="handleSubmit" :disabled="!consentAccepted" class="modal-nav-btn">
+						<el-icon><Message /></el-icon>
+						<span>Send</span>
+					</el-button>
 				</div>
 
 				<!-- Step 5: Not Qualified -->
 				<div v-else-if="currentStep === 5" class="modal-wrapper__actions">
-					<button @click="handleClose" class="modal-nav-btn modal-nav-btn--dark modal-nav-btn--full">Luk</button>
+					<el-button type="primary" @click="handleClose" class="modal-nav-btn modal-nav-btn--full">Luk</el-button>
 				</div>
 
 				<!-- Step 6: Success with Færdig button -->
 				<div v-else-if="currentStep === 6" class="modal-wrapper__actions">
-					<button @click="handleClose" class="modal-nav-btn modal-nav-btn--yellow modal-nav-btn--full">Færdig</button>
+					<el-button type="warning" @click="handleClose" class="modal-nav-btn modal-nav-btn--full">Færdig</el-button>
 				</div>
 			</div>
 		</div>
@@ -370,21 +329,17 @@
 							<span :key="calendarKey" class="calendar-modal__title">{{ formatMonthYear('') }}</span>
 						</Transition>
 						<Transition name="fade" mode="out-in">
-							<button v-if="!isCurrentMonth" key="today-btn" class="calendar-modal__today-btn" @click="goToToday">
+							<el-button v-if="!isCurrentMonth" key="today-btn" class="calendar-modal__today-btn" @click="goToToday">
 								I dag
-							</button>
+							</el-button>
 							<span v-else key="today-placeholder" class="calendar-modal__today-placeholder"></span>
 						</Transition>
 						<div class="calendar-modal__controls">
 							<Transition name="fade" mode="out-in">
-								<button v-if="!isCurrentMonth" key="prev-btn" class="calendar-modal__nav" @click="prevMonth">
-									<el-icon><ArrowLeft /></el-icon>
-								</button>
+								<el-button v-if="!isCurrentMonth" key="prev-btn" class="calendar-modal__nav" :icon="ArrowLeft" @click="prevMonth" />
 								<span v-else key="prev-placeholder" class="calendar-modal__nav-placeholder"></span>
 							</Transition>
-							<button class="calendar-modal__nav" @click="nextMonth">
-								<el-icon><ArrowRight /></el-icon>
-							</button>
+							<el-button class="calendar-modal__nav" :icon="ArrowRight" @click="nextMonth" />
 						</div>
 					</div>
 					<div class="calendar-modal__calendar-wrapper">
@@ -436,13 +391,13 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules, UploadFile } from 'element-plus'
 import ModalCloseButton from '@/components/ModalCloseButton.vue'
 import ConsentModal from '@/components/ConsentModal.vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 import {
 	Plus,
-	Check,
 	ArrowRight,
 	ArrowLeft,
 	User,
@@ -451,7 +406,8 @@ import {
 	Message,
 	SuccessFilled,
 	WarningFilled,
-	Delete
+	Delete,
+	Check
 } from '@element-plus/icons-vue'
 import { discQuestions, QUALIFICATION_THRESHOLD } from '@/config/discQuestions'
 import type {
@@ -490,6 +446,62 @@ const dialogVisible = computed({
 	set: (val) => emit('update:visible', val)
 })
 
+// LocalStorage key for draft data
+const DRAFT_STORAGE_KEY = 'sbs-application-draft'
+const DRAFT_EXPIRY_HOURS = 48 // 2 døgn
+
+// Save draft to localStorage
+const saveDraft = () => {
+	// Don't save if application was submitted (step 5)
+	if (currentStep.value >= 5) return
+
+	// If on consent step (4), save as step 3 so user returns to date selection
+	const stepToSave = currentStep.value === 4 ? 3 : currentStep.value
+
+	const draft = {
+		formData: formData.value,
+		discAnswers: discAnswers.value,
+		currentStep: stepToSave,
+		currentQuestion: currentQuestion.value,
+		highestStepReached: highestStepReached.value,
+		timestamp: Date.now()
+	}
+	localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft))
+}
+
+// Load draft from localStorage
+const loadDraft = () => {
+	const saved = localStorage.getItem(DRAFT_STORAGE_KEY)
+	if (!saved) return false
+
+	try {
+		const draft = JSON.parse(saved)
+		const hoursElapsed = (Date.now() - draft.timestamp) / (1000 * 60 * 60)
+
+		// Check if draft is expired
+		if (hoursElapsed > DRAFT_EXPIRY_HOURS) {
+			localStorage.removeItem(DRAFT_STORAGE_KEY)
+			return false
+		}
+
+		// Restore data
+		formData.value = { ...formData.value, ...draft.formData, cvFile: null } // Can't restore file
+		discAnswers.value = draft.discAnswers || {}
+		currentStep.value = draft.currentStep || 1
+		currentQuestion.value = draft.currentQuestion || 0
+		highestStepReached.value = draft.highestStepReached || 1
+		return true
+	} catch {
+		localStorage.removeItem(DRAFT_STORAGE_KEY)
+		return false
+	}
+}
+
+// Clear draft from localStorage
+const clearDraft = () => {
+	localStorage.removeItem(DRAFT_STORAGE_KEY)
+}
+
 // Lås/frigiv body scroll når modal åbner/lukker
 watch(
 	() => props.visible,
@@ -499,13 +511,19 @@ watch(
 			document.body.style.overflow = 'hidden'
 			document.body.style.paddingRight = `${scrollbarWidth}px`
 			document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`)
+			// Fetch available time slots when opening
+			loadAvailableSlots()
 		} else {
 			document.body.style.overflow = ''
 			document.body.style.paddingRight = ''
 			document.documentElement.style.setProperty('--scrollbar-width', '0px')
-			// Release reservations when modal closes
+			// Release reservations and clear time selection when modal closes
 			stopPolling()
 			releaseAllReservations()
+			// Clear time selection (don't persist in localStorage)
+			selectedSlots.value = []
+			selectedDate.value = ''
+			availableSlots.value = []
 		}
 	}
 )
@@ -545,6 +563,7 @@ const availableSlots = ref<InterviewSlot[]>([])
 const calendarDate = ref(new Date())
 const allTimeSlots = ref<InterviewSlot[]>([])
 const calendarModalVisible = ref(false)
+const slotsLoading = ref(false)
 const calendarSlideDirection = ref<'calendar-slide-left' | 'calendar-slide-right'>('calendar-slide-left')
 
 // Consent
@@ -557,7 +576,7 @@ const calendarKey = computed(() => {
 
 // Polling interval for live slot updates
 let pollingInterval: ReturnType<typeof setInterval> | null = null
-const POLLING_INTERVAL_MS = 3000 // Poll every 3 seconds
+const POLLING_INTERVAL_MS = 2000 // Poll every 2 seconds for faster updates
 
 // Start polling for slot updates
 const startPolling = () => {
@@ -574,6 +593,22 @@ const stopPolling = () => {
 		pollingInterval = null
 	}
 }
+
+// Simple watch: Start/stop polling based on whether step 3 (Dato) is visible
+watch(
+	() => currentStep.value,
+	(step) => {
+		if (step === 3) {
+			// On step 3 (Dato) - start polling and load slots
+			loadAvailableSlots()
+			startPolling()
+		} else {
+			// Not on step 3 - stop polling
+			stopPolling()
+		}
+	},
+	{ immediate: true }
+)
 
 // Release all reservations for this session
 const releaseAllReservations = async () => {
@@ -597,7 +632,21 @@ const handleBeforeUnload = () => {
 // Setup and cleanup
 onMounted(() => {
 	window.addEventListener('beforeunload', handleBeforeUnload)
+	// Load saved draft on mount if modal is visible
+	if (props.visible) {
+		loadDraft()
+	}
 })
+
+// Load draft when modal opens
+watch(
+	() => props.visible,
+	(newVal) => {
+		if (newVal) {
+			loadDraft()
+		}
+	}
+)
 
 onUnmounted(() => {
 	stopPolling()
@@ -635,7 +684,8 @@ const steps = [
 watch(
 	() => props.selectedJob,
 	(newJob) => {
-		if (newJob) {
+		// Only set job position if no draft is loaded or formData is empty
+		if (newJob && !formData.value.fullName) {
 			formData.value.jobPosition = newJob
 		}
 	}
@@ -659,6 +709,22 @@ const canProceed = computed(() => {
 const isOptionSelected = (questionId: number, option: DiscOption): boolean => {
 	const answer = discAnswers.value[questionId]
 	return answer?.profile === option.profile
+}
+
+// Get selected option value (index) for el-radio-group
+const getSelectedOptionValue = (questionId: number): number | undefined => {
+	const answer = discAnswers.value[questionId]
+	if (!answer) return undefined
+	const options = discQuestions[questionId].options
+	return options.findIndex((opt) => opt.profile === answer.profile)
+}
+
+// Select DISC option by index (for el-radio-group)
+const selectOptionByIndex = (questionId: number, index: number) => {
+	const option = discQuestions[questionId].options[index]
+	if (option) {
+		selectOption(questionId, option)
+	}
 }
 
 // Select DISC option
@@ -746,6 +812,8 @@ const toggleSlot = async (slot: InterviewSlot) => {
 		} catch (error: unknown) {
 			// Slot may have been reserved/booked by another user
 			console.error('Failed to reserve slot:', error)
+			// Show user-friendly message
+			ElMessage.warning('Denne tid er lige blevet reserveret af en anden. Vælg venligst en anden tid.')
 			// Refresh to show updated status
 			await loadAvailableSlots()
 		}
@@ -754,6 +822,7 @@ const toggleSlot = async (slot: InterviewSlot) => {
 
 // Load available slots
 const loadAvailableSlots = async () => {
+	slotsLoading.value = true
 	try {
 		const response = await api.get('/interview-slots')
 		allTimeSlots.value = response.data
@@ -768,6 +837,16 @@ const loadAvailableSlots = async () => {
 		// If some slots were removed, update the array
 		if (validSelectedSlots.length !== selectedSlots.value.length) {
 			selectedSlots.value = validSelectedSlots
+		}
+
+		// Auto-select first available date if none selected
+		if (!selectedDate.value) {
+			const firstAvailableDate = findFirstAvailableDate()
+			if (firstAvailableDate) {
+				selectedDate.value = firstAvailableDate
+				// Set calendar to show the month of the first available date
+				calendarDate.value = new Date(firstAvailableDate)
+			}
 		}
 
 		// Update available slots if a date is selected (exclude booked, held, and reserved by others)
@@ -793,7 +872,31 @@ const loadAvailableSlots = async () => {
 		]
 		// Don't populate availableSlots yet - wait for user to select a date
 		availableSlots.value = []
+	} finally {
+		slotsLoading.value = false
 	}
+}
+
+// Find first available date with slots
+const findFirstAvailableDate = (): string | null => {
+	const today = new Date()
+	today.setHours(0, 0, 0, 0)
+
+	// Get all unique dates with available slots, sorted
+	const datesWithSlots = [...new Set(
+		allTimeSlots.value
+			.filter((slot) => !slot.isBooked && !slot.heldBy && (!slot.reservedBy || slot.reservedBy === sessionId.value))
+			.map((slot) => slot.date)
+	)].sort()
+
+	// Find the first date that's not in the past
+	for (const date of datesWithSlots) {
+		if (new Date(date) >= today) {
+			return date
+		}
+	}
+
+	return null
 }
 
 // Calendar functions
@@ -930,6 +1033,7 @@ const submitApplication = async () => {
 		})
 	} catch (error) {
 		console.error('Failed to submit application:', error)
+		ElMessage.error('Kunne ikke sende ansøgning. Prøv igen.')
 	}
 }
 
@@ -953,8 +1057,7 @@ const nextStep = async () => {
 				// Qualified - go to date selection
 				currentStep.value = 3
 				highestStepReached.value = Math.max(highestStepReached.value, 3)
-				loadAvailableSlots()
-				startPolling() // Start polling for live slot updates
+				// Polling starts automatically via watch on currentStep
 			} else {
 				// Not qualified - skip date selection, go directly to Send step
 				currentStep.value = 4
@@ -963,10 +1066,50 @@ const nextStep = async () => {
 		}
 	} else if (currentStep.value === 3) {
 		// Go to Send confirmation step
-		stopPolling() // Stop polling when leaving date selection
+		// Polling stops automatically via watch on currentStep
 		currentStep.value = 4
 		highestStepReached.value = Math.max(highestStepReached.value, 4)
 	}
+}
+
+// Get step status for el-steps
+const getStepStatus = (stepId: number): 'wait' | 'process' | 'finish' => {
+	// If completed (success/fail screen), all steps are finished
+	if (currentStep.value >= 5) return 'finish'
+	// Current step is in process
+	if (stepId === currentStep.value) return 'process'
+	// Steps already completed (based on highest reached)
+	if (stepId < highestStepReached.value) return 'finish'
+	// Steps not yet reached
+	return 'wait'
+}
+
+// Check if a step is completed (data filled in)
+const isStepCompleted = (stepId: number): boolean => {
+	if (stepId === 1) {
+		return !!(formData.value.fullName && formData.value.phone && formData.value.email && formData.value.jobPosition)
+	}
+	if (stepId === 2) {
+		// All quiz questions answered
+		return Object.keys(discAnswers.value).length === discQuestions.length
+	}
+	if (stepId === 3) {
+		return selectedSlots.value.length === 2
+	}
+	if (stepId === 4) {
+		// Consent is always re-required, so check if we've passed it
+		return currentStep.value > 4 || highestStepReached.value > 4
+	}
+	return false
+}
+
+// Get icon for step - checkmark when completed and not current step, otherwise original icon
+const getStepIcon = (step: { id: number; icon: any }) => {
+	// Show checkmark if step is completed AND user is not currently on that step
+	if (isStepCompleted(step.id) && currentStep.value !== step.id) {
+		return Check
+	}
+	return step.icon
 }
 
 const previousStep = () => {
@@ -1004,12 +1147,7 @@ const goToStep = (stepId: number) => {
 		currentQuestion.value = 0
 	}
 
-	// Load available slots when going to date step
-	if (stepId === 3) {
-		loadAvailableSlots()
-		startPolling() // Start polling for live updates
-	}
-
+	// Polling starts/stops automatically via watch on currentStep
 	currentStep.value = stepId
 }
 
@@ -1032,6 +1170,14 @@ const handleClose = async () => {
 	// Stop polling and release reservations before closing
 	stopPolling()
 	await releaseAllReservations()
+
+	// Save draft if not submitted (step < 5 = not yet on success/rejected screen)
+	if (currentStep.value < 5) {
+		saveDraft()
+	} else {
+		// Clear draft after successful submission (step 5 = success/rejected)
+		clearDraft()
+	}
 
 	currentStep.value = 1
 	currentQuestion.value = 0
@@ -1178,18 +1324,16 @@ const handleClose = async () => {
 
 	&__quiz-progress-bar {
 		width: 100%;
-		height: 8px;
-		border: 1px solid $color-dark-gray;
-		border-radius: 999px;
-		background-color: $color-white;
-		overflow: hidden;
-	}
 
-	&__quiz-progress-fill {
-		height: 100%;
-		background-color: $color-dark-gray;
-		border-radius: 999px 0 0 999px;
-		transition: width 0.3s ease;
+		:deep(.el-progress-bar__outer) {
+			border: 1px solid $color-dark-gray;
+			background-color: $color-white;
+		}
+
+		:deep(.el-progress-bar__inner) {
+			background-color: $color-dark-gray;
+			transition: width 0.3s ease;
+		}
 	}
 
 	&__quiz-question {
@@ -1202,32 +1346,32 @@ const handleClose = async () => {
 		display: flex;
 		flex-direction: column;
 		gap: $spacing-sm;
+		align-items: flex-start;
 	}
 
 	&__quiz-option {
-		display: flex;
-		align-items: flex-start;
-		gap: $spacing-sm;
-		cursor: pointer;
-		transition: all 0.2s ease;
-
-		&:hover {
-			opacity: 0.8;
-		}
-	}
-
-	&__quiz-radio {
-		flex-shrink: 0;
-		width: 15px;
-		height: 15px;
-		margin-top: 2px;
-		accent-color: $color-dark-gray;
-		cursor: pointer;
-	}
-
-	&__quiz-option-text {
 		@include body-font;
 		line-height: 1.4;
+		height: auto;
+		white-space: normal;
+		align-items: flex-start;
+
+		:deep(.el-radio__inner) {
+			transition: all $transition-duration $transition-ease;
+		}
+
+		:deep(.el-radio__label) {
+			white-space: normal;
+			line-height: 1.4;
+			transition: color $transition-duration $transition-ease;
+		}
+
+		&.is-checked {
+			:deep(.el-radio__label) {
+				font-weight: $font-weight-bold;
+				color: $color-dark-gray;
+			}
+		}
 	}
 
 	// Date selection
@@ -1627,6 +1771,7 @@ const handleClose = async () => {
 		justify-content: center;
 		width: 24px;
 		height: 24px;
+		padding: 0;
 		border: none;
 		background-color: transparent;
 		color: $color-white;
@@ -1652,95 +1797,6 @@ const handleClose = async () => {
 		}
 	}
 
-	// Stepper
-	&__stepper {
-		display: flex;
-		align-items: flex-start;
-		justify-content: space-between;
-		position: relative;
-		padding-top: $spacing-xs;
-	}
-
-	&__stepper-step {
-		@include flex-column;
-		@include flex-center;
-		gap: 6px;
-		z-index: 1;
-		cursor: pointer;
-		transition: opacity 0.2s ease;
-
-		&:hover {
-			opacity: 0.8;
-		}
-	}
-
-	&__stepper-icon-wrapper {
-		position: relative;
-		@include flex-center;
-		width: 42px;
-		height: 42px;
-		border: 2px dashed transparent;
-		border-radius: $border-radius-md;
-		transition: all 0.2s ease;
-
-		.application-modal__stepper-step--active & {
-			border-color: $color-dark-gray;
-		}
-	}
-
-	&__stepper-icon {
-		@include flex-center;
-		width: 30px;
-		height: 30px;
-		border: 1px solid $color-dark-gray;
-		border-radius: $border-radius-md;
-		background-color: $color-white;
-		transition: all 0.2s ease;
-
-		.application-modal__stepper-step--active & {
-			background-color: $color-white;
-			border-color: $color-dark-gray;
-		}
-
-		.application-modal__stepper-step--completed & {
-			background-color: $color-dark-gray;
-			color: $color-white;
-		}
-	}
-
-	&__stepper-label {
-		@include body-font;
-		line-height: 1;
-	}
-
-	&__stepper-connector {
-		position: absolute;
-		top: calc($spacing-md + 21px);
-		height: 6px;
-		background-color: $color-dark-gray;
-		opacity: 0.5;
-		border-radius: $border-radius-sm;
-
-		&:nth-of-type(1) {
-			left: calc(12.5% + 24px);
-			width: calc(25% - 48px);
-		}
-
-		&:nth-of-type(2) {
-			left: calc(37.5% + 24px);
-			width: calc(25% - 48px);
-		}
-
-		&:nth-of-type(3) {
-			left: calc(62.5% + 24px);
-			width: calc(25% - 48px);
-		}
-
-		&--completed {
-			opacity: 1;
-		}
-	}
-
 	// Actions
 	&__actions {
 		display: flex;
@@ -1749,7 +1805,6 @@ const handleClose = async () => {
 
 	&__footer {
 		flex-shrink: 0;
-		padding: $spacing-xs $spacing-md $spacing-xs $spacing-md;
 		position: relative;
 		z-index: 1; // Keep below ConsentModal (z-index: 4000)
 	}
@@ -1806,333 +1861,5 @@ const handleClose = async () => {
 	box-shadow: $shadow-card;
 }
 
-// Calendar Modal Styles
-.calendar-modal-overlay {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: rgba(0, 0, 0, 0.5);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	z-index: 3000;
-}
-
-.calendar-modal {
-	background-color: $color-white;
-	border: 1px solid $color-dark-gray;
-	border-radius: $border-radius-lg;
-	box-shadow: $shadow-modal;
-	padding: $spacing-md;
-	width: 320px;
-	min-width: 320px;
-	max-width: 320px;
-	min-height: 450px;
-
-	&__content {
-		width: 100%;
-		height: 100%;
-		overflow: visible;
-	}
-
-	&__header {
-		display: grid;
-		grid-template-columns: 1fr auto 1fr;
-		align-items: center;
-		padding-bottom: $spacing-md;
-		gap: $spacing-sm;
-		width: 100%;
-	}
-
-	&__title {
-		@include body-font;
-		font-size: 14px;
-		font-weight: 500;
-		text-transform: capitalize;
-		white-space: nowrap;
-		justify-self: start;
-	}
-
-	&__today-btn {
-		padding: $spacing-xs $spacing-sm;
-		border: none;
-		border-radius: $border-radius-sm;
-		background-color: $color-dark-gray;
-		color: $color-white;
-		cursor: pointer;
-		font-family: $font-body;
-		font-size: 12px;
-		font-weight: 500;
-		transition: all 0.2s ease;
-		justify-self: center;
-
-		&:hover {
-			background-color: color.adjust($color-dark-gray, $lightness: 10%);
-		}
-	}
-
-	&__today-placeholder {
-		justify-self: center;
-		width: 0;
-		height: 0;
-	}
-
-	&__controls {
-		display: flex;
-		gap: 4px;
-		justify-self: end;
-	}
-
-	&__nav {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 28px;
-		height: 28px;
-		border: none;
-		border-radius: $border-radius-sm;
-		background-color: $color-dark-gray;
-		color: $color-white;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		padding: 0;
-
-		.el-icon {
-			color: inherit;
-			font-size: 14px;
-		}
-
-		&:hover {
-			background-color: color.adjust($color-dark-gray, $lightness: 10%);
-		}
-	}
-
-	&__nav-placeholder {
-		width: 28px;
-		height: 28px;
-	}
-
-	&__calendar-wrapper {
-		position: relative;
-		overflow: visible;
-	}
-
-	&__calendar {
-		width: 100%;
-		border: none;
-		height: 300px;
-		min-height: 300px;
-		overflow: hidden;
-
-		:deep(.el-calendar__header) {
-			display: none;
-		}
-
-		:deep(.el-calendar__body) {
-			padding: 0;
-		}
-
-		:deep(.el-calendar-table) {
-			table-layout: fixed;
-			width: 100%;
-
-			thead th {
-				@include body-font;
-				font-size: 12px;
-				padding: $spacing-sm 0;
-				text-align: center;
-				width: 14.28%;
-			}
-
-			td {
-				border: none;
-				padding: 0;
-				width: 14.28%;
-				height: 42px;
-			}
-		}
-
-		// Override ALL Element Plus is-selected and is-today styling
-		:deep(.el-calendar-table td.is-today),
-		:deep(.el-calendar-table td.is-selected),
-		:deep(.el-calendar-table td.is-today.is-selected) {
-			background-color: transparent !important;
-
-			.el-calendar-day {
-				background-color: transparent !important;
-			}
-		}
-
-		:deep(.el-calendar-day) {
-			padding: 0;
-			height: 42px;
-			background-color: transparent !important;
-
-			&:hover {
-				background-color: transparent !important;
-			}
-		}
-	}
-
-	&__day {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 100%;
-		height: 38px;
-		font-family: $font-body;
-		font-size: 12px;
-		color: $color-dark-gray;
-		cursor: default;
-		border-radius: $border-radius-sm;
-		transition:
-			background-color 0.15s ease,
-			color 0.15s ease;
-		background-color: transparent;
-
-		&--today {
-			border: 2px solid $color-dark-gray;
-		}
-
-		&--has-slots {
-			background-color: $color-dark-gray;
-			color: $color-white;
-			cursor: pointer;
-
-			&:hover {
-				background-color: $color-light-gray;
-				color: $color-dark-gray;
-			}
-		}
-
-		// Today with available slots (not selected) - show border with padding
-		&--today#{&}--has-slots:not(#{&}--selected) {
-			background-clip: content-box;
-			padding: calc($spacing-xs / 3);
-		}
-
-		&--selected#{&}--has-slots {
-			background-color: $color-yellow;
-			color: $color-dark-gray;
-
-			&:hover {
-				background-color: $color-yellow;
-				color: $color-dark-gray;
-			}
-		}
-
-		// Today + selected - show border with padding on yellow background
-		&--today#{&}--selected#{&}--has-slots {
-			background-clip: content-box;
-			padding: calc($spacing-xs / 3);
-		}
-
-		&--disabled {
-			cursor: default;
-			pointer-events: none;
-			background-color: transparent !important;
-		}
-
-		&--other-month {
-			opacity: 0.3;
-			pointer-events: none;
-			background-color: transparent !important;
-		}
-	}
-
-	&__legend {
-		display: flex;
-		gap: $spacing-lg;
-		justify-content: center;
-		padding: $spacing-sm;
-	}
-
-	&__legend-item {
-		display: flex;
-		align-items: center;
-		gap: $spacing-sm;
-	}
-
-	&__legend-color {
-		width: 35px;
-		height: 25px;
-		border-radius: $border-radius-sm;
-
-		&--today {
-			background-color: transparent;
-			border: 2px solid $color-dark-gray;
-		}
-
-		&--available {
-			background-color: $color-dark-gray;
-		}
-
-		&--selected {
-			background-color: $color-yellow;
-		}
-
-		&--unavailable {
-			background-color: transparent;
-			border: 1px solid $color-light-gray;
-		}
-	}
-
-	&__legend-label {
-		font-family: $font-body;
-		font-size: 12px;
-		color: $color-dark-gray;
-	}
-}
-
-// Calendar modal transitions
-.calendar-modal-enter-active,
-.calendar-modal-leave-active {
-	transition: opacity 0.2s ease;
-}
-
-.calendar-modal-enter-from,
-.calendar-modal-leave-to {
-	opacity: 0;
-}
-
-// Calendar slide transitions for month navigation
-.calendar-slide-left-enter-active,
-.calendar-slide-left-leave-active,
-.calendar-slide-right-enter-active,
-.calendar-slide-right-leave-active {
-	transition: all 0.25s ease;
-}
-
-.calendar-slide-left-enter-from {
-	opacity: 0;
-	transform: translateX(20px);
-}
-
-.calendar-slide-left-leave-to {
-	opacity: 0;
-	transform: translateX(-20px);
-}
-
-.calendar-slide-right-enter-from {
-	opacity: 0;
-	transform: translateX(-20px);
-}
-
-.calendar-slide-right-leave-to {
-	opacity: 0;
-	transform: translateX(20px);
-}
-
-// Fade transition for buttons
-.fade-enter-active,
-.fade-leave-active {
-	transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-	opacity: 0;
-}
+// Calendar Modal Styles are in _global.scss
 </style>

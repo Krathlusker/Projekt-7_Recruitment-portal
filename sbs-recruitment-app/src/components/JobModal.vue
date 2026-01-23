@@ -50,10 +50,10 @@
 
 				<!-- CTA Button (outside modal, below) -->
 				<div class="modal-wrapper__actions">
-					<button @click="handleApply" class="modal-nav-btn modal-nav-btn--red modal-nav-btn--full">
+					<el-button type="danger" size="large" style="width: 100%" @click="handleApply">
 						ANSØG NU
 						<el-icon :size="24"><Right /></el-icon>
-					</button>
+					</el-button>
 				</div>
 			</div>
 		</div>

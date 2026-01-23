@@ -1,5 +1,5 @@
 <template>
-	<el-button class="btn-red floating-apply-button" @click="$emit('click')">
+	<el-button type="danger" size="large" class="floating-apply-button" @click="$emit('click')">
 		ANSØG NU
 		<el-icon>
 			<ArrowRight />

@@ -1,14 +1,13 @@
 <template>
-	<div class="consent-checkbox">
-		<label class="consent-checkbox__label" @click.prevent="openModal">
-			<span class="consent-checkbox__box" :class="{ 'consent-checkbox__box--checked': modelValue }">
-				<el-icon v-if="modelValue"><Check /></el-icon>
-			</span>
-			<span class="consent-checkbox__text">
-				Jeg accepterer <span class="consent-checkbox__link">behandling af mine persondata</span>
-			</span>
-		</label>
-	</div>
+	<el-checkbox
+		:model-value="modelValue"
+		class="consent-checkbox"
+		@click.prevent="openModal"
+	>
+		<span class="consent-checkbox__text">
+			Jeg accepterer <span class="consent-checkbox__link">behandling af mine persondata</span>
+		</span>
+	</el-checkbox>
 
 	<!-- Consent Modal (teleported to body to escape parent stacking context) -->
 	<Teleport to="body">
@@ -74,8 +73,8 @@
 
 					<!-- Action buttons (outside modal box, same style as ApplicationModal) -->
 					<div class="modal-wrapper__actions">
-						<button @click="handleDecline" class="modal-nav-btn modal-nav-btn--red">Afslå</button>
-						<button @click="handleAccept" class="modal-nav-btn modal-nav-btn--yellow">Acceptér</button>
+						<el-button type="danger" @click="handleDecline" class="modal-nav-btn">Afslå</el-button>
+						<el-button type="warning" @click="handleAccept" class="modal-nav-btn">Acceptér</el-button>
 					</div>
 				</div>
 			</div>
@@ -85,7 +84,6 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Check } from '@element-plus/icons-vue'
 import ModalCloseButton from '@/components/ModalCloseButton.vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 
@@ -122,44 +120,10 @@ const handleDecline = () => {
 @use 'sass:color';
 
 .consent-checkbox {
-	display: flex;
-	align-items: flex-start;
 	margin: $spacing-md 0;
-
-	&__label {
-		display: flex;
-		align-items: center;
-		gap: $spacing-sm;
-		cursor: pointer;
-		user-select: none;
-	}
-
-	&__box {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 20px;
-		height: 20px;
-		min-width: 20px;
-		border: 2px solid $color-dark-gray;
-		border-radius: $border-radius-sm;
-		background-color: $color-white;
-		transition: all 0.2s ease;
-		margin-top: 2px;
-
-		&--checked {
-			background-color: $color-dark-gray;
-			color: $color-white;
-		}
-
-		.el-icon {
-			font-size: 14px;
-		}
-	}
 
 	&__text {
 		@include body-font;
-		padding-top: calc($spacing-xs / 2);
 		line-height: 1.4;
 	}
 

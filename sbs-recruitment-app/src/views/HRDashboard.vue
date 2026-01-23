@@ -20,9 +20,14 @@
 					<el-button :loading="isLoading" @click="handleLogin" class="btn-red"> Log ind </el-button>
 				</el-form>
 
-				<p v-if="loginError" class="hr-dashboard__login-error">
-					{{ loginError }}
-				</p>
+				<el-alert
+					v-if="loginError"
+					:title="loginError"
+					type="error"
+					:closable="false"
+					show-icon
+					class="hr-dashboard__login-error"
+				/>
 			</div>
 		</div>
 
@@ -53,21 +58,17 @@
 					<section class="hr-dashboard__stats">
 						<h2 class="hr-dashboard__section-title">Statistik</h2>
 						<div class="hr-dashboard__stats-grid">
-							<div class="stat-card stat-card--clickable" @click="scrollToApplications('all')">
-								<span class="stat-card__value">{{ stats.totalApplications }}</span>
-								<span class="stat-card__label">Ansøgninger i alt</span>
+							<div class="el-stat-card el-stat-card--clickable" @click="scrollToApplications('all')">
+								<el-statistic :value="stats.totalApplications" title="Ansøgninger i alt" />
 							</div>
-							<div class="stat-card stat-card--clickable" @click="scrollToApplications('pending')">
-								<span class="stat-card__value">{{ stats.pendingApplications }}</span>
-								<span class="stat-card__label">Afventer behandling</span>
+							<div class="el-stat-card el-stat-card--clickable" @click="scrollToApplications('pending')">
+								<el-statistic :value="stats.pendingApplications" title="Afventer behandling" />
 							</div>
-							<div class="stat-card stat-card--clickable" @click="scrollToApplications('reserved')">
-								<span class="stat-card__value">{{ pendingWithReservedSlots }}</span>
-								<span class="stat-card__label">Reserveret - ikke booket</span>
+							<div class="el-stat-card el-stat-card--clickable" @click="scrollToApplications('reserved')">
+								<el-statistic :value="pendingWithReservedSlots" title="Reserveret - ikke booket" />
 							</div>
-							<div class="stat-card stat-card--clickable" @click="scrollToApplications('interview-scheduled')">
-								<span class="stat-card__value">{{ stats.scheduledInterviews }}</span>
-								<span class="stat-card__label">Planlagte samtaler</span>
+							<div class="el-stat-card el-stat-card--clickable" @click="scrollToApplications('interview-scheduled')">
+								<el-statistic :value="stats.scheduledInterviews" title="Planlagte samtaler" />
 							</div>
 						</div>
 					</section>
@@ -76,19 +77,19 @@
 					<section ref="upcomingSection" class="hr-dashboard__upcoming">
 						<h2 class="hr-dashboard__section-title">Kommende samtaler</h2>
 						<div class="hr-dashboard__upcoming-list">
-							<div v-for="interview in upcomingInterviews" :key="interview.id" class="interview-card">
-								<div class="interview-card__date">
-									<span class="interview-card__day">{{ formatDay(interview.confirmedSlot?.date) }}</span>
-									<span class="interview-card__month">{{ formatMonth(interview.confirmedSlot?.date) }}</span>
+							<div v-for="interview in upcomingInterviews" :key="interview.id" class="el-interview-card">
+								<div class="el-interview-card__date">
+									<span class="el-interview-card__day">{{ formatDay(interview.confirmedSlot?.date) }}</span>
+									<span class="el-interview-card__month">{{ formatMonth(interview.confirmedSlot?.date) }}</span>
 								</div>
-								<div class="interview-card__info">
-									<h3 class="interview-card__name">{{ interview.fullName }}</h3>
-									<p class="interview-card__detail">Job: {{ formatJobPosition(interview.jobPosition) }}</p>
-									<p class="interview-card__detail">Email: {{ interview.email }}</p>
-									<p class="interview-card__detail">Telefon: {{ interview.phone }}</p>
-									<p class="interview-card__detail">Tid: {{ interview.confirmedSlot?.time }}</p>
+								<div class="el-interview-card__info">
+									<h3 class="el-interview-card__name">{{ interview.fullName }}</h3>
+									<p class="el-interview-card__detail">Job: {{ formatJobPosition(interview.jobPosition) }}</p>
+									<p class="el-interview-card__detail">Email: {{ interview.email }}</p>
+									<p class="el-interview-card__detail">Telefon: {{ interview.phone }}</p>
+									<p class="el-interview-card__detail">Tid: {{ interview.confirmedSlot?.time }}</p>
 								</div>
-								<div class="interview-card__actions">
+								<div class="el-interview-card__actions">
 									<el-button @click="viewApplication(interview)" class="btn-dark"> Se ansøgning </el-button>
 									<el-button @click="markInterviewCompleted(interview.id)" class="btn-yellow"> Afholdt </el-button>
 								</div>
@@ -336,25 +337,36 @@
 									Ansøgeren har ikke valgt tidspunkter (ikke kvalificeret til DISC-test)
 								</p>
 
-								<!-- Custom time picker - always shown -->
+								<!-- Calendar slot picker for existing slots -->
 								<div class="application-detail__custom-time-section">
-									<CustomTimeSlotPicker
-										:title="
-											selectedApplication.confirmedSlot ||
-											(selectedApplication.selectedSlots && selectedApplication.selectedSlots.length > 0)
-												? 'Skift til ny tid'
-												: 'Opret ny tid'
-										"
-										:button-text="
+									<h4>{{
+										selectedApplication.confirmedSlot ||
+										(selectedApplication.selectedSlots && selectedApplication.selectedSlots.length > 0)
+											? 'Skift til ny tid'
+											: 'Vælg tid'
+									}}</h4>
+									<CalendarSlotPicker
+										:available-slots="availableSlotsForBooking"
+										:loading="isBookingCustomSlot"
+										:confirm-button-text="
 											selectedApplication.confirmedSlot ||
 											(selectedApplication.selectedSlots && selectedApplication.selectedSlots.length > 0)
 												? 'Skift til valgt tid'
+												: 'Bekræft og book tid'
+										"
+										@confirm="handleCalendarSlotConfirm"
+									/>
+
+									<!-- Manual time picker -->
+									<CustomTimeSlotPicker
+										:loading="isBookingCustomSlot"
+										:button-text="
+											selectedApplication.confirmedSlot ||
+											(selectedApplication.selectedSlots && selectedApplication.selectedSlots.length > 0)
+												? 'Book manuelt oprettet tid'
 												: 'Opret og book tid'
 										"
-										:loading="isBookingCustomSlot"
-										:available-slots="availableSlotsForBooking"
 										@submit="handleCustomTimeSubmit"
-										@select-existing="handleSelectExistingSlot"
 									/>
 								</div>
 							</div>
@@ -417,14 +429,14 @@
 										>
 											<div class="calendar-day__date">{{ data.day.split('-')[2] }}</div>
 											<div v-if="getTimeSlotsForDate(data.day).length > 0" class="calendar-day__chips">
-												<span class="calendar-day__chip calendar-day__chip--available"
-													>{{ getAvailableSlotsCount(data.day) }}/{{ getTimeSlotsForDate(data.day).length }}</span
+												<el-tag size="small" class="el-tag--available"
+													>{{ getAvailableSlotsCount(data.day) }}/{{ getTimeSlotsForDate(data.day).length }}</el-tag
 												>
-												<span class="calendar-day__chip calendar-day__chip--reserved"
-													>{{ getReservedSlotsCount(data.day) }}/{{ getTimeSlotsForDate(data.day).length }}</span
+												<el-tag size="small" class="el-tag--reserved"
+													>{{ getReservedSlotsCount(data.day) }}/{{ getTimeSlotsForDate(data.day).length }}</el-tag
 												>
-												<span class="calendar-day__chip calendar-day__chip--booked"
-													>{{ getBookedSlotsCount(data.day) }}/{{ getTimeSlotsForDate(data.day).length }}</span
+												<el-tag size="small" class="el-tag--booked"
+													>{{ getBookedSlotsCount(data.day) }}/{{ getTimeSlotsForDate(data.day).length }}</el-tag
 												>
 											</div>
 										</div>
@@ -552,10 +564,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ElMessage } from 'element-plus'
 import { User, Message, Phone, Calendar } from '@element-plus/icons-vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 import ModalCloseButton from '@/components/ModalCloseButton.vue'
+import CalendarSlotPicker from '@/components/CalendarSlotPicker.vue'
 import CustomTimeSlotPicker from '@/components/CustomTimeSlotPicker.vue'
 import api, { setAuthHeader, clearAuthHeader } from '@/config/api'
 import type {
@@ -578,6 +592,8 @@ const isLoading = ref(false)
 const applications = ref<Application[]>([])
 const lastUpdated = ref('')
 const refreshInterval = ref<ReturnType<typeof setInterval> | null>(null)
+const slotPollingInterval = ref<ReturnType<typeof setInterval> | null>(null)
+const SLOT_POLLING_INTERVAL_MS = 3000 // Poll every 3 seconds
 
 // UI state
 const showDetailDialog = ref(false)
@@ -769,6 +785,7 @@ const updateApplicationStatus = async (id: string, status: ApplicationStatus) =>
 		await api.patch(`/applications/${id}`, { status })
 	} catch (error) {
 		console.error('Failed to update status:', error)
+		ElMessage.error('Kunne ikke opdatere status')
 	}
 }
 
@@ -788,6 +805,7 @@ const deleteApplication = async (id?: string) => {
 		await loadApplications()
 	} catch (error) {
 		console.error('Failed to delete application:', error)
+		ElMessage.error('Kunne ikke slette ansøgning')
 	}
 }
 
@@ -797,12 +815,15 @@ const downloadCV = (filename: string) => {
 }
 
 // View application details
-const viewApplication = (application: Application) => {
+const viewApplication = async (application: Application) => {
 	selectedApplication.value = { ...application }
 	customSlotSelection.value = ''
 	customDate.value = ''
 	customTime.value = ''
 	customType.value = 'fysisk'
+	// Load slots and start polling for live sync
+	await loadTimeSlots()
+	startSlotPolling()
 	showDetailDialog.value = true
 }
 
@@ -888,6 +909,23 @@ const loadTimeSlots = async () => {
 		availableTimeSlots.value = response.data
 	} catch (error) {
 		console.error('Failed to load time slots:', error)
+		ElMessage.error('Kunne ikke indlæse tider')
+	}
+}
+
+// Start polling for slot updates (live sync like ApplicationModal)
+const startSlotPolling = () => {
+	if (slotPollingInterval.value) return
+	slotPollingInterval.value = setInterval(() => {
+		loadTimeSlots()
+	}, SLOT_POLLING_INTERVAL_MS)
+}
+
+// Stop slot polling
+const stopSlotPolling = () => {
+	if (slotPollingInterval.value) {
+		clearInterval(slotPollingInterval.value)
+		slotPollingInterval.value = null
 	}
 }
 
@@ -921,8 +959,10 @@ const confirmInterviewSlot = async (applicationId: string, slotId: string) => {
 
 		// Reset custom slot selection
 		customSlotSelection.value = ''
+		ElMessage.success('Samtale bekræftet')
 	} catch (error) {
 		console.error('Failed to confirm interview slot:', error)
+		ElMessage.error('Kunne ikke bekræfte samtale')
 	}
 }
 
@@ -942,8 +982,10 @@ const releaseConfirmedSlot = async (applicationId: string) => {
 				selectedApplication.value = { ...updated }
 			}
 		}
+		ElMessage.success('Tid frigivet')
 	} catch (error) {
 		console.error('Failed to release confirmed slot:', error)
+		ElMessage.error('Kunne ikke frigive tid')
 	}
 }
 
@@ -976,8 +1018,10 @@ const changeToSelectedSlot = async (applicationId: string, slotId: string) => {
 		if (updated) {
 			selectedApplication.value = { ...updated }
 		}
+		ElMessage.success('Tid ændret')
 	} catch (error) {
 		console.error('Failed to change to selected slot:', error)
+		ElMessage.error('Kunne ikke skifte til valgt tid')
 	}
 }
 
@@ -1019,8 +1063,10 @@ const handleCustomTimeSubmit = async (data: { date: string; time: string; type: 
 		if (updated) {
 			selectedApplication.value = { ...updated }
 		}
+		ElMessage.success('Samtaletid oprettet')
 	} catch (error) {
 		console.error('Failed to book custom slot:', error)
+		ElMessage.error('Kunne ikke oprette samtaletid')
 	} finally {
 		isBookingCustomSlot.value = false
 	}
@@ -1074,8 +1120,67 @@ const handleSelectExistingSlot = async (slot: {
 		if (updated) {
 			selectedApplication.value = { ...updated }
 		}
+		ElMessage.success('Tid booket')
 	} catch (error) {
 		console.error('Failed to book existing slot:', error)
+		ElMessage.error('Kunne ikke booke tid')
+	} finally {
+		isBookingCustomSlot.value = false
+	}
+}
+
+// Handle confirming a slot from CalendarSlotPicker
+const handleCalendarSlotConfirm = async (slot: {
+	id: string
+	date: string
+	time: string
+	type: 'fysisk' | 'virtuel'
+}) => {
+	if (!selectedApplication.value) return
+
+	isBookingCustomSlot.value = true
+
+	try {
+		const applicationId = selectedApplication.value.id
+
+		// Release all existing slots (confirmed and reserved)
+		await releaseAllApplicationSlots(selectedApplication.value)
+
+		// Book the selected slot
+		await api.patch(`/interview-slots/${slot.id}/book`, {
+			applicationId: applicationId
+		})
+
+		// Create confirmed slot object
+		const confirmedSlot: InterviewSlot = {
+			id: slot.id,
+			date: slot.date,
+			time: slot.time,
+			type: slot.type,
+			isBooked: true,
+			bookedBy: applicationId
+		}
+
+		// Update application with the confirmed slot, clear selectedSlots, and set status
+		await api.patch(`/applications/${applicationId}`, {
+			confirmedSlot: confirmedSlot,
+			selectedSlots: [],
+			status: 'interview-scheduled'
+		})
+
+		// Reload data
+		await loadApplications()
+		await loadTimeSlots()
+
+		// Update selected application
+		const updated = applications.value.find((app) => app.id === applicationId)
+		if (updated) {
+			selectedApplication.value = { ...updated }
+		}
+		ElMessage.success('Tid booket')
+	} catch (error) {
+		console.error('Failed to book slot:', error)
+		ElMessage.error('Kunne ikke booke tid')
 	} finally {
 		isBookingCustomSlot.value = false
 	}
@@ -1195,8 +1300,10 @@ const addTimeSlotForSelectedDate = async () => {
 		newTimeSlot.value.time = ''
 		newTimeSlot.value.type = 'fysisk'
 		await loadTimeSlots()
+		ElMessage.success('Tid tilføjet')
 	} catch (error) {
 		console.error('Failed to add time slot:', error)
+		ElMessage.error('Kunne ikke tilføje tid')
 	}
 }
 
@@ -1204,8 +1311,10 @@ const removeTimeSlot = async (slotId: string) => {
 	try {
 		await api.delete(`/interview-slots/${slotId}`)
 		await loadTimeSlots()
+		ElMessage.success('Tid fjernet')
 	} catch (error) {
 		console.error('Failed to remove time slot:', error)
+		ElMessage.error('Kunne ikke fjerne tid')
 	}
 }
 
@@ -1245,8 +1354,10 @@ const performCleanup = async () => {
 
 		showCleanupModal.value = false
 		await loadApplications()
+		ElMessage.success('Gamle ansøgninger slettet')
 	} catch (error) {
 		console.error('Failed to cleanup applications:', error)
+		ElMessage.error('Kunne ikke rydde op i ansøgninger')
 	}
 }
 
@@ -1260,13 +1371,14 @@ const clearAllData = async () => {
 
 	try {
 		const response = await api.delete('/clear-all-data')
-		console.log('Cleared all data:', response.data)
 
 		showCleanupModal.value = false
 		await loadApplications()
 		await loadTimeSlots()
+		ElMessage.success('Alle data slettet')
 	} catch (error) {
 		console.error('Failed to clear all data:', error)
+		ElMessage.error('Kunne ikke slette data')
 	}
 }
 
@@ -1291,7 +1403,15 @@ onMounted(() => {
 
 onUnmounted(() => {
 	stopAutoRefresh()
+	stopSlotPolling()
 	resizeObserver?.disconnect()
+})
+
+// Watch for detail dialog close to stop polling
+watch(showDetailDialog, (newVal) => {
+	if (!newVal) {
+		stopSlotPolling()
+	}
 })
 </script>
 
@@ -1529,7 +1649,6 @@ onUnmounted(() => {
 
 	&__applications-grid-wrapper {
 		transition: min-height 0.3s ease;
-		overflow: hidden;
 	}
 
 	&__applications-grid {
@@ -1551,98 +1670,6 @@ onUnmounted(() => {
 	}
 }
 
-// Stat Card
-.stat-card {
-	@include card;
-	@include flex-column;
-	@include flex-center;
-	gap: $spacing-sm;
-	padding: $spacing-xl;
-
-	&--clickable {
-		cursor: pointer;
-		transition:
-			transform 0.2s ease,
-			box-shadow 0.2s ease;
-
-		&:hover {
-			transform: translateY(-2px);
-			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-		}
-
-		&:active {
-			transform: translateY(0);
-		}
-	}
-
-	&__value {
-		font-size: 48px;
-		font-weight: $font-weight-bold;
-		color: $color-dark-gray;
-	}
-
-	&__label {
-		@include body-font;
-		color: $color-gray;
-		display: flex;
-		align-items: center;
-		gap: $spacing-xs;
-
-		.el-icon {
-			font-size: 18px;
-		}
-	}
-}
-
-// Interview Card
-.interview-card {
-	@include card;
-	display: flex;
-	gap: $spacing-lg;
-	align-items: stretch;
-
-	&__date {
-		@include flex-column;
-		@include flex-center;
-		min-width: 100px;
-		padding: $spacing-md;
-		background-color: $color-light-gray;
-		border-radius: $border-radius-md;
-	}
-
-	&__day {
-		font-size: 48px;
-		font-weight: $font-weight-bold;
-		line-height: 1;
-	}
-
-	&__month {
-		@include subtitle-font;
-		text-transform: capitalize;
-	}
-
-	&__info {
-		flex: 1;
-		@include flex-column;
-		gap: $spacing-xs;
-	}
-
-	&__name {
-		@include subtitle-font;
-		margin-bottom: $spacing-sm;
-	}
-
-	&__detail {
-		@include body-font;
-	}
-
-	&__actions {
-		@include flex-column;
-		gap: $spacing-sm;
-		justify-content: center;
-	}
-}
-
 // Application Card
 .application-card {
 	@include card;
@@ -1650,6 +1677,14 @@ onUnmounted(() => {
 	gap: 0;
 	padding: 0;
 	overflow: hidden;
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
+
+	&:hover {
+		transform: translateY(-4px);
+		box-shadow: $shadow-modal;
+	}
 
 	&__header {
 		@include flex-between;
@@ -2028,29 +2063,6 @@ onUnmounted(() => {
 		flex-wrap: wrap;
 		gap: 2px;
 		width: 100%;
-	}
-
-	&__chip {
-		@include body-font;
-		font-size: 10px;
-		font-weight: $font-weight-medium;
-		padding: 2px 5px;
-		border-radius: $border-radius-sm;
-		color: $color-white;
-		min-width: 16px;
-		text-align: center;
-
-		&--available {
-			background-color: $color-dark-gray;
-		}
-
-		&--reserved {
-			background-color: #f5a623;
-		}
-
-		&--booked {
-			background-color: $color-red;
-		}
 	}
 }
 

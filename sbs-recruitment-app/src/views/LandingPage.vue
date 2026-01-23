@@ -64,15 +64,21 @@
 						proces og de værktøjer vi bruger til at skabe førende bremseklods løsninger verden over.
 					</p>
 					<div class="landing-page__jobs-grid">
-						<div v-for="job in jobs" :key="job.id" class="job-card" @click="openJobModal(job.id)">
-							<div class="job-card__image">
+						<el-card
+							v-for="job in jobs"
+							:key="job.id"
+							class="el-image-card"
+							shadow="hover"
+							@click="openJobModal(job.id)"
+						>
+							<div class="el-image-card__image">
 								<img :src="job.image" :alt="job.title" />
 							</div>
-							<div class="job-card__content">
-								<h3 class="job-card__title">{{ job.title }}</h3>
+							<div class="el-image-card__content">
+								<h3 class="el-image-card__title">{{ job.title }}</h3>
 							</div>
-							<el-button class="btn-light job-card__button">Læs mere</el-button>
-						</div>
+							<el-button class="btn-light el-image-card__button">Læs mere</el-button>
+						</el-card>
 					</div>
 				</div>
 			</section>
@@ -85,24 +91,24 @@
 						Hos SBS er der en række medarbejder fordele som alle vores ansatte nyder godt af!
 					</p>
 					<div class="landing-page__benefits-grid">
-						<div v-for="benefit in benefits.slice(0, 6)" :key="benefit.id" class="benefit-card">
-							<div class="benefit-card__icon">
+						<div v-for="benefit in benefits.slice(0, 6)" :key="benefit.id" class="el-info-card">
+							<div class="el-info-card__icon">
 								<el-icon :size="48">
 									<component :is="benefit.icon" />
 								</el-icon>
 							</div>
-							<h3 class="benefit-card__title">{{ benefit.title }}</h3>
-							<p class="benefit-card__text">{{ benefit.text }}</p>
+							<h3 class="el-info-card__title">{{ benefit.title }}</h3>
+							<p class="el-info-card__text">{{ benefit.text }}</p>
 						</div>
 						<div class="landing-page__benefits-last-row">
-							<div v-for="benefit in benefits.slice(6)" :key="benefit.id" class="benefit-card">
-								<div class="benefit-card__icon">
+							<div v-for="benefit in benefits.slice(6)" :key="benefit.id" class="el-info-card">
+								<div class="el-info-card__icon">
 									<el-icon :size="48">
 										<component :is="benefit.icon" />
 									</el-icon>
 								</div>
-								<h3 class="benefit-card__title">{{ benefit.title }}</h3>
-								<p class="benefit-card__text">{{ benefit.text }}</p>
+								<h3 class="el-info-card__title">{{ benefit.title }}</h3>
+								<p class="el-info-card__text">{{ benefit.text }}</p>
 							</div>
 						</div>
 					</div>
@@ -114,65 +120,61 @@
 				<div class="landing-page__footer-container">
 					<!-- Social Media -->
 					<div class="landing-page__social">
-						<a href="https://linkedin.com/company/sbs-friction" target="_blank" class="landing-page__social-link">
+						<el-link href="https://linkedin.com/company/sbs-friction" target="_blank" :underline="false" class="social-link">
 							<el-icon :size="20">
 								<Link />
 							</el-icon>
-						</a>
-						<a href="https://facebook.com/sbsfriction" target="_blank" class="landing-page__social-link">
+						</el-link>
+						<el-link href="https://facebook.com/sbsfriction" target="_blank" :underline="false" class="social-link">
 							<el-icon :size="20">
 								<ChatDotRound />
 							</el-icon>
-						</a>
-						<a href="https://instagram.com/sbsfriction" target="_blank" class="landing-page__social-link">
+						</el-link>
+						<el-link href="https://instagram.com/sbsfriction" target="_blank" :underline="false" class="social-link">
 							<el-icon :size="20">
 								<Picture />
 							</el-icon>
-						</a>
-						<a href="https://youtube.com/sbsfriction" target="_blank" class="landing-page__social-link">
+						</el-link>
+						<el-link href="https://youtube.com/sbsfriction" target="_blank" :underline="false" class="social-link">
 							<el-icon :size="20">
 								<VideoPlay />
 							</el-icon>
-						</a>
+						</el-link>
 					</div>
 
 					<!-- Nyttige links -->
 					<div class="landing-page__footer-section">
 						<h4 class="landing-page__footer-title">Nyttige links</h4>
-						<div class="landing-page__footer-links">
-							<a href="https://sfriction.dk" target="_blank" class="landing-page__footer-link">SBS</a>
-							<a href="https://sfriction.dk/karriere" target="_blank" class="landing-page__footer-link">SBS - Career</a>
-							<a href="https://www.brembo.com" target="_blank" class="landing-page__footer-link">Brembo</a>
-						</div>
+						<el-link href="https://sfriction.dk" target="_blank" class="footer-link">SBS</el-link>
+						<el-link href="https://sfriction.dk/karriere" target="_blank" class="footer-link">SBS - Career</el-link>
+						<el-link href="https://www.brembo.com" target="_blank" class="footer-link">Brembo</el-link>
 					</div>
 
 					<!-- SBS A/S Info -->
 					<div class="landing-page__footer-section">
 						<h4 class="landing-page__footer-title">SBS A/S</h4>
-						<div class="landing-page__footer-info">
-							<a
-								href="https://www.google.com/maps/place/SBS+Friction+A%2FS/@55.0768882,10.5817289"
-								target="_blank"
-								class="landing-page__footer-info-link"
-							>
-								<el-icon :size="15">
-									<Location />
-								</el-icon>
-								<span>Kuopiovej 11, 5700 Svendborg</span>
-							</a>
-							<a href="tel:+4563211515" class="landing-page__footer-info-link">
-								<el-icon :size="15">
-									<Phone />
-								</el-icon>
-								<span>+45 6321 15 15</span>
-							</a>
-							<a href="mailto:sbs@sbs.dk?subject=Recruitment%20enquirie" class="landing-page__footer-info-link">
-								<el-icon :size="15">
-									<Message />
-								</el-icon>
-								<span>SBS@SBS.dk</span>
-							</a>
-						</div>
+						<el-link
+							href="https://www.google.com/maps/place/SBS+Friction+A%2FS/@55.0768882,10.5817289"
+							target="_blank"
+							class="footer-link footer-link--icon"
+						>
+							<el-icon :size="15">
+								<Location />
+							</el-icon>
+							<span>Kuopiovej 11, 5700 Svendborg</span>
+						</el-link>
+						<el-link href="tel:+4563211515" class="footer-link footer-link--icon">
+							<el-icon :size="15">
+								<Phone />
+							</el-icon>
+							<span>+45 6321 15 15</span>
+						</el-link>
+						<el-link href="mailto:sbs@sbs.dk?subject=Recruitment%20enquirie" class="footer-link footer-link--icon">
+							<el-icon :size="15">
+								<Message />
+							</el-icon>
+							<span>SBS@SBS.dk</span>
+						</el-link>
 					</div>
 
 					<!-- Copyright -->
@@ -185,9 +187,9 @@
 
 					<!-- Legal Links -->
 					<div class="landing-page__legal">
-						<a href="/privacy" class="landing-page__legal-link">Persondata</a>
+						<el-link href="/privacy" class="footer-link footer-link--small">Persondata</el-link>
 						<span class="landing-page__legal-separator"></span>
-						<a href="/cookies" class="landing-page__legal-link">Cookiepolitik</a>
+						<el-link href="/cookies" class="footer-link footer-link--small">Cookiepolitik</el-link>
 					</div>
 				</div>
 			</footer>
@@ -607,23 +609,10 @@ const closeApplicationModal = () => {
 		gap: $spacing-sm;
 	}
 
-	&__social-link {
-		@include flex-center;
-		width: 36px;
-		height: 36px;
-		background-color: $color-white;
-		border-radius: 50%;
-		color: $color-dark-gray;
-		transition: transform 0.2s ease;
-
-		&:hover {
-			transform: scale(1.1);
-		}
-	}
-
 	&__footer-section {
 		@include flex-column;
-		gap: $spacing-md;
+		align-items: flex-start;
+		gap: $spacing-xs;
 		padding: $spacing-md 0;
 		width: 100%;
 	}
@@ -633,51 +622,7 @@ const closeApplicationModal = () => {
 		font-weight: 500;
 		font-size: 36px;
 		color: $color-white;
-		margin: 0;
-	}
-
-	&__footer-links {
-		@include flex-column;
-		gap: $spacing-xs;
-	}
-
-	&__footer-link {
-		font-family: 'Helvetica Neue LT Pro', sans-serif;
-		font-weight: 700;
-		font-size: 18px;
-		color: $color-white;
-		text-decoration: none;
-		border-bottom: 1px solid $color-white;
-		display: inline-block;
-		width: fit-content;
-
-		&:hover {
-			opacity: 0.8;
-		}
-	}
-
-	&__footer-info {
-		@include flex-column;
-		gap: $spacing-xs;
-	}
-
-	&__footer-info-link {
-		display: flex;
-		align-items: center;
-		gap: $spacing-xs;
-		color: $color-white;
-		text-decoration: none;
-
-		span {
-			font-family: 'Helvetica Neue LT Pro', sans-serif;
-			font-weight: 700;
-			font-size: 18px;
-			border-bottom: 1px solid $color-white;
-		}
-
-		&:hover {
-			opacity: 0.8;
-		}
+		margin: 0 0 $spacing-sm 0;
 	}
 
 	&__copyright {
@@ -696,122 +641,11 @@ const closeApplicationModal = () => {
 		gap: $spacing-xs;
 	}
 
-	&__legal-link {
-		font-family: 'Helvetica Neue LT Pro', sans-serif;
-		font-weight: 700;
-		font-size: 12px;
-		color: $color-white;
-		text-decoration: none;
-		border-bottom: 1px solid $color-white;
-
-		&:hover {
-			opacity: 0.8;
-		}
-	}
-
 	&__legal-separator {
 		width: 6px;
 		height: 6px;
 		background-color: $color-white;
 		border-radius: 50%;
-	}
-}
-
-// Job Card Component
-.job-card {
-	position: relative;
-	cursor: pointer;
-	transition:
-		transform 0.2s ease,
-		box-shadow 0.2s ease;
-	border-radius: $border-radius-lg;
-	overflow: hidden;
-	height: 282px;
-
-	&:hover {
-		transform: translateY(-6px);
-		box-shadow: $shadow-modal;
-	}
-
-	&__image {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background-color: $color-dark-gray;
-
-		img {
-			width: 100%;
-			height: 100%;
-			object-fit: cover;
-		}
-	}
-
-	&__content {
-		position: absolute;
-		bottom: 72px;
-		left: 12px;
-	}
-
-	&__title {
-		font-family: $font-title;
-		font-weight: $font-weight-medium;
-		font-size: 24px;
-		color: $color-white;
-		margin: 0;
-		text-shadow: 0 2px 4px rgba($color-dark-gray, 0.5);
-	}
-
-	&__description {
-		@include body-font;
-	}
-
-	// Job card button - position and size based on Figma
-	&__button {
-		position: absolute;
-		left: 12px;
-		bottom: 12px;
-		width: 97px;
-		height: 44px;
-		padding: $spacing-sm;
-		font-size: 16px;
-		font-weight: $font-weight-medium;
-		text-transform: none;
-	}
-}
-
-// Benefit Card Component
-.benefit-card {
-	@include flex-center;
-	@include flex-column;
-	gap: $spacing-sm;
-	padding: $spacing-lg;
-	text-align: center;
-
-	&__icon {
-		@include flex-center;
-		width: 120px;
-		height: 120px;
-		background-color: $color-light-gray;
-		border-radius: 50%;
-		color: $color-dark-gray;
-		margin-bottom: $spacing-sm;
-	}
-
-	&__title {
-		@include body-bold-font;
-		font-size: 14px;
-		color: $color-dark-gray;
-		margin: 0;
-	}
-
-	&__text {
-		@include body-font;
-		font-size: 12px;
-		color: $color-dark-gray;
-		line-height: 1.5;
-		margin: 0;
 	}
 }
 </style>

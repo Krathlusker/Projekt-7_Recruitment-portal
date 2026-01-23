@@ -58,6 +58,10 @@ $border-radius-lg: 12px;
 $shadow-modal: 0px 0px 18px 6px rgba($color-dark-gray, 0.25);
 $shadow-card: 0px 6px 6px rgba($color-dark-gray, 0.1);
 
+// Transitions
+$transition-duration: 0.2s;
+$transition-ease: ease;
+
 // Breakpoints
 $breakpoint-sm: 576px;
 $breakpoint-md: 768px;
@@ -72,6 +76,88 @@ $z-index-header: 100;
 // Layout
 $max-content-width: 1020px;
 $modal-max-height-mobile: 657px;
+
+// ==================== ELEMENT PLUS CSS VARIABLE OVERRIDES ====================
+// Override Element Plus button colors to match our design system
+:root {
+	// Primary = Dark Gray (used for back/close buttons)
+	--el-color-primary: #{$color-dark-gray};
+	--el-color-primary-light-3: #{color.adjust($color-dark-gray, $lightness: 15%)};
+	--el-color-primary-light-5: #{color.adjust($color-dark-gray, $lightness: 25%)};
+	--el-color-primary-light-7: #{color.adjust($color-dark-gray, $lightness: 35%)};
+	--el-color-primary-light-8: #{color.adjust($color-dark-gray, $lightness: 40%)};
+	--el-color-primary-light-9: #{color.adjust($color-dark-gray, $lightness: 45%)};
+	--el-color-primary-dark-2: #{color.adjust($color-dark-gray, $lightness: -10%)};
+
+	// Warning = Yellow (used for next/send buttons)
+	--el-color-warning: #{$color-yellow};
+	--el-color-warning-light-3: #{color.adjust($color-yellow, $lightness: 10%)};
+	--el-color-warning-light-5: #{color.adjust($color-yellow, $lightness: 15%)};
+	--el-color-warning-light-7: #{color.adjust($color-yellow, $lightness: 20%)};
+	--el-color-warning-light-8: #{color.adjust($color-yellow, $lightness: 25%)};
+	--el-color-warning-light-9: #{color.adjust($color-yellow, $lightness: 30%)};
+	--el-color-warning-dark-2: #{color.adjust($color-yellow, $lightness: -10%)};
+
+	// Danger = Red
+	--el-color-danger: #{$color-red};
+	--el-color-danger-light-3: #{color.adjust($color-red, $lightness: 15%)};
+	--el-color-danger-light-5: #{color.adjust($color-red, $lightness: 25%)};
+	--el-color-danger-light-7: #{color.adjust($color-red, $lightness: 35%)};
+	--el-color-danger-light-8: #{color.adjust($color-red, $lightness: 40%)};
+	--el-color-danger-light-9: #{color.adjust($color-red, $lightness: 45%)};
+	--el-color-danger-dark-2: #{color.adjust($color-red, $lightness: -10%)};
+
+	// Success = Green
+	--el-color-success: #{$color-green};
+}
+
+// ==================== EL-LINK GLOBAL STYLING ====================
+// Footer links use el-link for consistent styling across pages
+
+// Social media icon links (circular white background)
+.social-link {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	width: 36px !important;
+	height: 36px !important;
+	background-color: $color-white !important;
+	border-radius: 50% !important;
+	color: $color-dark-gray !important;
+	transition: transform 0.2s ease !important;
+
+	&:hover {
+		transform: scale(1.1);
+		color: $color-dark-gray !important;
+	}
+}
+
+// Footer link styling (white text, uses el-link default underline on hover)
+.footer-link {
+	font-family: $font-body !important;
+	font-weight: $font-weight-bold !important;
+	font-size: 18px !important;
+	color: $color-white !important;
+	justify-content: flex-start !important;
+
+	&:hover {
+		color: $color-white !important;
+	}
+
+	// Smaller variant for legal links
+	&--small {
+		font-size: 12px !important;
+	}
+
+	// With icon variant
+	&--icon {
+		.el-link__inner {
+			display: flex;
+			align-items: center;
+			gap: $spacing-xs;
+		}
+	}
+}
 
 // ==================== MIXINS ====================
 
@@ -399,6 +485,404 @@ body.modal-open {
 	background-color: $color-yellow;
 }
 
+// ==================== ELEMENT PLUS CARD STYLING ====================
+
+// Base el-card styling - bruges på alle cards
+.el-card {
+	@include card;
+	border: none;
+	overflow: hidden;
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
+
+	// Reset el-card body padding
+	.el-card__body {
+		padding: 0;
+		height: 100%;
+	}
+
+	// Hover effekt for interaktive cards - løfter card opad
+	&--hover:hover,
+	&[shadow='hover']:hover {
+		transform: translateY(-4px);
+		box-shadow: $shadow-modal;
+	}
+}
+
+// Image Card - card med baggrundsbillede
+// Bruges til: job cards, hero cards, etc.
+.el-image-card {
+	position: relative;
+	cursor: pointer;
+	height: 282px;
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
+
+	&:hover {
+		transform: translateY(-4px);
+		box-shadow: $shadow-modal;
+	}
+
+	&__image {
+		position: absolute;
+		inset: 0;
+		background-color: $color-dark-gray;
+
+		img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+	}
+
+	&__content {
+		position: absolute;
+		bottom: 72px;
+		left: $spacing-sm;
+		right: $spacing-sm;
+	}
+
+	&__title {
+		font-family: $font-title;
+		font-weight: $font-weight-medium;
+		font-size: 24px;
+		color: $color-white;
+		margin: 0;
+		text-shadow: 0 2px 4px rgba($color-dark-gray, 0.5);
+	}
+
+	&__button {
+		position: absolute;
+		left: $spacing-sm;
+		bottom: $spacing-sm;
+	}
+}
+
+// Stat Card - wrapper for el-statistic
+// Bruges i: HR Dashboard
+.el-stat-card {
+	@include card;
+	@include flex-column;
+	@include flex-center;
+	gap: $spacing-sm;
+	padding: $spacing-xl;
+	transition: all $transition-duration $transition-ease;
+
+	&--clickable {
+		cursor: pointer;
+
+		&:hover {
+			transform: translateY(-4px);
+			box-shadow: $shadow-modal;
+		}
+
+		&:active {
+			transform: translateY(0);
+		}
+	}
+
+	// el-statistic styling inside card
+	.el-statistic {
+		text-align: center;
+
+		.el-statistic__head {
+			@include body-font;
+			color: $color-gray;
+			margin-bottom: $spacing-xs;
+		}
+
+		.el-statistic__content {
+			.el-statistic__number {
+				font-size: 48px;
+				font-weight: $font-weight-bold;
+				color: $color-dark-gray;
+			}
+		}
+	}
+}
+
+// Interview Card - bruges til kommende samtaler
+// Bruges i: HR Dashboard
+.el-interview-card {
+	@include card;
+	display: flex;
+	gap: $spacing-lg;
+	align-items: stretch;
+	padding: $spacing-md;
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
+
+	&:hover {
+		transform: translateY(-4px);
+		box-shadow: $shadow-modal;
+	}
+
+	&__date {
+		@include flex-column;
+		@include flex-center;
+		min-width: 100px;
+		padding: $spacing-md;
+		background-color: $color-light-gray;
+		border-radius: $border-radius-md;
+	}
+
+	&__day {
+		font-size: 48px;
+		font-weight: $font-weight-bold;
+		line-height: 1;
+	}
+
+	&__month {
+		@include subtitle-font;
+		text-transform: capitalize;
+	}
+
+	&__info {
+		flex: 1;
+		@include flex-column;
+		gap: $spacing-xs;
+	}
+
+	&__name {
+		@include subtitle-font;
+		margin-bottom: $spacing-sm;
+	}
+
+	&__detail {
+		@include body-font;
+	}
+
+	&__actions {
+		@include flex-column;
+		gap: $spacing-sm;
+		justify-content: center;
+	}
+}
+
+// ==================== ELEMENT PLUS STEPS STYLING ====================
+
+// Simple steps - bruges til multi-step flows
+// Bruges i: ApplicationModal
+
+.el-steps {
+	padding: $spacing-sm;
+}
+
+.el-steps.is-simple {
+	width: 100%;
+	padding: $spacing-xs 0;
+
+	.el-step__head {
+		cursor: pointer;
+	}
+
+	.el-steps.is-simple .el-step__main {
+		width: 100%;
+	}
+
+	.el-step__title {
+		cursor: pointer;
+		@include body-font;
+		padding-top: $spacing-xs;
+	}
+
+	.el-step__icon {
+		border-color: $color-dark-gray;
+		color: $color-dark-gray;
+	}
+}
+
+// All steps - dark-grey icon and text by default
+.el-step.is-simple .el-step__icon {
+	border-color: $color-dark-gray !important;
+	color: $color-dark-gray !important;
+	transition: all $transition-duration $transition-ease;
+	cursor: pointer;
+}
+
+.el-step.is-simple .el-step__title {
+	color: $color-dark-gray !important;
+	transition: all $transition-duration $transition-ease;
+	cursor: pointer;
+}
+
+// Hover effect - lift up like cards
+.el-step.is-simple:hover .el-step__icon {
+	transform: translateY(-4px);
+}
+
+.el-step.is-simple:hover .el-step__title {
+	transform: translateY(-4px);
+}
+
+// Completed state - disable hover and pointer cursor
+.el-steps.is-completed .el-step.is-simple .el-step__icon,
+.el-steps.is-completed .el-step.is-simple .el-step__title {
+	cursor: default;
+}
+
+.el-steps.is-completed .el-step.is-simple:hover .el-step__icon,
+.el-steps.is-completed .el-step.is-simple:hover .el-step__title {
+	transform: none;
+}
+
+// Arrow connectors - outside nesting for correct specificity
+.el-step.is-simple .el-step__arrow {
+	padding-top: calc($spacing-xs / 2) !important;
+}
+
+.el-step.is-simple .el-step__arrow::before,
+.el-step.is-simple .el-step__arrow::after {
+	height: 10px !important;
+}
+
+.el-step.is-simple .el-step__arrow::before {
+	transform: rotate(-45deg) translateY(-3px) !important;
+}
+
+.el-step.is-simple .el-step__arrow::after {
+	transform: rotate(45deg) translateY(3px) !important;
+}
+
+// Step title styling - outside nesting for correct specificity
+.el-step.is-simple .el-step__title {
+	padding-top: $spacing-xs !important;
+}
+
+// Step title - remove break-word
+.el-step.is-simple:not(:last-of-type) .el-step__title {
+	overflow-wrap: normal !important;
+}
+
+// =============================================================================
+// EL-TAG - Status badges/chips
+// =============================================================================
+// Bruges til: calendar chips, status badges, category tags
+
+.el-tag {
+	transition: all $transition-duration $transition-ease;
+
+	// Calendar status chips - mini size
+	&.el-tag--mini {
+		font-size: 10px;
+		font-weight: $font-weight-medium;
+		padding: 2px 5px;
+		height: auto;
+		line-height: 1.4;
+		border: none;
+		min-width: 16px;
+		text-align: center;
+	}
+
+	// Custom color variants for calendar
+	&--available {
+		background-color: $color-dark-gray !important;
+		color: $color-white !important;
+	}
+
+	&--reserved {
+		background-color: #f5a623 !important;
+		color: $color-white !important;
+	}
+
+	&--booked {
+		background-color: $color-red !important;
+		color: $color-white !important;
+	}
+}
+
+// =============================================================================
+// EL-DIVIDER - Horizontal/vertical dividers
+// =============================================================================
+// Bruges til: section dividers, "eller" separators
+
+.el-divider {
+	// Text divider - "eller opret manuelt"
+	&--horizontal.el-divider--with-text {
+		margin: $spacing-sm 0;
+
+		.el-divider__text {
+			@include body-font;
+			color: $color-gray;
+			font-size: 11px;
+			background-color: transparent;
+			padding: 0 $spacing-sm;
+		}
+	}
+
+	&::before,
+	&::after {
+		border-color: $color-light-gray !important;
+	}
+}
+
+// =============================================================================
+// V-LOADING - Loading states
+// =============================================================================
+// Brug: v-loading="isLoading" på container elementer
+
+.el-loading-mask {
+	background-color: rgba($color-white, 0.9);
+	border-radius: inherit;
+
+	.el-loading-spinner {
+		.circular {
+			animation: loading-rotate 2s linear infinite;
+		}
+
+		.path {
+			stroke: $color-yellow;
+		}
+	}
+}
+
+// Info Card - card med ikon, titel og tekst
+// Bruges til: benefit cards, feature cards
+.el-info-card {
+	@include flex-center;
+	@include flex-column;
+	gap: $spacing-sm;
+	padding: $spacing-lg;
+	text-align: center;
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
+	border-radius: $border-radius-md;
+
+	&:hover {
+		transform: translateY(-4px);
+		box-shadow: $shadow-modal;
+	}
+
+	&__icon {
+		@include flex-center;
+		width: 120px;
+		height: 120px;
+		background-color: $color-light-gray;
+		border-radius: 50%;
+		color: $color-dark-gray;
+		margin-bottom: $spacing-sm;
+	}
+
+	&__title {
+		@include body-bold-font;
+		font-size: 14px;
+		color: $color-dark-gray;
+		margin: 0;
+	}
+
+	&__text {
+		@include body-font;
+		font-size: 12px;
+		color: $color-dark-gray;
+		line-height: 1.5;
+		margin: 0;
+	}
+}
+
 // ==================== MODAL WRAPPER (genbruges i JobModal og ApplicationModal) ====================
 
 // Modal Wrapper - custom modal container
@@ -460,37 +944,38 @@ body.modal-open {
 	}
 }
 
-// Modal Navigation Buttons (outside modal)
+// Modal Navigation Buttons (outside modal) - Layout only, colors via Element Plus type prop
 .modal-nav-btn {
 	flex: 1;
 	height: 48px;
-	border: none;
-	border-radius: $border-radius-md;
-	cursor: pointer;
+	padding: 0 $spacing-md;
+	border: none !important;
+	border-radius: $border-radius-md !important;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	gap: $spacing-xs;
-	transition: all 0.2s ease;
 	font-family: $font-title;
 	font-weight: $font-weight-medium;
 	font-size: 24px;
 	text-transform: uppercase;
 	box-shadow: $shadow-modal;
 
+	// Override el-button icon size
+	.el-icon {
+		font-size: 24px;
+	}
+
+	// Text inside button
+	> span:not(.el-icon) {
+		font-size: inherit;
+		text-transform: inherit;
+	}
+
 	&:focus,
 	&:focus-visible {
 		outline: none;
 		box-shadow: $shadow-modal;
-	}
-
-	&--dark {
-		background-color: $color-dark-gray;
-		color: $color-white;
-
-		&:hover {
-			background-color: color.adjust($color-dark-gray, $lightness: 10%);
-		}
 	}
 
 	// Close button with rotated X icon (45 degrees)
@@ -500,32 +985,21 @@ body.modal-open {
 		}
 	}
 
-	&--yellow {
-		background-color: $color-yellow;
-		color: $color-dark-gray;
-
-		&:hover {
-			filter: brightness(0.95);
-		}
-
-		&:disabled {
-			opacity: 0.5;
-			cursor: not-allowed;
-		}
-	}
-
-	&--red {
-		background-color: $color-red;
-		color: $color-white;
-
-		&:hover {
-			filter: brightness(0.9);
-		}
-	}
-
+	// Full width modifier
 	&--full {
 		flex: none;
 		width: 100%;
+	}
+
+	// Fix warning button text color (should be dark on yellow background)
+	&.el-button--warning {
+		color: $color-dark-gray;
+
+		&:hover,
+		&:focus,
+		&:active {
+			color: $color-dark-gray;
+		}
 	}
 }
 
@@ -622,4 +1096,320 @@ body.modal-open {
 		opacity: 0;
 		transform: scale(0.9);
 	}
+}
+
+// ==================== CALENDAR MODAL - GLOBAL STYLES ====================
+// Used by ApplicationModal and CalendarSlotPicker
+
+.calendar-modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 3000;
+}
+
+.calendar-modal {
+	background-color: $color-white;
+	border: 1px solid $color-dark-gray;
+	border-radius: $border-radius-lg;
+	box-shadow: $shadow-modal;
+	padding: $spacing-md;
+	width: 320px;
+	min-width: 320px;
+	max-width: 320px;
+	min-height: 450px;
+
+	&__content {
+		width: 100%;
+		height: 100%;
+		overflow: visible;
+	}
+
+	&__header {
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
+		align-items: center;
+		padding-bottom: $spacing-md;
+		gap: $spacing-sm;
+		width: 100%;
+	}
+
+	&__title {
+		@include body-font;
+		font-size: 14px;
+		font-weight: 500;
+		text-transform: capitalize;
+		white-space: nowrap;
+		justify-self: start;
+	}
+
+	&__today-btn {
+		padding: $spacing-xs $spacing-sm;
+		border: none;
+		border-radius: $border-radius-sm;
+		background-color: $color-dark-gray;
+		color: $color-white;
+		cursor: pointer;
+		font-family: $font-body;
+		font-size: 12px;
+		font-weight: 500;
+		transition: all 0.2s ease;
+		justify-self: center;
+
+		&:hover {
+			background-color: color.adjust($color-dark-gray, $lightness: 10%);
+		}
+	}
+
+	&__today-placeholder {
+		justify-self: center;
+		width: 0;
+		height: 0;
+	}
+
+	&__controls {
+		display: flex;
+		gap: 4px;
+		justify-self: end;
+	}
+
+	&__nav {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 28px;
+		height: 28px;
+		border: none;
+		border-radius: $border-radius-sm;
+		background-color: $color-dark-gray;
+		color: $color-white;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		padding: 0;
+
+		.el-icon {
+			color: inherit;
+			font-size: 14px;
+		}
+
+		&:hover {
+			background-color: color.adjust($color-dark-gray, $lightness: 10%);
+		}
+	}
+
+	&__nav-placeholder {
+		width: 28px;
+		height: 28px;
+	}
+
+	&__calendar-wrapper {
+		position: relative;
+		overflow: visible;
+	}
+
+	&__calendar {
+		width: 100%;
+		border: none;
+		height: 300px;
+		min-height: 300px;
+		overflow: hidden;
+
+		:deep(.el-calendar__header) {
+			display: none;
+		}
+
+		:deep(.el-calendar__body) {
+			padding: 0;
+		}
+
+		:deep(.el-calendar-table) {
+			table-layout: fixed;
+			width: 100%;
+
+			thead th {
+				@include body-font;
+				font-size: 12px;
+				padding: $spacing-sm 0;
+				text-align: center;
+				width: 14.28%;
+			}
+
+			td {
+				border: none;
+				padding: 0;
+				width: 14.28%;
+				height: 42px;
+			}
+		}
+
+		// Override ALL Element Plus is-selected and is-today styling
+		:deep(.el-calendar-table td.is-today),
+		:deep(.el-calendar-table td.is-selected),
+		:deep(.el-calendar-table td.is-today.is-selected) {
+			background-color: transparent !important;
+
+			.el-calendar-day {
+				background-color: transparent !important;
+			}
+		}
+
+		:deep(.el-calendar-day) {
+			padding: 0;
+			height: 42px;
+			background-color: transparent !important;
+
+			&:hover {
+				background-color: transparent !important;
+			}
+		}
+	}
+
+	&__day {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 38px;
+		font-family: $font-body;
+		font-size: 12px;
+		color: $color-dark-gray;
+		cursor: default;
+		border-radius: $border-radius-sm;
+		transition:
+			background-color 0.15s ease,
+			color 0.15s ease;
+		background-color: transparent;
+
+		&--today {
+			border: 2px solid $color-dark-gray;
+		}
+
+		&--has-slots {
+			background-color: $color-dark-gray;
+			color: $color-white;
+			cursor: pointer;
+
+			&:hover {
+				background-color: $color-light-gray;
+				color: $color-dark-gray;
+			}
+		}
+
+		// Today with available slots (not selected) - show border with padding
+		&--today#{&}--has-slots:not(#{&}--selected) {
+			background-clip: content-box;
+			padding: calc($spacing-xs / 3);
+		}
+
+		&--selected#{&}--has-slots {
+			background-color: $color-yellow;
+			color: $color-dark-gray;
+
+			&:hover {
+				background-color: $color-yellow;
+				color: $color-dark-gray;
+			}
+		}
+
+		// Today + selected - show border with padding on yellow background
+		&--today#{&}--selected#{&}--has-slots {
+			background-clip: content-box;
+			padding: calc($spacing-xs / 3);
+		}
+
+		&--disabled {
+			cursor: default;
+			pointer-events: none;
+			background-color: transparent !important;
+		}
+
+		&--other-month {
+			opacity: 0.3;
+			pointer-events: none;
+			background-color: transparent !important;
+		}
+	}
+
+	&__legend {
+		display: flex;
+		gap: $spacing-lg;
+		justify-content: center;
+		padding: $spacing-sm;
+	}
+
+	&__legend-item {
+		display: flex;
+		align-items: center;
+		gap: $spacing-sm;
+	}
+
+	&__legend-color {
+		width: 35px;
+		height: 25px;
+		border-radius: $border-radius-sm;
+
+		&--today {
+			background-color: transparent;
+			border: 2px solid $color-dark-gray;
+		}
+
+		&--available {
+			background-color: $color-dark-gray;
+		}
+
+		&--selected {
+			background-color: $color-yellow;
+		}
+	}
+
+	&__legend-label {
+		font-family: $font-body;
+		font-size: 12px;
+		color: $color-dark-gray;
+	}
+}
+
+// Calendar modal transitions
+.calendar-modal-enter-active,
+.calendar-modal-leave-active {
+	transition: opacity 0.2s ease;
+}
+
+.calendar-modal-enter-from,
+.calendar-modal-leave-to {
+	opacity: 0;
+}
+
+// Calendar slide transitions for month navigation
+.calendar-slide-left-enter-active,
+.calendar-slide-left-leave-active,
+.calendar-slide-right-enter-active,
+.calendar-slide-right-leave-active {
+	transition: all 0.25s ease;
+}
+
+.calendar-slide-left-enter-from {
+	opacity: 0;
+	transform: translateX(20px);
+}
+
+.calendar-slide-left-leave-to {
+	opacity: 0;
+	transform: translateX(-20px);
+}
+
+.calendar-slide-right-enter-from {
+	opacity: 0;
+	transform: translateX(-20px);
+}
+
+.calendar-slide-right-leave-to {
+	opacity: 0;
+	transform: translateX(20px);
 }
