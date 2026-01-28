@@ -1202,8 +1202,6 @@ const handleClose = async () => {
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:color';
-
 .application-modal {
 	&__header {
 		position: relative;
@@ -1388,63 +1386,25 @@ const handleClose = async () => {
 	}
 
 	&__date-header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
+		@include slot-picker-header;
 		width: 100%;
 	}
 
 	&__date-display {
-		@include subtitle-font;
-		font-size: 24px;
+		@include slot-picker-date-display;
 	}
 
 	&__date-btn {
-		display: flex;
-		align-items: center;
-		gap: $spacing-xs;
-		padding: $spacing-sm $spacing-md;
-		border: 1px solid $color-dark-gray;
-		border-radius: $border-radius-md;
-		background-color: $color-dark-gray;
-		color: $color-white;
-		cursor: pointer;
-		font-family: $font-title;
-		font-size: 16px;
-		font-weight: 500;
-		text-transform: uppercase;
-		transition: all 0.2s ease;
-
-		.el-icon {
-			color: inherit;
-		}
-
-		&:hover {
-			background-color: color.adjust($color-dark-gray, $lightness: 10%);
-		}
+		@include slot-picker-date-btn;
 	}
 
 	&__no-date,
 	&__no-slots {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		flex: 1;
-		border: 2px dashed $color-light-gray;
-		border-radius: $border-radius-md;
-		color: $color-dark-gray;
-		text-align: center;
-
-		p {
-			@include body-font;
-			margin: 0;
-		}
+		@include slot-empty-state;
 	}
 
 	&__slots {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: $spacing-sm;
+		@include slot-grid;
 		flex: 1;
 		align-content: start;
 	}
@@ -1472,24 +1432,13 @@ const handleClose = async () => {
 	}
 
 	&__calendar-nav {
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		@include button-dark;
 		width: 40px;
 		height: 40px;
-		border: none;
-		border-radius: $border-radius-md;
-		background-color: $color-dark-gray;
-		color: $color-white;
-		cursor: pointer;
-		transition: all 0.2s ease;
+		padding: 0;
 
 		.el-icon {
 			color: inherit;
-		}
-
-		&:hover {
-			background-color: color.adjust($color-dark-gray, $lightness: 10%);
 		}
 	}
 
@@ -1501,19 +1450,10 @@ const handleClose = async () => {
 	}
 
 	&__calendar-today {
+		@include button-dark;
+		// Kun størrelses-tilpasninger
 		padding: $spacing-sm $spacing-lg;
-		border: none;
-		border-radius: $border-radius-md;
-		background-color: $color-dark-gray;
-		color: $color-white;
-		cursor: pointer;
 		font-size: $font-size-body;
-		font-weight: 500;
-		transition: all 0.2s ease;
-
-		&:hover {
-			background-color: color.adjust($color-dark-gray, $lightness: 10%);
-		}
 	}
 
 	&__calendar {
@@ -1565,7 +1505,7 @@ const handleClose = async () => {
 	&__calendar-day {
 		@include flex-column;
 		@include flex-center;
-		min-height: 60px;
+		min-height: $spacing-xl + $spacing-sm;
 		width: 100%;
 		height: 100%;
 		padding: $spacing-sm;
@@ -1613,7 +1553,7 @@ const handleClose = async () => {
 			font-weight: $font-weight-regular;
 			font-size: $font-size-small;
 			line-height: 1.4;
-			margin-top: 6px;
+			margin-top: $spacing-xs;
 			color: currentColor;
 			background: transparent;
 			padding: 0;
@@ -1634,33 +1574,14 @@ const handleClose = async () => {
 	}
 
 	&__slot {
-		@include flex-column;
-		@include flex-center;
-		gap: $spacing-xs;
-		padding: $spacing-xs $spacing-sm;
-		border: 2px solid $color-dark-gray;
-		border-radius: $border-radius-md;
-		cursor: pointer;
-		transition: all 0.2s ease;
-		position: relative;
-		background-color: $color-white;
-
-		&:hover:not(&--disabled):not(&--reserved):not(&--selected) {
-			background-color: $color-light-gray;
-		}
+		@include slot-item;
 
 		&--selected {
-			background-color: $color-dark-gray !important;
-			color: $color-white;
-
-			&:hover {
-				background-color: color.adjust($color-dark-gray, $lightness: 10%) !important;
-			}
+			@include slot-item-selected;
 		}
 
 		&--disabled {
-			opacity: 0.5;
-			cursor: not-allowed;
+			@include slot-item-disabled;
 		}
 
 		&--reserved {
@@ -1673,73 +1594,46 @@ const handleClose = async () => {
 	}
 
 	&__slot-time {
-		@include body-bold-font;
-		font-size: 18px;
-		color: inherit;
+		@include slot-time;
 	}
 
 	&__slot-type {
-		@include body-font;
-		padding: $spacing-xs $spacing-sm;
-		border: 1px solid currentColor;
-		border-radius: $border-radius-sm;
-		color: inherit;
+		@include slot-type-badge;
 	}
 
 	&__slot-choice {
 		position: absolute;
-		top: -6px;
+		top: -$spacing-xs;
 		right: 0;
 		background-color: $color-yellow;
 		color: $color-dark-gray;
-		padding: 6px 6px;
+		padding: $spacing-xs $spacing-xs;
 		border-radius: $border-radius-sm;
 		font-size: $font-size-small;
 	}
 
 	&__selected-section {
-		display: flex;
-		flex-direction: column;
+		@include selected-slots-section;
 	}
 
 	&__slots-count {
-		@include body-bold-font;
-		font-size: 18px;
-		text-align: center;
-		margin-top: $spacing-sm;
+		@include selected-slots-count;
 	}
 
 	&__selected-slots {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		gap: $spacing-sm;
-		height: 52px;
+		@include selected-slots-grid;
 	}
 
 	&__selected-slot {
-		display: flex;
-		align-items: center;
-		justify-content: flex-start;
-		padding: $spacing-sm;
-		border: 2px solid $color-dark-gray;
-		border-radius: $border-radius-md;
-		background-color: $color-dark-gray;
-		color: $color-white;
+		@include selected-slot;
 
 		&--empty {
-			background-color: transparent;
-			border-style: dashed;
-			justify-content: flex-start;
+			@include selected-slot-empty;
 		}
 	}
 
 	&__selected-slot-info {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		gap: $spacing-sm;
-		flex: 1;
-		padding-top: 3px;
+		@include selected-slot-info;
 	}
 
 	&__selected-slot-priority {
@@ -1748,40 +1642,19 @@ const handleClose = async () => {
 	}
 
 	&__selected-slot-time {
-		@include body-font;
-		font-weight: $font-weight-bold;
-		color: $color-white;
+		@include selected-slot-time;
 	}
 
 	&__selected-slot-date {
-		font-size: 12px;
-		opacity: 0.7;
+		@include selected-slot-date;
 	}
 
 	&__selected-slot-empty {
-		@include body-font;
-		font-size: 12px;
-		color: $color-dark-gray;
-		opacity: 0.5;
+		@include selected-slot-empty-text;
 	}
 
 	&__selected-slot-remove {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 24px;
-		height: 24px;
-		padding: 0;
-		border: none;
-		background-color: transparent;
-		color: $color-white;
-		cursor: pointer;
-		border-radius: $border-radius-sm;
-		transition: background-color 0.2s ease;
-
-		&:hover {
-			background-color: rgba($color-white, 0.2);
-		}
+		@include selected-slot-remove-btn;
 	}
 
 	// Result icons

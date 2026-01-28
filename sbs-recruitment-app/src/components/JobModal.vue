@@ -50,7 +50,7 @@
 
 				<!-- CTA Button (outside modal, below) -->
 				<div class="modal-wrapper__actions">
-					<el-button type="danger" size="large" style="width: 100%" @click="handleApply">
+					<el-button type="danger" size="large" class="job-modal__cta-btn" @click="handleApply">
 						ANSØG NU
 						<el-icon :size="24"><Right /></el-icon>
 					</el-button>
@@ -186,8 +186,8 @@ const handleApply = () => {
 
 	&__image {
 		width: 100%;
-		height: 300px;
-		min-height: 300px;
+		height: $job-image-height;
+		min-height: $job-image-height;
 		flex-shrink: 0;
 		overflow: hidden;
 		background-color: $color-light-gray;
@@ -208,24 +208,24 @@ const handleApply = () => {
 	}
 
 	&__title {
-		font-family: 'Neo Sans W1G', sans-serif;
+		font-family: $font-title;
 		font-weight: 500;
-		font-size: 36px;
+		font-size: $font-size-title;
 		color: $color-dark-gray;
 		margin: 0;
 	}
 
 	&__quote {
-		font-family: 'Inter', sans-serif;
+		font-family: $font-body;
 		font-style: italic;
-		font-size: 12px;
+		font-size: $font-size-body;
 		color: $color-dark-gray;
 		margin: 0;
 	}
 
 	&__description {
-		font-family: 'Helvetica Neue LT Pro', 'Helvetica Neue', Helvetica, sans-serif;
-		font-size: 12px;
+		font-family: $font-body;
+		font-size: $font-size-body;
 		color: $color-dark-gray;
 		line-height: 1.5;
 		margin: 0;
@@ -244,20 +244,20 @@ const handleApply = () => {
 		display: flex;
 		align-items: flex-start;
 		gap: $spacing-sm;
-		font-family: 'Helvetica Neue LT Pro', 'Helvetica Neue', Helvetica, sans-serif;
-		font-size: 12px;
+		font-family: $font-body;
+		font-size: $font-size-body;
 		color: $color-dark-gray;
 	}
 
 	&__task-icon {
 		color: $color-dark-gray;
 		flex-shrink: 0;
-		margin-top: 6px;
+		margin-top: $spacing-xs;
 	}
 
 	&__requirements {
-		font-family: 'Helvetica Neue LT Pro', 'Helvetica Neue', Helvetica, sans-serif;
-		font-size: 12px;
+		font-family: $font-body;
+		font-size: $font-size-body;
 		color: $color-dark-gray;
 		line-height: 1.5;
 		margin: 0;
@@ -266,6 +266,10 @@ const handleApply = () => {
 	&__footer {
 		width: 100%;
 		padding: 0 $spacing-md $spacing-md;
+	}
+
+	&__cta-btn {
+		width: 100%;
 	}
 }
 

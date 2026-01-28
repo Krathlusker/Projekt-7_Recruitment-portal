@@ -471,7 +471,7 @@
 									<!-- Add time slot for selected date -->
 									<div class="time-slots-manager__add">
 										<div class="time-slots-manager__form">
-											<el-select v-model="newTimeSlot.type" placeholder="Vælg type" style="width: 138px">
+											<el-select v-model="newTimeSlot.type" placeholder="Vælg type" class="time-slots-manager__type-select">
 												<el-option label="Fysisk (45 min)" value="fysisk" />
 												<el-option label="Virtuel (60 min)" value="virtuel" />
 											</el-select>
@@ -1499,7 +1499,7 @@ watch(showDetailDialog, (newVal) => {
 		flex-shrink: 0;
 		padding: $spacing-lg;
 		padding-bottom: 0;
-		max-width: 1344px;
+		max-width: $modal-max-width-wide;
 		margin: 0 auto;
 		width: 100%;
 		box-sizing: border-box;
@@ -1513,7 +1513,7 @@ watch(showDetailDialog, (newVal) => {
 	}
 
 	&__scrollable-content {
-		max-width: 1344px;
+		max-width: $modal-max-width-wide;
 		margin: 0 auto;
 		padding: $spacing-lg;
 	}
@@ -1538,37 +1538,22 @@ watch(showDetailDialog, (newVal) => {
 	}
 
 	&__header-btn {
-		height: 42px;
-		padding: 12px 6px;
-		border-radius: $border-radius-md;
-		border: none;
-		text-transform: uppercase;
-		font-family: $font-title;
-		font-weight: $font-weight-bold;
-		font-size: 24px;
-		line-height: 1;
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
+		// Kun størrelses-tilpasninger tilladt her - alt andet kommer fra button mixins
+		height: $element-height-standard;
+		padding: $spacing-sm $spacing-xs;
+		font-size: $font-size-subtitle;
 	}
 
 	&__header-btn--dark {
 		@include button-dark;
-		padding: 12px 6px;
-	}
-
-	&__header-btn--border {
-		border: 1px solid $color-dark-gray;
 	}
 
 	&__header-btn--yellow {
 		@include button-yellow;
-		padding: 12px 6px;
 	}
 
 	&__header-btn--red {
 		@include button-red;
-		padding: 12px 6px;
 	}
 
 	// Section title
@@ -1653,7 +1638,7 @@ watch(showDetailDialog, (newVal) => {
 
 	&__applications-grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+		grid-template-columns: repeat(auto-fill, minmax($card-min-width, 1fr));
 		gap: $spacing-md;
 	}
 
@@ -1695,12 +1680,12 @@ watch(showDetailDialog, (newVal) => {
 
 	&__name {
 		@include subtitle-font;
-		font-size: 18px;
+		font-size: $font-size-button;
 	}
 
 	&__age {
 		@include subtitle-font;
-		font-size: 18px;
+		font-size: $font-size-button;
 		color: $color-gray;
 	}
 
@@ -1758,12 +1743,12 @@ watch(showDetailDialog, (newVal) => {
 		:deep(.el-input__wrapper) {
 			padding: 2px 8px;
 			min-height: 28px;
-			font-size: 12px;
+			font-size: $font-size-body;
 		}
 
 		:deep(.el-input__inner) {
-			height: 24px;
-			font-size: 12px;
+			height: $spacing-lg;
+			font-size: $font-size-body;
 		}
 
 		:deep(.el-input__suffix) {
@@ -1798,7 +1783,7 @@ watch(showDetailDialog, (newVal) => {
 
 		h3 {
 			@include subtitle-font;
-			font-size: 18px;
+			font-size: $font-size-button;
 			margin-bottom: $spacing-xs;
 		}
 
@@ -1876,7 +1861,7 @@ watch(showDetailDialog, (newVal) => {
 	&__confirmed-badge {
 		@include body-bold-font;
 		font-size: 11px;
-		padding: 4px 12px;
+		padding: 4px $spacing-sm;
 		background-color: $color-green;
 		color: $color-white;
 		border-radius: $border-radius-sm;
@@ -1959,7 +1944,7 @@ watch(showDetailDialog, (newVal) => {
 
 		h3 {
 			@include subtitle-font;
-			font-size: 18px;
+			font-size: $font-size-button;
 			margin: 0;
 		}
 	}
@@ -1970,7 +1955,7 @@ watch(showDetailDialog, (newVal) => {
 
 		h3 {
 			@include subtitle-font;
-			font-size: 18px;
+			font-size: $font-size-button;
 		}
 	}
 
@@ -1981,13 +1966,17 @@ watch(showDetailDialog, (newVal) => {
 		align-items: center;
 	}
 
+	&__type-select {
+		width: 138px;
+	}
+
 	&__list {
 		@include flex-column;
 		gap: $spacing-md;
 
 		h3 {
 			@include subtitle-font;
-			font-size: 18px;
+			font-size: $font-size-button;
 		}
 	}
 
@@ -2029,11 +2018,12 @@ watch(showDetailDialog, (newVal) => {
 		color: $color-white;
 
 		&:hover:not(.calendar-day--selected) {
-			background-color: color.adjust($color-dark-gray, $lightness: 10%);
+			background-color: $color-light-gray;
+			color: $color-dark-gray;
 		}
 
 		.calendar-day__date {
-			color: $color-white;
+			color: inherit;
 		}
 	}
 
@@ -2088,7 +2078,7 @@ watch(showDetailDialog, (newVal) => {
 
 	&__type {
 		@include body-font;
-		font-size: 12px;
+		font-size: $font-size-body;
 		color: $color-dark-gray;
 		padding: 2px 8px;
 		background-color: $color-light-gray;
@@ -2097,7 +2087,7 @@ watch(showDetailDialog, (newVal) => {
 
 	&__status {
 		@include body-font;
-		font-size: 12px;
+		font-size: $font-size-body;
 		padding: 2px 8px;
 		border-radius: $border-radius-sm;
 		margin-left: auto;
@@ -2228,22 +2218,22 @@ watch(showDetailDialog, (newVal) => {
 }
 
 .slide-left-enter-from {
-	transform: translateX(30px);
+	transform: translateX($slide-offset);
 	opacity: 0;
 }
 
 .slide-left-leave-to {
-	transform: translateX(-30px);
+	transform: translateX(-$slide-offset);
 	opacity: 0;
 }
 
 .slide-right-enter-from {
-	transform: translateX(-30px);
+	transform: translateX(-$slide-offset);
 	opacity: 0;
 }
 
 .slide-right-leave-to {
-	transform: translateX(30px);
+	transform: translateX($slide-offset);
 	opacity: 0;
 }
 

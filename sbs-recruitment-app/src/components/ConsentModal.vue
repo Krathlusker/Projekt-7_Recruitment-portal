@@ -144,7 +144,7 @@ const handleDecline = () => {
 
 	&__container {
 		max-width: 500px !important;
-		height: 660px; // Same fixed height as ApplicationModal
+		height: $modal-height-standard; // Same fixed height as ApplicationModal
 		max-height: calc(100vh - #{$spacing-md * 2});
 	}
 }
@@ -158,7 +158,7 @@ const handleDecline = () => {
 
 	&__title {
 		@include title-font;
-		font-size: 24px;
+		font-size: $font-size-subtitle;
 		margin: 0;
 	}
 

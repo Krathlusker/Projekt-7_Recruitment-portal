@@ -22,14 +22,14 @@ defineEmits<{
 .floating-apply-button {
 	position: fixed;
 	top: 50%;
-	right: calc(42px + var(--scrollbar-width, 0px));
+	right: calc(#{$floating-btn-offset} + var(--scrollbar-width, 0px));
 	transform: rotate(-90deg);
 	transform-origin: 100% 0;
 	z-index: $z-index-floating-button;
 	transition: right 0.1s ease;
 
 	@include mobile {
-		right: calc(24px + var(--scrollbar-width, 0px));
+		right: calc(#{$spacing-lg} + var(--scrollbar-width, 0px));
 	}
 }
 </style>

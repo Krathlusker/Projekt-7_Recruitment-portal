@@ -18,14 +18,12 @@ defineEmits<{
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:color';
-
 .modal-close-button {
 	position: absolute;
-	top: -24px;
-	right: -24px;
-	width: 102px;
-	height: 102px;
+	top: -$spacing-lg;
+	right: -$spacing-lg;
+	width: $close-btn-size-desktop;
+	height: $close-btn-size-desktop;
 	cursor: pointer;
 	border: none !important;
 	background: transparent !important;
@@ -45,8 +43,8 @@ defineEmits<{
 		position: absolute;
 		top: 0;
 		left: 0;
-		width: 102px;
-		height: 102px;
+		width: $close-btn-size-desktop;
+		height: $close-btn-size-desktop;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -57,19 +55,20 @@ defineEmits<{
 
 	&__background {
 		position: absolute;
-		top: 24px;
-		right: 24px;
-		width: 54px;
-		height: 54px;
+		top: $spacing-lg;
+		right: $spacing-lg;
+		width: $close-btn-size-mobile;
+		height: $close-btn-size-mobile;
 		background-color: $color-light-gray;
 		border-radius: 0 $border-radius-lg 0 $border-radius-lg; // top-right og bottom-left
 		box-shadow: $shadow-modal;
 		z-index: 1;
+		transition: background-color 0.2s ease;
 	}
 
 	&:hover {
 		.modal-close-button__background {
-			background-color: color.adjust(#ebebeb, $lightness: -5%);
+			background-color: darken($color-light-gray, 5%);
 		}
 	}
 

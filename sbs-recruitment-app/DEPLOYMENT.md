@@ -129,7 +129,7 @@ sudo ufw allow 3000
 │                               ▼             │
 │                    ┌─────────────────────┐  │
 │                    │  SQLite Database    │  │
-│                    │  server/data/db.sqlite│
+│                    │  server/data/db.sqlite │
 │                    └─────────────────────┘  │
 └─────────────────────────────────────────────┘
 ```

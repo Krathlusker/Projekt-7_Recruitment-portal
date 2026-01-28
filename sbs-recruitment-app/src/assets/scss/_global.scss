@@ -1,8 +1,14 @@
 // ==============================================
-// SBS Recruitment App - Global SCSS (injected via Vite)
+// SBS Recruitment App - Global SCSS
 // ==============================================
+// This file contains:
+// - CSS output (Element Plus overrides, component styles)
+// - Color utility functions
+// It imports _variables.scss and _mixins.scss
 
 @use 'sass:color';
+@use 'variables' as *;
+@use 'mixins' as *;
 
 // ==================== COLOR UTILITY FUNCTIONS ====================
 // Wrapper functions to use in Vue components since sass:color namespace isn't forwarded
@@ -14,68 +20,6 @@
 @function lighten($color, $amount) {
 	@return color.adjust($color, $lightness: $amount);
 }
-
-// ==================== VARIABLES ====================
-
-// Colors
-$color-dark-gray: #2d2d2d;
-$color-white: #ffffff;
-$color-red: #ee3123;
-$color-light-gray: #ebebeb;
-$color-yellow: #f1db53;
-$color-green: #2ec700;
-$color-gray: $color-dark-gray;
-
-// Typography - Font Families
-$font-title: 'Neo Sans W1G', 'Segoe UI', sans-serif;
-$font-body: 'Helvetica Neue LT Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-
-// Typography - Font Sizes
-$font-size-title: 36px;
-$font-size-subtitle: 24px;
-$font-size-button: 18px;
-$font-size-body: 12px;
-$font-size-small: 12px;
-
-// Typography - Font Weights
-$font-weight-regular: 400;
-$font-weight-medium: 500;
-$font-weight-bold: 700;
-
-// Spacing (alle værdier deleligt med 6)
-$spacing-xs: 6px;
-$spacing-sm: 12px;
-$spacing-md: 18px;
-$spacing-lg: 24px;
-$spacing-xl: 48px;
-
-// Border Radius
-$border-radius-sm: 6px;
-$border-radius-md: 6px;
-$border-radius-lg: 12px;
-
-// Shadows
-$shadow-modal: 0px 0px 18px 6px rgba($color-dark-gray, 0.25);
-$shadow-card: 0px 6px 6px rgba($color-dark-gray, 0.1);
-
-// Transitions
-$transition-duration: 0.2s;
-$transition-ease: ease;
-
-// Breakpoints
-$breakpoint-sm: 576px;
-$breakpoint-md: 768px;
-$breakpoint-lg: 990px;
-$breakpoint-xl: 1200px;
-
-// Z-index layers
-$z-index-modal: 1000;
-$z-index-floating-button: 900;
-$z-index-header: 100;
-
-// Layout
-$max-content-width: 1020px;
-$modal-max-height-mobile: 657px;
 
 // ==================== ELEMENT PLUS CSS VARIABLE OVERRIDES ====================
 // Override Element Plus button colors to match our design system
@@ -109,6 +53,9 @@ $modal-max-height-mobile: 657px;
 
 	// Success = Green
 	--el-color-success: #{$color-green};
+
+	// Focus styling - gul focus ring (flyttet fra duplikeret :root blok)
+	// Note: Focus-specifik styling defineres i input/button sektionerne nedenfor
 }
 
 // ==================== EL-LINK GLOBAL STYLING ====================
@@ -119,8 +66,8 @@ $modal-max-height-mobile: 657px;
 	display: flex !important;
 	align-items: center !important;
 	justify-content: center !important;
-	width: 36px !important;
-	height: 36px !important;
+	width: $font-size-title !important;
+	height: $font-size-title !important;
 	background-color: $color-white !important;
 	border-radius: 50% !important;
 	color: $color-dark-gray !important;
@@ -136,7 +83,7 @@ $modal-max-height-mobile: 657px;
 .footer-link {
 	font-family: $font-body !important;
 	font-weight: $font-weight-bold !important;
-	font-size: 18px !important;
+	font-size: $font-size-button !important;
 	color: $color-white !important;
 	justify-content: flex-start !important;
 
@@ -146,7 +93,7 @@ $modal-max-height-mobile: 657px;
 
 	// Smaller variant for legal links
 	&--small {
-		font-size: 12px !important;
+		font-size: $font-size-body !important;
 	}
 
 	// With icon variant
@@ -159,221 +106,10 @@ $modal-max-height-mobile: 657px;
 	}
 }
 
-// ==================== MIXINS ====================
+// NOTE: All mixins are now defined in _mixins.scss
+// They are injected globally via Vite config
 
-// Content container - centralized max-width
-@mixin content-container {
-	max-width: $max-content-width;
-	margin: 0 auto;
-	padding: 0 $spacing-md;
-	width: 100%;
-}
-
-// Section padding
-@mixin section-padding {
-	padding: $spacing-xl 0;
-}
-
-// Section title
-@mixin section-title {
-	@include title-font;
-	margin-bottom: $spacing-md;
-}
-
-// Section intro text
-@mixin section-intro {
-	@include body-font;
-	font-size: 14px;
-	line-height: 1.6;
-	margin-bottom: $spacing-md;
-}
-
-// Typography mixins
-@mixin title-font {
-	font-family: $font-title;
-	font-weight: $font-weight-medium;
-	font-size: $font-size-title;
-	line-height: 1;
-	color: $color-dark-gray;
-}
-
-@mixin subtitle-font {
-	font-family: $font-title;
-	font-weight: $font-weight-regular;
-	font-size: $font-size-subtitle;
-	line-height: 1;
-	color: $color-dark-gray;
-}
-
-@mixin body-font {
-	font-family: $font-body;
-	font-weight: $font-weight-regular;
-	font-size: $font-size-body;
-	line-height: 1.4;
-	color: $color-dark-gray;
-}
-
-@mixin body-bold-font {
-	font-family: $font-body;
-	font-weight: $font-weight-bold;
-	font-size: $font-size-body;
-	line-height: 1.4;
-	color: $color-dark-gray;
-}
-
-@mixin button-font {
-	font-family: $font-title;
-	font-weight: $font-weight-bold;
-	font-size: $font-size-button;
-	line-height: 1;
-	text-transform: uppercase;
-}
-
-// Flex mixins
-@mixin flex-center {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-@mixin flex-between {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-}
-
-@mixin flex-column {
-	display: flex;
-	flex-direction: column;
-}
-
-// Responsive mixins
-@mixin mobile {
-	@media (max-width: #{$breakpoint-sm - 1}) {
-		@content;
-	}
-}
-
-@mixin tablet {
-	@media (min-width: $breakpoint-sm) and (max-width: #{$breakpoint-lg - 1}) {
-		@content;
-	}
-}
-
-@mixin desktop {
-	@media (min-width: $breakpoint-lg) {
-		@content;
-	}
-}
-
-// Container mixin
-@mixin container {
-	width: 100%;
-	max-width: $breakpoint-xl;
-	margin: 0 auto;
-	padding: 0 $spacing-lg;
-}
-
-// Card mixin
-@mixin card {
-	background-color: $color-white;
-	border-radius: $border-radius-md;
-	box-shadow: $shadow-card;
-}
-
-// Button reset mixin - nulstiller alle knapper før styling
-@mixin button-reset {
-	// Reset all browser defaults
-	appearance: none;
-	-webkit-appearance: none;
-	-moz-appearance: none;
-	background: none;
-	border: none;
-	margin: 0;
-	padding: 0;
-	font: inherit;
-	color: inherit;
-	cursor: pointer;
-	outline: none;
-	box-shadow: none;
-	text-decoration: none;
-	// Reset Element Plus variables
-	--el-button-bg-color: transparent;
-	--el-button-text-color: inherit;
-	--el-button-border-color: transparent;
-	--el-button-hover-bg-color: transparent;
-	--el-button-hover-text-color: inherit;
-	--el-button-hover-border-color: transparent;
-	--el-button-active-bg-color: transparent;
-	--el-button-active-text-color: inherit;
-	--el-button-active-border-color: transparent;
-	--el-button-disabled-bg-color: transparent;
-	--el-button-disabled-text-color: inherit;
-	--el-button-disabled-border-color: transparent;
-}
-
-// Button base mixin (includes reset)
-@mixin button-base {
-	@include button-reset;
-	@include button-font;
-	@include flex-center;
-	border: none;
-	border-radius: $border-radius-md;
-	cursor: pointer;
-	transition: all 0.2s ease;
-
-	&:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
-}
-
-// Button styles (only allowed variants)
-@mixin button-dark {
-	@include button-base;
-	background-color: $color-dark-gray;
-	color: $color-white;
-	padding: $spacing-md $spacing-lg;
-
-	&:hover {
-		background-color: $color-light-gray;
-		color: $color-dark-gray;
-	}
-}
-
-@mixin button-yellow {
-	@include button-base;
-	background-color: $color-yellow;
-	color: $color-dark-gray;
-	padding: $spacing-md $spacing-lg;
-
-	&:hover {
-		filter: brightness(0.9);
-	}
-}
-
-@mixin button-red {
-	@include button-base;
-	background-color: $color-red;
-	color: $color-white;
-	padding: $spacing-md $spacing-lg;
-
-	&:hover {
-		filter: brightness(0.9);
-	}
-}
-
-@mixin button-light {
-	@include button-base;
-	background-color: $color-white;
-	color: $color-dark-gray;
-	padding: $spacing-md $spacing-lg;
-	box-shadow: $shadow-modal;
-
-	&:hover {
-		background-color: $color-light-gray;
-	}
-}
+// ==================== GLOBAL ELEMENT PLUS BUTTON STYLING ====================
 
 // Global Element Plus button normalization - all become dark by default
 .el-button {
@@ -421,14 +157,9 @@ $modal-max-height-mobile: 657px;
 	@include button-dark;
 }
 
-// Global Element Plus focus styling - gul focus ring
-:root {
-	--el-color-primary: #{$color-yellow};
-	--el-color-primary-light-3: #{$color-yellow};
-	--el-color-primary-light-5: #{$color-yellow};
-	--el-color-primary-light-7: #{$color-yellow};
-	--el-color-primary-light-9: #{$color-yellow};
-}
+// ==================== GLOBAL ELEMENT PLUS FOCUS STYLING ====================
+// Gul focus ring for accessibility
+// NOTE: Fjernet duplikeret :root blok - focus styling defineres direkte på elementer
 
 // Input/Select focus
 .el-input.is-focus .el-input__wrapper,
@@ -477,7 +208,7 @@ body.modal-open {
 .el-popper.is-light {
 	--el-popper-bg-color-light: #{$color-white};
 	color: $color-dark-gray;
-	margin: 0 6px;
+	margin: 0 $spacing-xs;
 }
 
 .el-select-dropdown__item.is-selected {
@@ -515,7 +246,7 @@ body.modal-open {
 .el-image-card {
 	position: relative;
 	cursor: pointer;
-	height: 282px;
+	height: $image-card-height;
 	transition:
 		transform 0.2s ease,
 		box-shadow 0.2s ease;
@@ -539,7 +270,7 @@ body.modal-open {
 
 	&__content {
 		position: absolute;
-		bottom: 72px;
+		bottom: $card-badge-offset;
 		left: $spacing-sm;
 		right: $spacing-sm;
 	}
@@ -547,7 +278,7 @@ body.modal-open {
 	&__title {
 		font-family: $font-title;
 		font-weight: $font-weight-medium;
-		font-size: 24px;
+		font-size: $font-size-subtitle;
 		color: $color-white;
 		margin: 0;
 		text-shadow: 0 2px 4px rgba($color-dark-gray, 0.5);
@@ -595,7 +326,7 @@ body.modal-open {
 
 		.el-statistic__content {
 			.el-statistic__number {
-				font-size: 48px;
+				font-size: $spacing-xl;
 				font-weight: $font-weight-bold;
 				color: $color-dark-gray;
 			}
@@ -630,7 +361,7 @@ body.modal-open {
 	}
 
 	&__day {
-		font-size: 48px;
+		font-size: $spacing-xl;
 		font-weight: $font-weight-bold;
 		line-height: 1;
 	}
@@ -859,8 +590,8 @@ body.modal-open {
 
 	&__icon {
 		@include flex-center;
-		width: 120px;
-		height: 120px;
+		width: $benefit-icon-size;
+		height: $benefit-icon-size;
 		background-color: $color-light-gray;
 		border-radius: 50%;
 		color: $color-dark-gray;
@@ -876,7 +607,7 @@ body.modal-open {
 
 	&__text {
 		@include body-font;
-		font-size: 12px;
+		font-size: $font-size-body;
 		color: $color-dark-gray;
 		line-height: 1.5;
 		margin: 0;
@@ -911,13 +642,13 @@ body.modal-open {
 		max-width: 950px; // Max bredde på PC
 		width: 100%;
 		z-index: 1;
-		height: 660px; // Total højde inklusiv knapper
+		height: $modal-height-standard; // Total højde inklusiv knapper
 		max-height: calc(100vh - #{$spacing-md * 2}); // Viewport minus padding
 
 		&--fullscreen {
-			max-width: min(1344px, calc(100vw - 48px));
-			height: calc(100vh - 48px);
-			max-height: calc(100vh - 48px);
+			max-width: min($modal-max-width-wide, calc(100vw - $spacing-xl));
+			height: calc(100vh - $spacing-xl);
+			max-height: calc(100vh - $spacing-xl);
 		}
 	}
 
@@ -944,38 +675,17 @@ body.modal-open {
 	}
 }
 
-// Modal Navigation Buttons (outside modal) - Layout only, colors via Element Plus type prop
+// Modal Navigation Buttons (outside modal) - Kun størrelses-styling, farver via Element Plus type prop
 .modal-nav-btn {
+	// Kun størrelses-tilpasninger - alt andet kommer fra button-dark/yellow/red
 	flex: 1;
-	height: 48px;
+	height: $spacing-xl;
 	padding: 0 $spacing-md;
-	border: none !important;
-	border-radius: $border-radius-md !important;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: $spacing-xs;
-	font-family: $font-title;
-	font-weight: $font-weight-medium;
-	font-size: 24px;
-	text-transform: uppercase;
-	box-shadow: $shadow-modal;
+	font-size: $font-size-subtitle;
 
 	// Override el-button icon size
 	.el-icon {
-		font-size: 24px;
-	}
-
-	// Text inside button
-	> span:not(.el-icon) {
-		font-size: inherit;
-		text-transform: inherit;
-	}
-
-	&:focus,
-	&:focus-visible {
-		outline: none;
-		box-shadow: $shadow-modal;
+		font-size: $font-size-subtitle;
 	}
 
 	// Close button with rotated X icon (45 degrees)
@@ -1033,12 +743,12 @@ body.modal-open {
 
 .slide-left-enter-from {
 	opacity: 0;
-	transform: translateX(30px);
+	transform: translateX($slide-offset);
 }
 
 .slide-left-leave-to {
 	opacity: 0;
-	transform: translateX(-30px);
+	transform: translateX(-$slide-offset);
 }
 
 // Slide right animation (backward navigation)
@@ -1049,12 +759,12 @@ body.modal-open {
 
 .slide-right-enter-from {
 	opacity: 0;
-	transform: translateX(-30px);
+	transform: translateX(-$slide-offset);
 }
 
 .slide-right-leave-to {
 	opacity: 0;
-	transform: translateX(30px);
+	transform: translateX($slide-offset);
 }
 
 // ==================== OVERLAYSCROLLBARS STYLING ====================
@@ -1123,7 +833,7 @@ body.modal-open {
 	width: 320px;
 	min-width: 320px;
 	max-width: 320px;
-	min-height: 450px;
+	min-height: $calendar-min-height;
 
 	&__content {
 		width: 100%;
@@ -1138,6 +848,7 @@ body.modal-open {
 		padding-bottom: $spacing-md;
 		gap: $spacing-sm;
 		width: 100%;
+		height: 36px;
 	}
 
 	&__title {
@@ -1147,30 +858,24 @@ body.modal-open {
 		text-transform: capitalize;
 		white-space: nowrap;
 		justify-self: start;
+		min-width: 110px; // Fast bredde så layout ikke hopper
 	}
 
 	&__today-btn {
-		padding: $spacing-xs $spacing-sm;
-		border: none;
-		border-radius: $border-radius-sm;
-		background-color: $color-dark-gray;
-		color: $color-white;
-		cursor: pointer;
-		font-family: $font-body;
-		font-size: 12px;
-		font-weight: 500;
-		transition: all 0.2s ease;
+		@include button-dark;
+		// Lokale størrelses-tilpasninger - samme højde som nav-knapper
+		height: 28px;
+		padding: 0 $spacing-sm;
+		font-size: $font-size-body;
 		justify-self: center;
-
-		&:hover {
-			background-color: color.adjust($color-dark-gray, $lightness: 10%);
-		}
+		min-width: 50px;
 	}
 
 	&__today-placeholder {
 		justify-self: center;
-		width: 0;
-		height: 0;
+		// Samme størrelse som today-btn så layout ikke hopper
+		min-width: 50px;
+		height: 28px;
 	}
 
 	&__controls {
@@ -1180,26 +885,15 @@ body.modal-open {
 	}
 
 	&__nav {
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		@include button-dark;
+		// Lokale størrelses-tilpasninger
 		width: 28px;
 		height: 28px;
-		border: none;
-		border-radius: $border-radius-sm;
-		background-color: $color-dark-gray;
-		color: $color-white;
-		cursor: pointer;
-		transition: all 0.2s ease;
 		padding: 0;
 
 		.el-icon {
 			color: inherit;
 			font-size: 14px;
-		}
-
-		&:hover {
-			background-color: color.adjust($color-dark-gray, $lightness: 10%);
 		}
 	}
 
@@ -1210,48 +904,77 @@ body.modal-open {
 
 	&__calendar-wrapper {
 		position: relative;
-		overflow: visible;
+		overflow: hidden;
+		// Fast højde så kalenderen ikke hopper når man skifter måned (6 rækker max)
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		flex: 1;
+		min-height: 345px; // Plads til 6 rækker + legend
 	}
 
 	&__calendar {
+		// Override Element Plus calendar cell width/height variable
+		--el-calendar-cell-width: 40px;
+
 		width: 100%;
 		border: none;
-		height: 300px;
-		min-height: 300px;
+		height: auto;
+		min-height: auto;
 		overflow: hidden;
 
-		:deep(.el-calendar__header) {
-			display: none;
+		.el-calendar__header {
+			display: none !important;
 		}
 
-		:deep(.el-calendar__body) {
-			padding: 0;
+		.el-calendar__body {
+			padding: 0 !important;
 		}
 
-		:deep(.el-calendar-table) {
+		.el-calendar-table {
 			table-layout: fixed;
 			width: 100%;
+			border-collapse: collapse;
+			border: none !important;
 
-			thead th {
-				@include body-font;
-				font-size: 12px;
-				padding: $spacing-sm 0;
-				text-align: center;
-				width: 14.28%;
+			thead {
+				border: none !important;
+
+				th {
+					@include body-font;
+					font-size: $font-size-body;
+					padding: $spacing-xs 0;
+					text-align: center;
+					width: 14.28%;
+					height: auto;
+					border: none !important;
+				}
+			}
+
+			tbody {
+				display: table-row-group;
+				border: none !important;
+			}
+
+			tr {
+				height: 40px !important;
+				max-height: 40px !important;
+				border: none !important;
 			}
 
 			td {
-				border: none;
+				border: none !important;
 				padding: 0;
 				width: 14.28%;
-				height: 42px;
+				height: 40px !important;
+				max-height: 40px !important;
 			}
 		}
 
 		// Override ALL Element Plus is-selected and is-today styling
-		:deep(.el-calendar-table td.is-today),
-		:deep(.el-calendar-table td.is-selected),
-		:deep(.el-calendar-table td.is-today.is-selected) {
+		.el-calendar-table td.is-today,
+		.el-calendar-table td.is-selected,
+		.el-calendar-table td.is-today.is-selected {
 			background-color: transparent !important;
 
 			.el-calendar-day {
@@ -1259,9 +982,11 @@ body.modal-open {
 			}
 		}
 
-		:deep(.el-calendar-day) {
-			padding: 0;
-			height: 42px;
+		.el-calendar-day {
+			padding: 0 !important;
+			height: 40px !important;
+			max-height: 40px !important;
+			min-height: auto !important;
 			background-color: transparent !important;
 
 			&:hover {
@@ -1274,10 +999,12 @@ body.modal-open {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 100%;
+		width: calc(100% - 2px);
 		height: 38px;
+		max-height: 38px;
+		margin: 1px;
 		font-family: $font-body;
-		font-size: 12px;
+		font-size: $font-size-body;
 		color: $color-dark-gray;
 		cursor: default;
 		border-radius: $border-radius-sm;
@@ -1301,13 +1028,27 @@ body.modal-open {
 			}
 		}
 
-		// Today with available slots (not selected) - show border with padding
-		&--today#{&}--has-slots:not(#{&}--selected) {
-			background-clip: content-box;
-			padding: calc($spacing-xs / 3);
+		// Available dates (for manual date picker - all future dates are selectable)
+		&--available {
+			background-color: $color-dark-gray;
+			color: $color-white;
+			cursor: pointer;
+
+			&:hover {
+				background-color: $color-light-gray;
+				color: $color-dark-gray;
+			}
 		}
 
-		&--selected#{&}--has-slots {
+		// Today with available slots (not selected) - show border with padding
+		&--today#{&}--has-slots:not(#{&}--selected),
+		&--today#{&}--available:not(#{&}--selected) {
+			background-clip: content-box;
+			padding: 2px;
+		}
+
+		&--selected#{&}--has-slots,
+		&--selected#{&}--available {
 			background-color: $color-yellow;
 			color: $color-dark-gray;
 
@@ -1318,9 +1059,10 @@ body.modal-open {
 		}
 
 		// Today + selected - show border with padding on yellow background
-		&--today#{&}--selected#{&}--has-slots {
+		&--today#{&}--selected#{&}--has-slots,
+		&--today#{&}--selected#{&}--available {
 			background-clip: content-box;
-			padding: calc($spacing-xs / 3);
+			padding: 2px;
 		}
 
 		&--disabled {
@@ -1341,6 +1083,8 @@ body.modal-open {
 		gap: $spacing-lg;
 		justify-content: center;
 		padding: $spacing-sm;
+		margin-top: auto; // Skub legend til bunden
+		flex-shrink: 0; // Forhindrer legend i at krympe
 	}
 
 	&__legend-item {
@@ -1370,7 +1114,7 @@ body.modal-open {
 
 	&__legend-label {
 		font-family: $font-body;
-		font-size: 12px;
+		font-size: $font-size-body;
 		color: $color-dark-gray;
 	}
 }
@@ -1383,6 +1127,17 @@ body.modal-open {
 
 .calendar-modal-enter-from,
 .calendar-modal-leave-to {
+	opacity: 0;
+}
+
+// Fade transition for "I dag" button and prev nav button
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
 	opacity: 0;
 }
 

@@ -3,10 +3,48 @@
 // ==============================================
 
 @use 'sass:color';
+@forward 'variables';
+@use 'variables' as *;
 
-// NOTE: Variables are injected globally via Vite config
+// ==================== CONTENT & LAYOUT MIXINS ====================
 
-// Typography mixins
+// Content container - centralized max-width
+@mixin content-container {
+	max-width: $max-content-width;
+	margin: 0 auto;
+	padding: 0 $spacing-md;
+	width: 100%;
+}
+
+// Section padding
+@mixin section-padding {
+	padding: $spacing-xl 0;
+}
+
+// Section title
+@mixin section-title {
+	@include title-font;
+	margin-bottom: $spacing-md;
+}
+
+// Section intro text
+@mixin section-intro {
+	@include body-font;
+	font-size: 14px;
+	line-height: 1.6;
+	margin-bottom: $spacing-md;
+}
+
+// Container mixin
+@mixin container {
+	width: 100%;
+	max-width: $breakpoint-xl;
+	margin: 0 auto;
+	padding: 0 $spacing-lg;
+}
+
+// ==================== TYPOGRAPHY MIXINS ====================
+
 @mixin title-font {
 	font-family: $font-title;
 	font-weight: $font-weight-medium;
@@ -47,7 +85,8 @@
 	text-transform: uppercase;
 }
 
-// Flex mixins
+// ==================== FLEX MIXINS ====================
+
 @mixin flex-center {
 	display: flex;
 	align-items: center;
@@ -65,8 +104,11 @@
 	flex-direction: column;
 }
 
-// Button reset
+// ==================== BUTTON MIXINS ====================
+
+// Button reset mixin - nulstiller alle knapper før styling
 @mixin button-reset {
+	// Reset all browser defaults
 	appearance: none;
 	-webkit-appearance: none;
 	-moz-appearance: none;
@@ -80,9 +122,22 @@
 	outline: none;
 	box-shadow: none;
 	text-decoration: none;
+	// Reset Element Plus variables
+	--el-button-bg-color: transparent;
+	--el-button-text-color: inherit;
+	--el-button-border-color: transparent;
+	--el-button-hover-bg-color: transparent;
+	--el-button-hover-text-color: inherit;
+	--el-button-hover-border-color: transparent;
+	--el-button-active-bg-color: transparent;
+	--el-button-active-text-color: inherit;
+	--el-button-active-border-color: transparent;
+	--el-button-disabled-bg-color: transparent;
+	--el-button-disabled-text-color: inherit;
+	--el-button-disabled-border-color: transparent;
 }
 
-// Button base (includes reset)
+// Button base mixin (includes reset)
 @mixin button-base {
 	@include button-reset;
 	@include button-font;
@@ -104,9 +159,11 @@
 	@include button-base;
 	background-color: $color-dark-gray;
 	color: $color-white;
+	box-shadow: $shadow-button;
 
 	&:hover {
-		background-color: color.adjust($color-dark-gray, $lightness: 10%);
+		background-color: $color-light-gray;
+		color: $color-dark-gray;
 	}
 }
 
@@ -114,6 +171,7 @@
 	@include button-base;
 	background-color: $color-yellow;
 	color: $color-dark-gray;
+	box-shadow: $shadow-button;
 
 	&:hover {
 		filter: brightness(0.9);
@@ -124,18 +182,31 @@
 	@include button-base;
 	background-color: $color-red;
 	color: $color-white;
+	box-shadow: $shadow-button;
 
 	&:hover {
 		filter: brightness(0.9);
 	}
 }
 
+@mixin button-light {
+	@include button-base;
+	background-color: $color-white;
+	color: $color-dark-gray;
+	box-shadow: $shadow-button;
+
+	&:hover {
+		background-color: $color-light-gray;
+	}
+}
+
+// ==================== COMPONENT MIXINS ====================
+
 // Card style
 @mixin card {
 	background-color: $color-white;
 	border-radius: $border-radius-lg;
 	box-shadow: $shadow-card;
-	padding: $spacing-md;
 }
 
 // Modal style
@@ -146,15 +217,213 @@
 	padding: $spacing-md;
 }
 
-// Responsive breakpoint mixins
+// ==================== SLOT PICKER MIXINS ====================
+// Genbruges i ApplicationModal.vue og CalendarSlotPicker.vue
+
+// Date picker header med dato-display og VÆLG DATO knap
+@mixin slot-picker-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: $spacing-md;
+}
+
+// Date display tekst
+@mixin slot-picker-date-display {
+	@include subtitle-font;
+	font-size: $font-size-subtitle;
+}
+
+// VÆLG DATO knap - bruger button-dark, kun størrelse er lokal
+@mixin slot-picker-date-btn {
+	@include button-dark;
+	// Lokale størrelsestilpasninger
+	padding: $spacing-sm $spacing-md;
+	font-size: $font-size-body;
+
+	.el-icon {
+		color: inherit;
+	}
+}
+
+// Time slots grid container
+@mixin slot-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: $spacing-sm;
+}
+
+// Individual time slot
+@mixin slot-item {
+	@include flex-column;
+	@include flex-center;
+	gap: $spacing-xs;
+	padding: $spacing-xs $spacing-sm;
+	border: 2px solid $color-dark-gray;
+	border-radius: $border-radius-md;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	position: relative;
+	background-color: $color-white;
+
+	&:hover:not(&--disabled):not(&--selected):not(&--reserved) {
+		background-color: $color-light-gray;
+	}
+}
+
+// Slot selected state
+@mixin slot-item-selected {
+	background-color: $color-dark-gray !important;
+	color: $color-white;
+
+	&:hover {
+		background-color: $color-light-gray !important;
+		color: $color-dark-gray;
+	}
+}
+
+// Slot disabled state
+@mixin slot-item-disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+// Slot time text
+@mixin slot-time {
+	@include body-bold-font;
+	font-size: $font-size-button;
+	color: inherit;
+}
+
+// Slot type badge
+@mixin slot-type-badge {
+	@include body-font;
+	padding: $spacing-xs $spacing-sm;
+	border: 1px solid currentColor;
+	border-radius: $border-radius-sm;
+	color: inherit;
+}
+
+// Empty state placeholder (no-date, no-slots)
+@mixin slot-empty-state {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 1;
+	border: 2px dashed $color-light-gray;
+	border-radius: $border-radius-md;
+	color: $color-dark-gray;
+	text-align: center;
+	padding: $spacing-lg;
+
+	p {
+		@include body-font;
+		margin: 0;
+	}
+}
+
+// Selected slots section container
+@mixin selected-slots-section {
+	display: flex;
+	flex-direction: column;
+}
+
+// Selected slots count text
+@mixin selected-slots-count {
+	@include body-bold-font;
+	font-size: $font-size-button;
+	text-align: center;
+	margin-top: $spacing-sm;
+}
+
+// Selected slots grid
+@mixin selected-slots-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: $spacing-sm;
+	height: 52px;
+}
+
+// Individual selected slot
+@mixin selected-slot {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	padding: $spacing-sm;
+	border: 2px solid $color-dark-gray;
+	border-radius: $border-radius-md;
+	background-color: $color-dark-gray;
+	color: $color-white;
+}
+
+// Empty selected slot
+@mixin selected-slot-empty {
+	background-color: transparent;
+	border-style: dashed;
+	justify-content: flex-start;
+}
+
+// Selected slot info container
+@mixin selected-slot-info {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: $spacing-sm;
+	flex: 1;
+	padding-top: 3px;
+}
+
+// Selected slot time text
+@mixin selected-slot-time {
+	@include body-font;
+	font-weight: $font-weight-bold;
+	color: $color-white;
+}
+
+// Selected slot date text
+@mixin selected-slot-date {
+	font-size: $font-size-body;
+	opacity: 0.7;
+}
+
+// Selected slot remove button
+@mixin selected-slot-remove-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: $spacing-lg;
+	height: $spacing-lg;
+	padding: 0;
+	border: none;
+	background-color: transparent;
+	color: $color-white;
+	cursor: pointer;
+	border-radius: $border-radius-sm;
+	transition: background-color 0.2s ease;
+
+	&:hover {
+		background-color: rgba($color-white, 0.2);
+	}
+}
+
+// Empty slot placeholder text
+@mixin selected-slot-empty-text {
+	@include body-font;
+	font-size: $font-size-body;
+	color: $color-dark-gray;
+	opacity: 0.5;
+}
+
+// ==================== RESPONSIVE MIXINS ====================
+
 @mixin mobile {
-	@media (max-width: $breakpoint-sm) {
+	@media (max-width: #{$breakpoint-sm - 1}) {
 		@content;
 	}
 }
 
 @mixin tablet {
-	@media (max-width: $breakpoint-md) {
+	@media (min-width: $breakpoint-sm) and (max-width: #{$breakpoint-lg - 1}) {
 		@content;
 	}
 }

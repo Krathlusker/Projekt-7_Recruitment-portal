@@ -2,6 +2,10 @@
 // SBS Recruitment App - Main Styles
 // ==============================================
 // Variables and mixins are injected globally via Vite config
+// Global styles (Element Plus overrides) imported below
+
+// Import global styles (CSS output - loaded once here)
+@use "global";
 
 // Reset
 *,
@@ -95,7 +99,7 @@ a {
 
 // Layout utilities
 .container {
-	max-width: 1440px;
+	max-width: $max-page-width;
 	margin: 0 auto;
 	padding: 0 $spacing-lg;
 }

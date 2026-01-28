@@ -18,38 +18,68 @@ $font-body: 'Helvetica Neue LT Pro', 'Helvetica Neue', Helvetica, Arial, sans-se
 // Typography - Font Sizes
 $font-size-title: 36px;
 $font-size-subtitle: 24px;
-$font-size-button: 20px;
+$font-size-button: 18px;
 $font-size-body: 12px;
-$font-size-small: 9px;
+$font-size-small: 12px;
 
 // Typography - Font Weights
 $font-weight-regular: 400;
 $font-weight-medium: 500;
 $font-weight-bold: 700;
 
-// Spacing
-$spacing-xs: 4px;
-$spacing-sm: 6px;
-$spacing-md: 12px;
+// Spacing (alle værdier deleligt med 6)
+$spacing-xs: 6px;
+$spacing-sm: 12px;
+$spacing-md: 18px;
 $spacing-lg: 24px;
 $spacing-xl: 48px;
 
-// Border Radius (alle deleligt med 6)
+// Border Radius
 $border-radius-sm: 6px;
 $border-radius-md: 6px;
 $border-radius-lg: 12px;
 
 // Shadows
-$shadow-modal: 0px 0px 15px 5px rgba($color-dark-gray, 0.25);
-$shadow-card: 0px 2px 8px rgba($color-dark-gray, 0.1);
+$shadow-modal: 0px 0px 18px 6px rgba($color-dark-gray, 0.25);
+$shadow-card: 0px 6px 6px rgba($color-dark-gray, 0.1);
+$shadow-button: 0px 3px 6px rgba($color-dark-gray, 0.15);
+
+// Transitions
+$transition-duration: 0.2s;
+$transition-ease: ease;
 
 // Breakpoints
 $breakpoint-sm: 576px;
 $breakpoint-md: 768px;
-$breakpoint-lg: 992px;
+$breakpoint-lg: 990px;
 $breakpoint-xl: 1200px;
 
 // Z-index layers
 $z-index-modal: 1000;
 $z-index-floating-button: 900;
 $z-index-header: 100;
+
+// Layout
+$max-content-width: 1020px;
+$modal-max-height-mobile: 657px;
+$max-page-width: 1440px;
+
+// Modal dimensions
+$modal-height-standard: 660px;
+$modal-max-width-wide: 1344px;
+
+// Component dimensions
+$card-min-width: 420px;
+$element-height-standard: 42px;
+$close-btn-size-desktop: 102px;
+$close-btn-size-mobile: 54px;
+$job-image-height: 300px;
+$image-card-height: 282px;
+$calendar-min-height: 450px;
+$hero-image-height: 420px;
+$benefit-icon-size: 120px;
+$card-badge-offset: 72px;
+
+// Animation offsets
+$slide-offset: 30px;
+$floating-btn-offset: 42px;

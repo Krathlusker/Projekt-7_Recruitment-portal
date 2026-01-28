@@ -426,11 +426,11 @@ const closeApplicationModal = () => {
 
 		&--scrolled {
 			.landing-page__logo {
-				height: 18px;
+				height: $font-size-button;
 			}
 
 			.landing-page__header-title {
-				font-size: 18px;
+				font-size: $font-size-button;
 			}
 		}
 	}
@@ -443,7 +443,7 @@ const closeApplicationModal = () => {
 	}
 
 	&__logo {
-		height: 42px;
+		height: $element-height-standard;
 		width: auto;
 		transition: height 0.3s ease-in-out;
 	}
@@ -471,7 +471,7 @@ const closeApplicationModal = () => {
 
 	&__hero-video {
 		width: 100%;
-		height: 420px;
+		height: $hero-image-height;
 		background-color: $color-dark-gray;
 		overflow: hidden;
 	}
@@ -618,9 +618,9 @@ const closeApplicationModal = () => {
 	}
 
 	&__footer-title {
-		font-family: 'Neo Sans W1G', sans-serif;
+		font-family: $font-title;
 		font-weight: 500;
-		font-size: 36px;
+		font-size: $font-size-title;
 		color: $color-white;
 		margin: 0 0 $spacing-sm 0;
 	}
@@ -629,9 +629,9 @@ const closeApplicationModal = () => {
 		display: flex;
 		align-items: center;
 		gap: $spacing-xs;
-		font-family: 'Helvetica Neue LT Pro', sans-serif;
+		font-family: $font-body;
 		font-weight: 400;
-		font-size: 12px;
+		font-size: $font-size-body;
 		color: $color-white;
 	}
 
@@ -642,8 +642,8 @@ const closeApplicationModal = () => {
 	}
 
 	&__legal-separator {
-		width: 6px;
-		height: 6px;
+		width: $spacing-xs;
+		height: $spacing-xs;
 		background-color: $color-white;
 		border-radius: 50%;
 	}
