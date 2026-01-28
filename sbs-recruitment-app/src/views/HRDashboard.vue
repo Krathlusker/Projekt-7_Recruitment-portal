@@ -37,7 +37,10 @@
 			<header class="hr-dashboard__header">
 				<div class="hr-dashboard__header-left">
 					<h1 class="hr-dashboard__title">HR Dashboard</h1>
-					<p class="hr-dashboard__subtitle">Sidst opdateret: {{ lastUpdated }}</p>
+					<p class="hr-dashboard__subtitle">
+						<span class="hr-dashboard__status-dot" :class="{ 'hr-dashboard__status-dot--breathing': isBreathing }"></span>
+						Sidst opdateret: {{ lastUpdated }}
+					</p>
 				</div>
 				<div class="hr-dashboard__header-right">
 					<el-button @click="loadApplications" class="btn-dark">Opdater</el-button>
@@ -292,7 +295,10 @@
 								</div>
 
 								<!-- Show selected slots if available (priority times from applicant) -->
-								<div v-else-if="selectedApplication.selectedSlots && selectedApplication.selectedSlots.length > 0">
+								<div
+									v-else-if="selectedApplication.selectedSlots && selectedApplication.selectedSlots.length > 0"
+									class="application-detail__selected-slots"
+								>
 									<h4>Ansøgerens ønskede tidspunkter</h4>
 									<div
 										v-for="(slotId, index) in selectedApplication.selectedSlots"
@@ -591,6 +597,7 @@ const isLoading = ref(false)
 // Data
 const applications = ref<Application[]>([])
 const lastUpdated = ref('')
+const isBreathing = ref(false)
 const refreshInterval = ref<ReturnType<typeof setInterval> | null>(null)
 const slotPollingInterval = ref<ReturnType<typeof setInterval> | null>(null)
 const SLOT_POLLING_INTERVAL_MS = 3000 // Poll every 3 seconds
@@ -758,6 +765,12 @@ const loadApplications = async () => {
 		const response = await api.get('/applications')
 		applications.value = response.data
 		lastUpdated.value = new Date().toLocaleTimeString('da-DK')
+
+		// Trigger breathing animation
+		isBreathing.value = true
+		setTimeout(() => {
+			isBreathing.value = false
+		}, 1000)
 	} catch (error) {
 		console.error('Failed to load applications:', error)
 		throw error
@@ -1529,6 +1542,36 @@ watch(showDetailDialog, (newVal) => {
 	&__subtitle {
 		@include body-font;
 		color: $color-gray;
+		display: flex;
+		align-items: center;
+		gap: $spacing-xs;
+	}
+
+	&__status-dot {
+		width: 8px;
+		height: 8px;
+		background-color: $color-green;
+		border-radius: 50%;
+		transition: transform $transition-duration-slow $transition-ease, opacity $transition-duration-slow $transition-ease;
+
+		&--breathing {
+			animation: breathe 1s ease-in-out;
+		}
+	}
+
+	@keyframes breathe {
+		0% {
+			transform: scale(1);
+			opacity: 1;
+		}
+		50% {
+			transform: scale(1.5);
+			opacity: 0.7;
+		}
+		100% {
+			transform: scale(1);
+			opacity: 1;
+		}
 	}
 
 	&__header-right {
@@ -1633,7 +1676,7 @@ watch(showDetailDialog, (newVal) => {
 	}
 
 	&__applications-grid-wrapper {
-		transition: min-height 0.3s ease;
+		transition: min-height $transition-duration-slow $transition-ease;
 	}
 
 	&__applications-grid {
@@ -1792,14 +1835,27 @@ watch(showDetailDialog, (newVal) => {
 		}
 	}
 
+	&__selected-slots {
+		@include flex-column;
+		gap: $spacing-sm;
+		padding: $spacing-md;
+		background-color: $color-light-gray;
+		border-radius: $border-radius-md;
+
+		h4 {
+			@include body-bold-font;
+			margin-bottom: $spacing-xs;
+		}
+	}
+
 	&__slot {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		padding: $spacing-md;
-		background-color: $color-light-gray;
+		background-color: $color-white;
 		border-radius: $border-radius-md;
-		border: 1px solid $color-dark-gray;
+		border: $border-width-normal solid $color-dark-gray;
 	}
 
 	&__slot-actions {
@@ -1844,7 +1900,7 @@ watch(showDetailDialog, (newVal) => {
 		padding: $spacing-md;
 		background-color: $color-yellow;
 		border-radius: $border-radius-md;
-		border: 1px dashed $color-yellow;
+		border: $border-width-thin dashed $color-yellow;
 
 		h4 {
 			@include body-bold-font;
@@ -1860,8 +1916,8 @@ watch(showDetailDialog, (newVal) => {
 
 	&__confirmed-badge {
 		@include body-bold-font;
+		@include text-center-fix($spacing-xs, $spacing-sm);
 		font-size: 11px;
-		padding: 4px $spacing-sm;
 		background-color: $color-green;
 		color: $color-white;
 		border-radius: $border-radius-sm;
@@ -1878,9 +1934,8 @@ watch(showDetailDialog, (newVal) => {
 	&__custom-time-section {
 		margin-top: $spacing-lg;
 		padding: $spacing-md;
-		background-color: color.adjust($color-light-gray, $lightness: 2%);
+		background-color: $color-light-gray;
 		border-radius: $border-radius-md;
-		border: 1px solid $color-light-gray;
 	}
 }
 
@@ -1902,7 +1957,7 @@ watch(showDetailDialog, (newVal) => {
 
 	&__calendar {
 		width: 100%;
-		border: 1px solid $color-light-gray;
+		border: $border-width-thin solid $color-light-gray;
 		border-radius: $border-radius-md;
 		overflow: hidden;
 
@@ -1910,7 +1965,7 @@ watch(showDetailDialog, (newVal) => {
 		:deep(.el-calendar-table) {
 			td {
 				padding: 0;
-				border: 1px solid $color-light-gray;
+				border: $border-width-thin solid $color-light-gray;
 			}
 
 			// Override Element Plus is-selected styling
@@ -1987,7 +2042,7 @@ watch(showDetailDialog, (newVal) => {
 		text-align: center;
 		background-color: $color-white;
 		border-radius: $border-radius-md;
-		border: 1px dashed $color-light-gray;
+		border: $border-width-thin dashed $color-light-gray;
 	}
 
 	&__items {
@@ -2000,7 +2055,7 @@ watch(showDetailDialog, (newVal) => {
 	min-height: 80px;
 	padding: $spacing-sm;
 	cursor: pointer;
-	transition: all 0.2s ease;
+	transition: all $transition-duration $transition-ease;
 	@include flex-column;
 	align-items: flex-start;
 	justify-content: flex-start;
@@ -2063,7 +2118,7 @@ watch(showDetailDialog, (newVal) => {
 	padding: $spacing-md;
 	background-color: $color-white;
 	border-radius: $border-radius-md;
-	border: 1px solid $color-light-gray;
+	border: $border-width-thin solid $color-light-gray;
 
 	&__date {
 		flex: 1;
@@ -2101,18 +2156,18 @@ watch(showDetailDialog, (newVal) => {
 	}
 
 	&--reserved {
-		border-color: #f5a623;
-		background-color: color.adjust(#f5a623, $lightness: 35%);
+		border-color: $color-yellow;
+		background-color: lighten($color-yellow, 35%);
 
 		.time-slot-item__status {
-			color: $color-white;
-			background-color: #f5a623;
+			color: $color-dark-gray;
+			background-color: $color-yellow;
 		}
 	}
 
 	&--booked {
 		border-color: $color-red;
-		background-color: color.adjust($color-red, $lightness: 35%);
+		background-color: lighten($color-red, 35%);
 
 		.time-slot-item__status {
 			color: $color-white;
@@ -2145,7 +2200,7 @@ watch(showDetailDialog, (newVal) => {
 		}
 
 		&--reserved {
-			background-color: #f5a623;
+			background-color: $color-yellow;
 		}
 
 		&--booked {
@@ -2164,7 +2219,7 @@ watch(showDetailDialog, (newVal) => {
 // Fade transition for grid changes
 .fade-enter-active,
 .fade-leave-active {
-	transition: opacity 0.2s ease;
+	transition: opacity $transition-duration $transition-ease;
 }
 
 .fade-enter-from,
@@ -2275,7 +2330,7 @@ watch(showDetailDialog, (newVal) => {
 	&__danger-zone {
 		margin-top: $spacing-lg;
 		padding: $spacing-md;
-		border: 2px solid $color-red;
+		border: $border-width-normal solid $color-red;
 		border-radius: $border-radius-md;
 		background-color: rgba($color-red, 0.05);
 

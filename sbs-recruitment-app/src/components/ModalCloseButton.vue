@@ -1,5 +1,5 @@
 <template>
-	<el-button class="modal-close-button" @click="$emit('click')" type="button" aria-label="Luk" circle>
+	<el-button class="modal-close-button" @click="$emit('click')" type="button" aria-label="Luk">
 		<div class="modal-close-button__icon-wrapper">
 			<el-icon :size="48">
 				<Plus />
@@ -28,15 +28,17 @@ defineEmits<{
 	border: none !important;
 	background: transparent !important;
 	background-color: transparent !important;
+	box-shadow: none !important;
 	z-index: 10;
 	padding: 0;
 
-	// Override el-button hover/focus backgrounds
+	// Override el-button hover/focus backgrounds and shadows
 	&:hover,
 	&:focus,
 	&:active {
 		background: transparent !important;
 		background-color: transparent !important;
+		box-shadow: none !important;
 	}
 
 	&__icon-wrapper {
@@ -60,10 +62,9 @@ defineEmits<{
 		width: $close-btn-size-mobile;
 		height: $close-btn-size-mobile;
 		background-color: $color-light-gray;
-		border-radius: 0 $border-radius-lg 0 $border-radius-lg; // top-right og bottom-left
-		box-shadow: $shadow-modal;
+		border-radius: 0 $border-radius-lg 0 20px; // top-right: standard, bottom-left: større
 		z-index: 1;
-		transition: background-color 0.2s ease;
+		transition: background-color $transition-duration $transition-ease;
 	}
 
 	&:hover {

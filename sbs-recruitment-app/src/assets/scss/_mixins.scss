@@ -104,6 +104,29 @@
 	flex-direction: column;
 }
 
+// Optisk centrering af tekst i badges/labels
+// Beregner asymmetrisk vertikal padding baseret på font metrics
+// Bruges når tekst skal være visuelt centreret, ikke baseline-centreret
+//
+// $padding-y: Den ønskede visuelle vertikal padding
+// $padding-x: Horisontal padding (valgfri, default 0)
+// $cap-height/$descender: Font-specifikke metrics
+//
+// Formel: offset = ((1 - capHeight) - descender) / 2
+
+@mixin text-center-fix($padding-y, $padding-x: 0, $cap-height: $font-body-cap-height, $descender: $font-body-descender) {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 1;
+
+	// Beregn optisk korrektion (i em, skalerer med font-size)
+	$offset: ((1.2 - $cap-height) - $descender) / 2;
+
+	// Anvend asymmetrisk padding: mere i top, mindre i bund
+	padding: calc(#{$padding-y} + #{$offset}em) #{$padding-x} calc(#{$padding-y} - #{$offset}em) #{$padding-x};
+}
+
 // ==================== BUTTON MIXINS ====================
 
 // Button reset mixin - nulstiller alle knapper før styling
@@ -146,7 +169,7 @@
 	border-radius: $border-radius-md;
 	padding: $spacing-md $spacing-lg;
 	cursor: pointer;
-	transition: all 0.2s ease;
+	transition: background-color $transition-duration $transition-ease, color $transition-duration $transition-ease, box-shadow $transition-duration $transition-ease, filter $transition-duration $transition-ease !important;
 
 	&:disabled {
 		opacity: 0.5;
@@ -164,6 +187,7 @@
 	&:hover {
 		background-color: $color-light-gray;
 		color: $color-dark-gray;
+		box-shadow: $shadow-button-hover;
 	}
 }
 
@@ -175,6 +199,7 @@
 
 	&:hover {
 		filter: brightness(0.9);
+		box-shadow: $shadow-button-hover;
 	}
 }
 
@@ -186,6 +211,7 @@
 
 	&:hover {
 		filter: brightness(0.9);
+		box-shadow: $shadow-button-hover;
 	}
 }
 
@@ -197,6 +223,7 @@
 
 	&:hover {
 		background-color: $color-light-gray;
+		box-shadow: $shadow-button-hover;
 	}
 }
 
@@ -259,10 +286,10 @@
 	@include flex-center;
 	gap: $spacing-xs;
 	padding: $spacing-xs $spacing-sm;
-	border: 2px solid $color-dark-gray;
+	border: $border-width-normal solid $color-dark-gray;
 	border-radius: $border-radius-md;
 	cursor: pointer;
-	transition: all 0.2s ease;
+	transition: all $transition-duration $transition-ease;
 	position: relative;
 	background-color: $color-white;
 
@@ -299,7 +326,7 @@
 @mixin slot-type-badge {
 	@include body-font;
 	padding: $spacing-xs $spacing-sm;
-	border: 1px solid currentColor;
+	border: $border-width-thin solid currentColor;
 	border-radius: $border-radius-sm;
 	color: inherit;
 }
@@ -310,7 +337,7 @@
 	align-items: center;
 	justify-content: center;
 	flex: 1;
-	border: 2px dashed $color-light-gray;
+	border: $border-width-normal dashed $color-light-gray;
 	border-radius: $border-radius-md;
 	color: $color-dark-gray;
 	text-align: center;
@@ -350,7 +377,7 @@
 	align-items: center;
 	justify-content: flex-start;
 	padding: $spacing-sm;
-	border: 2px solid $color-dark-gray;
+	border: $border-width-normal solid $color-dark-gray;
 	border-radius: $border-radius-md;
 	background-color: $color-dark-gray;
 	color: $color-white;
@@ -399,7 +426,7 @@
 	color: $color-white;
 	cursor: pointer;
 	border-radius: $border-radius-sm;
-	transition: background-color 0.2s ease;
+	transition: background-color $transition-duration $transition-ease;
 
 	&:hover {
 		background-color: rgba($color-white, 0.2);

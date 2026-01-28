@@ -26,7 +26,7 @@ defineEmits<{
 	transform: rotate(-90deg);
 	transform-origin: 100% 0;
 	z-index: $z-index-floating-button;
-	transition: right 0.1s ease;
+	transition: right $transition-duration-fast $transition-ease;
 
 	@include mobile {
 		right: calc(#{$spacing-lg} + var(--scrollbar-width, 0px));

@@ -419,9 +419,9 @@ const closeApplicationModal = () => {
 	// Header
 	&__header {
 		background-color: $color-white;
-		border-bottom: 1px solid $color-light-gray;
+		border-bottom: $border-width-thin solid $color-light-gray;
 		z-index: $z-index-header;
-		transition: all 0.3s ease-in-out;
+		transition: all $transition-duration-slow $transition-ease-smooth;
 		flex-shrink: 0;
 
 		&--scrolled {
@@ -445,7 +445,7 @@ const closeApplicationModal = () => {
 	&__logo {
 		height: $element-height-standard;
 		width: auto;
-		transition: height 0.3s ease-in-out;
+		transition: height $transition-duration-slow $transition-ease-smooth;
 	}
 
 	&__header-title {
@@ -455,7 +455,7 @@ const closeApplicationModal = () => {
 		color: $color-dark-gray;
 		margin: 0;
 		text-transform: uppercase;
-		transition: font-size 0.3s ease-in-out;
+		transition: font-size $transition-duration-slow $transition-ease-smooth;
 	}
 
 	// Hero

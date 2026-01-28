@@ -1270,7 +1270,7 @@ const handleClose = async () => {
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			border: 1px dashed $color-dark-gray;
+			border: $border-width-thin dashed $color-dark-gray;
 			border-radius: $border-radius-sm;
 			background-color: transparent;
 
@@ -1324,13 +1324,13 @@ const handleClose = async () => {
 		width: 100%;
 
 		:deep(.el-progress-bar__outer) {
-			border: 1px solid $color-dark-gray;
+			border: $border-width-thin solid $color-dark-gray;
 			background-color: $color-white;
 		}
 
 		:deep(.el-progress-bar__inner) {
 			background-color: $color-dark-gray;
-			transition: width 0.3s ease;
+			transition: width $transition-duration-slow $transition-ease;
 		}
 	}
 
@@ -1496,7 +1496,7 @@ const handleClose = async () => {
 			}
 
 			td {
-				border: 1px solid $color-light-gray;
+				border: $border-width-thin solid $color-light-gray;
 				padding: 0;
 			}
 		}
@@ -1510,7 +1510,7 @@ const handleClose = async () => {
 		height: 100%;
 		padding: $spacing-sm;
 		cursor: pointer;
-		transition: all 0.2s ease;
+		transition: all $transition-duration $transition-ease;
 		color: $color-dark-gray;
 
 		&--has-slots {
@@ -1588,8 +1588,8 @@ const handleClose = async () => {
 			opacity: 0.6;
 			cursor: not-allowed;
 			border-style: dashed;
-			border-color: #f5a623;
-			background-color: rgba(245, 166, 35, 0.1);
+			border-color: $color-yellow;
+			background-color: rgba($color-yellow, 0.1);
 		}
 	}
 

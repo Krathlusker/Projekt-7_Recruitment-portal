@@ -19,13 +19,23 @@ $font-body: 'Helvetica Neue LT Pro', 'Helvetica Neue', Helvetica, Arial, sans-se
 $font-size-title: 36px;
 $font-size-subtitle: 24px;
 $font-size-button: 18px;
-$font-size-body: 12px;
+$font-size-body: 14px;
 $font-size-small: 12px;
 
 // Typography - Font Weights
 $font-weight-regular: 400;
 $font-weight-medium: 500;
 $font-weight-bold: 700;
+
+// Typography - Font Metrics (for optisk centrering)
+// Disse værdier er specifikke for hver font og bruges til at beregne optisk center
+// Cap height og descender som ratio af em-square (0-1)
+// Neo Sans metrics (title font)
+$font-title-cap-height: 0.70;
+$font-title-descender: 0.20;
+// Helvetica Neue metrics (body font)
+$font-body-cap-height: 0.72;
+$font-body-descender: 0.21;
 
 // Spacing (alle værdier deleligt med 6)
 $spacing-xs: 6px;
@@ -43,10 +53,18 @@ $border-radius-lg: 12px;
 $shadow-modal: 0px 0px 18px 6px rgba($color-dark-gray, 0.25);
 $shadow-card: 0px 6px 6px rgba($color-dark-gray, 0.1);
 $shadow-button: 0px 3px 6px rgba($color-dark-gray, 0.15);
+$shadow-button-hover: 0px 6px 12px rgba($color-dark-gray, 0.25);
 
 // Transitions
+$transition-duration-fast: 0.1s;
 $transition-duration: 0.2s;
+$transition-duration-slow: 0.3s;
 $transition-ease: ease;
+$transition-ease-smooth: ease-in-out;
+
+// Border Widths
+$border-width-thin: 1px;
+$border-width-normal: 2px;
 
 // Breakpoints
 $breakpoint-sm: 576px;
@@ -75,7 +93,7 @@ $close-btn-size-desktop: 102px;
 $close-btn-size-mobile: 54px;
 $job-image-height: 300px;
 $image-card-height: 282px;
-$calendar-min-height: 450px;
+$calendar-min-height: fit-content;
 $hero-image-height: 420px;
 $benefit-icon-size: 120px;
 $card-badge-offset: 72px;
