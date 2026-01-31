@@ -1,14 +1,10 @@
 <template>
-	<el-button type="danger" size="large" class="floating-apply-button" @click="$emit('click')">
+	<el-button size="large" class="floating-apply-button btn-red" @click="$emit('click')">
 		ANSØG NU
-		<el-icon>
-			<ArrowRight />
-		</el-icon>
 	</el-button>
 </template>
 
 <script setup lang="ts">
-import { ArrowRight } from '@element-plus/icons-vue'
 
 defineEmits<{
 	click: []
@@ -21,15 +17,22 @@ defineEmits<{
 
 .floating-apply-button {
 	position: fixed;
-	top: 50%;
+	top: 70%;
 	right: calc(#{$floating-btn-offset} + var(--scrollbar-width, 0px));
 	transform: rotate(-90deg);
 	transform-origin: 100% 0;
 	z-index: $z-index-floating-button;
-	transition: right $transition-duration-fast $transition-ease;
+	transition: right $transition-duration-fast $transition-ease,
+		transform $transition-duration $transition-ease,
+		background-color $transition-duration $transition-ease,
+		color $transition-duration $transition-ease !important;
+
+	&:hover {
+		transform: rotate(-90deg) translateY(-6px) !important;
+	}
 
 	@include mobile {
-		right: calc(#{$spacing-lg} + var(--scrollbar-width, 0px));
+		right: $spacing-xl;
 	}
 }
 </style>

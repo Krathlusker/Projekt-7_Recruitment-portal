@@ -63,7 +63,7 @@ defineEmits<{
 		right: $spacing-lg;
 		width: $close-btn-size-mobile;
 		height: $close-btn-size-mobile;
-		background-color: $color-light-gray;
+		background-color: $color-white;
 		border-radius: 0 $border-radius-lg 0 20px; // top-right: standard, bottom-left: større
 		z-index: 1;
 		transition: background-color $transition-duration $transition-ease;
@@ -71,7 +71,11 @@ defineEmits<{
 
 	&:hover {
 		.modal-close-button__background {
-			background-color: color.adjust($color-light-gray, $lightness: -5%);
+			background-color: $color-dark-gray;
+		}
+
+		:deep(svg) {
+			color: $color-white;
 		}
 	}
 

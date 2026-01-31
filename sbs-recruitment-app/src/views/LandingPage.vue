@@ -71,7 +71,12 @@
 							@click="openJobModal(job.id)"
 						>
 							<div class="el-image-card__image">
-								<img :src="job.image" :alt="job.title" />
+								<ResponsiveImage
+									:base-name="job.baseName"
+									:breakpoints="job.breakpoints"
+									:alt="job.title"
+									:focus-position="job.focusPosition"
+								/>
 							</div>
 							<div class="el-image-card__content">
 								<h3 class="el-image-card__title">{{ job.title }}</h3>
@@ -223,6 +228,7 @@ import FloatingApplyButton from '@/components/FloatingApplyButton.vue'
 import ApplicationModal from '@/components/ApplicationModal.vue'
 import JobModal from '@/components/JobModal.vue'
 import VideoPlayer from '@/components/VideoPlayer.vue'
+import ResponsiveImage from '@/components/ResponsiveImage.vue'
 import type { JobPosition } from '@/types'
 
 // Scroll state
@@ -286,22 +292,28 @@ const showApplicationModal = ref(false)
 const selectedJobId = ref('')
 const selectedJob = ref<JobPosition | ''>('')
 
-// Job listings - Job cards viser ikke beskrivelser, kun titler og billeder
+// Job listings - Simpelt! Bare angiv baseName og focusPosition
 const jobs = ref([
 	{
-		id: 'pakkeriet',
+		id: 'pakkeri',
 		title: 'Pakkeriet',
-		image: 'https://picsum.photos/seed/pakkeriet/400/300'
+		baseName: 'pakkeri_emma_compressed',
+		breakpoints: '400,0;800,400;1200,800;400,990',
+		focusPosition: '80% 10%'
 	},
 	{
 		id: 'produktion',
 		title: 'Produktion',
-		image: 'https://picsum.photos/seed/produktion/400/300'
+		baseName: 'produktion_marco-3_compressed',
+		breakpoints: '400,0;800,400;1200,800;400,990',
+		focusPosition: '60% 10%'
 	},
 	{
 		id: 'andre',
 		title: 'Andre stillinger',
-		image: 'https://picsum.photos/seed/andre/400/300'
+		baseName: 'andre-stillinger_claus_compressed',
+		breakpoints: '400,0;800,400;1200,800;400,990',
+		focusPosition: '55% 40%'
 	}
 ])
 

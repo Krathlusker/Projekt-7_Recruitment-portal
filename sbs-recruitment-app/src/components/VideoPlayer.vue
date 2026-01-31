@@ -109,6 +109,9 @@
 				</div>
 			</div>
 
+			<!-- Time display -->
+			<span class="video-player__time">{{ formatTime(currentTime) }}</span>
+
 			<!-- Progress bar (WCAG 2.1.1 keyboard + semantics) -->
 			<div
 				ref="progressRef"
@@ -124,7 +127,17 @@
 				@mousedown="startSeeking"
 				@touchstart="startSeeking"
 				@keydown="onProgressKeydown"
+				@mousemove="onProgressHover"
+				@mouseleave="tooltipVisible = false"
 			>
+				<!-- Custom tooltip that follows mouse -->
+				<div
+					v-show="tooltipVisible"
+					class="video-player__progress-tooltip"
+					:style="{ left: `${tooltipX}%` }"
+				>
+					{{ formatTime(hoverTime) }}
+				</div>
 				<div class="video-player__progress-track">
 					<div
 						class="video-player__progress-fill"
@@ -239,6 +252,10 @@ const controlsVisible = ref(true)
 const isSeeking = ref(false)
 const hasFocus = ref(false) // Keyboard focus in player (for WCAG)
 const isMouseOverControls = ref(false) // Mouse over controls area
+const hoverTime = ref(0) // Time at hover position for tooltip
+const tooltipVisible = ref(false) // Show/hide progress tooltip
+const tooltipX = ref(0) // Tooltip X position (percentage)
+const wasPlayingBeforeSeek = ref(false) // Remember play state before scrubbing
 
 // Touch device detection
 const isTouchDevice = ref(false)
@@ -427,7 +444,7 @@ let lastTouchTime = 0
 const toggleControlsTouch = (event: TouchEvent) => {
 	// Mark as touch device when user actually touches
 	isTouchDevice.value = true
-	
+
 	// Don't toggle if touch was on a control element (button, slider, etc.)
 	const target = event.target as HTMLElement
 	if (target.closest('.video-player__controls')) {
@@ -525,6 +542,18 @@ const onProgressKeydown = (event: KeyboardEvent) => {
 	videoRef.value.currentTime = newTime
 }
 
+// Progress bar hover - calculate time at mouse position for tooltip
+const onProgressHover = (event: MouseEvent) => {
+	const progressEl = progressRef.value
+	if (!progressEl) return
+
+	const rect = progressEl.getBoundingClientRect()
+	const hoverPosition = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
+	hoverTime.value = hoverPosition * duration.value
+	tooltipX.value = hoverPosition * 100
+	tooltipVisible.value = true
+}
+
 const seek = (event: MouseEvent | TouchEvent) => {
 	if (!videoRef.value) return
 
@@ -539,7 +568,15 @@ const seek = (event: MouseEvent | TouchEvent) => {
 
 const startSeeking = (event: MouseEvent | TouchEvent) => {
 	isSeeking.value = true
+
+	// Pause video while scrubbing, remember if it was playing
+	wasPlayingBeforeSeek.value = isPlaying.value
+	if (videoRef.value && isPlaying.value) {
+		videoRef.value.pause()
+	}
+
 	seek(event)
+	tooltipVisible.value = true
 
 	const onMove = (e: MouseEvent | TouchEvent) => {
 		if (!videoRef.value) return
@@ -549,11 +586,25 @@ const startSeeking = (event: MouseEvent | TouchEvent) => {
 		const rect = progressEl.getBoundingClientRect()
 		const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
 		const clickPosition = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
-		videoRef.value.currentTime = clickPosition * duration.value
+		const newTime = clickPosition * duration.value
+		videoRef.value.currentTime = newTime
+
+		// Update progress bar, tooltip time and position while scrubbing
+		progress.value = clickPosition * 100
+		currentTime.value = newTime
+		hoverTime.value = newTime
+		tooltipX.value = clickPosition * 100
 	}
 
 	const onEnd = () => {
 		isSeeking.value = false
+		tooltipVisible.value = false
+
+		// Resume video if it was playing before scrubbing
+		if (wasPlayingBeforeSeek.value && videoRef.value) {
+			videoRef.value.play()
+		}
+
 		document.removeEventListener('mousemove', onMove)
 		document.removeEventListener('mouseup', onEnd)
 		document.removeEventListener('touchmove', onMove)
@@ -754,15 +805,14 @@ defineExpose({
 
 	// Control buttons
 	&__btn {
+		@include button-colors-light;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		width: $spacing-xl;
 		height: $spacing-xl;
-		background-color: $color-white;
-		border: none;
+		border: $border-width-thin solid transparent;
 		border-radius: $border-radius-sm;
-		color: $color-dark-gray;
 		cursor: pointer;
 		transition: all $transition-duration $transition-ease;
 		flex-shrink: 0;
@@ -776,8 +826,7 @@ defineExpose({
 		}
 
 		&:hover {
-			transform: scale(1.05);
-			box-shadow: $shadow-button-hover;
+			border-color: $color-white !important;
 		}
 
 		&:active {
@@ -910,8 +959,20 @@ defineExpose({
 		}
 	}
 
+	// Time display
+	&__time {
+		@include body-font;
+		font-size: $font-size-body;
+		font-variant-numeric: tabular-nums;
+		color: $color-white;
+		min-width: 40px;
+		text-align: center;
+		user-select: none;
+	}
+
 	// Progress bar
 	&__progress {
+		position: relative;
 		flex: 1;
 		height: $spacing-xl;
 		display: flex;
@@ -923,6 +984,35 @@ defineExpose({
 		&:focus-visible {
 			outline: 2px solid $color-yellow;
 			outline-offset: 2px;
+		}
+	}
+
+	// Custom tooltip that follows mouse
+	&__progress-tooltip {
+		position: absolute;
+		bottom: calc(100% + $spacing-xs);
+		transform: translateX(-50%);
+		background-color: $color-white;
+		color: $color-dark-gray;
+		padding: $spacing-xs $spacing-sm;
+		border-radius: $border-radius-sm;
+		font-size: $font-size-body;
+		font-variant-numeric: tabular-nums;
+		box-shadow: $shadow-card;
+		white-space: nowrap;
+		pointer-events: none;
+		z-index: 10;
+
+		// Arrow pointing down
+		&::after {
+			content: '';
+			position: absolute;
+			top: 100%;
+			left: 50%;
+			transform: translateX(-50%);
+			border-left: 5px solid transparent;
+			border-right: 5px solid transparent;
+			border-top: 5px solid $color-white;
 		}
 	}
 

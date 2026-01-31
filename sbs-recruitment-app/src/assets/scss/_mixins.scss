@@ -217,7 +217,8 @@
 	box-shadow: $shadow-button;
 
 	&:hover {
-		filter: brightness(0.9);
+		background-color: $color-white;
+		color: $color-red;
 		box-shadow: $shadow-button-hover;
 	}
 }
@@ -228,7 +229,8 @@
 	box-shadow: $shadow-button;
 
 	&:hover {
-		background-color: $color-light-gray;
+		background-color: $color-dark-gray;
+		color: $color-white;
 		box-shadow: $shadow-button-hover;
 	}
 }

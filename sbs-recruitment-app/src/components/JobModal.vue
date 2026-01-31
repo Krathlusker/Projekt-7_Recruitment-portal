@@ -29,6 +29,14 @@
 								:loop="false"
 								:muted="false"
 							/>
+							<ResponsiveImage
+								v-else-if="currentJob.baseName"
+								:base-name="currentJob.baseName"
+								:breakpoints="currentJob.breakpoints"
+								:focus-position="currentJob.focusPosition"
+								:alt="currentJob.title"
+								:lazy="false"
+							/>
 							<img v-else :src="currentJob.image" :alt="currentJob.title" />
 						</div>
 
@@ -74,12 +82,16 @@ import { ref, computed, watch } from 'vue'
 import { Check, Right } from '@element-plus/icons-vue'
 import ModalCloseButton from '@/components/ModalCloseButton.vue'
 import VideoPlayer from '@/components/VideoPlayer.vue'
+import ResponsiveImage from '@/components/ResponsiveImage.vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 
 interface JobData {
 	id: string
 	title: string
-	image: string
+	image?: string
+	baseName?: string
+	breakpoints?: string
+	focusPosition?: string
 	video?: string
 	quote?: string
 	description: string
@@ -104,7 +116,7 @@ const currentJobIndex = ref(0)
 // Job data fra Figma
 const jobsData: JobData[] = [
 	{
-		id: 'pakkeriet',
+		id: 'pakkeri',
 		title: 'Pakkeriet',
 		image: 'https://picsum.photos/seed/pakkeriet/400/300',
 		video: '/videos/Emma.mp4',
@@ -141,7 +153,9 @@ const jobsData: JobData[] = [
 	{
 		id: 'andre',
 		title: 'Andre stillinger',
-		image: 'https://picsum.photos/seed/andre/400/300',
+		baseName: 'andre-stillinger_claus_compressed',
+		breakpoints: '400,0;800,400;1200,800',
+		focusPosition: '55% 40%',
 		description:
 			'SBS er en stor international virksomhed i vækst, og derfor mangler vi ofte folk i andre afdelinger til vores team. Har du andre erfaringer end maskineri, så send en uopfordret ansøgning og så vil vi vende tilbage til dig i tilfælde af en stilling er ledig. Dette kan for eksempel være:',
 		tasks: ['HR (Human Resource)', 'Salg- og marketing', 'Køkken/kantine', 'Fragt', 'Kundesupport og kontor'],
