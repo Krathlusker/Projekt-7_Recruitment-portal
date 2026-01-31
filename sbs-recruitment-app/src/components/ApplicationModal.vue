@@ -179,8 +179,7 @@
 													class="application-modal__slot"
 													:class="{
 														'application-modal__slot--selected': isSlotSelected(slot.id),
-														'application-modal__slot--disabled':
-															selectedSlots.length >= 2 && !isSlotSelected(slot.id)
+														'application-modal__slot--disabled': selectedSlots.length >= 2 && !isSlotSelected(slot.id)
 													}"
 													@click="toggleSlot(slot)"
 												>
@@ -214,10 +213,19 @@
 												>
 													<template v-if="selectedSlots[index]">
 														<div class="application-modal__selected-slot-info">
-															<span class="application-modal__selected-slot-time">{{ getSlotById(selectedSlots[index])?.time }}</span>
-															<span class="application-modal__selected-slot-date">{{ formatShortDate(getSlotById(selectedSlots[index])?.date || '') }}</span>
+															<span class="application-modal__selected-slot-time">{{
+																getSlotById(selectedSlots[index])?.time
+															}}</span>
+															<span class="application-modal__selected-slot-date">{{
+																formatShortDate(getSlotById(selectedSlots[index])?.date || '')
+															}}</span>
 														</div>
-														<el-button class="application-modal__selected-slot-remove" @click="removeSlotByIndex(index)" :icon="Delete" circle />
+														<el-button
+															class="application-modal__selected-slot-remove"
+															@click="removeSlotByIndex(index)"
+															:icon="Delete"
+															circle
+														/>
 													</template>
 													<template v-else>
 														<span class="application-modal__selected-slot-empty">{{ index + 1 }}. valg</span>
@@ -292,9 +300,27 @@
 				<!-- Navigation Buttons (outside modal box, below) -->
 				<div v-if="currentStep < 4" class="modal-wrapper__actions">
 					<!-- During quiz (step 2+): show back arrow, otherwise show X (rotated) -->
-					<el-button v-if="currentStep > 1" type="primary" @click="previousStep" class="modal-nav-btn" :icon="ArrowLeft" />
-					<el-button v-else type="primary" @click="handleClose" class="modal-nav-btn modal-nav-btn--close" :icon="Plus" />
-					<el-button type="warning" @click="nextStep" :disabled="!canProceed" class="modal-nav-btn" :icon="ArrowRight" />
+					<el-button
+						v-if="currentStep > 1"
+						type="primary"
+						@click="previousStep"
+						class="modal-nav-btn"
+						:icon="ArrowLeft"
+					/>
+					<el-button
+						v-else
+						type="primary"
+						@click="handleClose"
+						class="modal-nav-btn modal-nav-btn--close"
+						:icon="Plus"
+					/>
+					<el-button
+						type="warning"
+						@click="nextStep"
+						:disabled="!canProceed"
+						class="modal-nav-btn"
+						:icon="ArrowRight"
+					/>
 				</div>
 
 				<!-- Step 4: Send step with Send button -->
@@ -336,7 +362,13 @@
 						</Transition>
 						<div class="calendar-modal__controls">
 							<Transition name="fade" mode="out-in">
-								<el-button v-if="!isCurrentMonth" key="prev-btn" class="calendar-modal__nav" :icon="ArrowLeft" @click="prevMonth" />
+								<el-button
+									v-if="!isCurrentMonth"
+									key="prev-btn"
+									class="calendar-modal__nav"
+									:icon="ArrowLeft"
+									@click="prevMonth"
+								/>
 								<span v-else key="prev-placeholder" class="calendar-modal__nav-placeholder"></span>
 							</Transition>
 							<el-button class="calendar-modal__nav" :icon="ArrowRight" @click="nextMonth" />
@@ -883,11 +915,13 @@ const findFirstAvailableDate = (): string | null => {
 	today.setHours(0, 0, 0, 0)
 
 	// Get all unique dates with available slots, sorted
-	const datesWithSlots = [...new Set(
-		allTimeSlots.value
-			.filter((slot) => !slot.isBooked && !slot.heldBy && (!slot.reservedBy || slot.reservedBy === sessionId.value))
-			.map((slot) => slot.date)
-	)].sort()
+	const datesWithSlots = [
+		...new Set(
+			allTimeSlots.value
+				.filter((slot) => !slot.isBooked && !slot.heldBy && (!slot.reservedBy || slot.reservedBy === sessionId.value))
+				.map((slot) => slot.date)
+		)
+	].sort()
 
 	// Find the first date that's not in the past
 	for (const date of datesWithSlots) {
@@ -1549,10 +1583,8 @@ const handleClose = async () => {
 		}
 
 		&__count {
-			font-family: $font-body;
-			font-weight: $font-weight-regular;
+			// font arves fra body, kun size override
 			font-size: $font-size-small;
-			line-height: 1.4;
 			margin-top: $spacing-xs;
 			color: currentColor;
 			background: transparent;

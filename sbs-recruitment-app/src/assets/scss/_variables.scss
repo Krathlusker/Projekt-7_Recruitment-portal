@@ -17,7 +17,7 @@ $font-body: 'Helvetica Neue LT Pro', 'Helvetica Neue', Helvetica, Arial, sans-se
 
 // Typography - Font Sizes
 $font-size-title: 36px;
-$font-size-subtitle: 24px;
+$font-size-subtitle: 36px;
 $font-size-button: 18px;
 $font-size-body: 14px;
 $font-size-small: 12px;
@@ -31,8 +31,8 @@ $font-weight-bold: 700;
 // Disse værdier er specifikke for hver font og bruges til at beregne optisk center
 // Cap height og descender som ratio af em-square (0-1)
 // Neo Sans metrics (title font)
-$font-title-cap-height: 0.70;
-$font-title-descender: 0.20;
+$font-title-cap-height: 0.7;
+$font-title-descender: 0.2;
 // Helvetica Neue metrics (body font)
 $font-body-cap-height: 0.72;
 $font-body-descender: 0.21;

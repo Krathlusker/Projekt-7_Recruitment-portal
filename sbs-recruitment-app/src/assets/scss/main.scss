@@ -5,7 +5,7 @@
 // Global styles (Element Plus overrides) imported below
 
 // Import global styles (CSS output - loaded once here)
-@use "global";
+@use 'global';
 
 // Reset
 *,
@@ -24,23 +24,39 @@ html {
 }
 
 body {
-	@include body-font;
+	font-family: $font-body;
+	font-weight: $font-weight-regular;
+	font-size: $font-size-body;
+	line-height: 1.4;
+	color: $color-dark-gray;
 	background-color: $color-white;
 	min-height: 100vh;
 }
 
-// Typography
+// Typography - headings bruger title font
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: $font-title;
+	line-height: 1;
+	color: $color-dark-gray;
+	text-transform: uppercase;
+}
+
 h1 {
-	@include title-font;
+	font-weight: $font-weight-medium;
+	font-size: $font-size-title;
 }
 
 h2 {
-	@include subtitle-font;
+	font-weight: $font-weight-regular;
+	font-size: $font-size-subtitle;
 }
 
-p {
-	@include body-font;
-}
+// p arver fra body - ingen override nødvendig
 
 a {
 	color: $color-dark-gray;
@@ -62,7 +78,9 @@ a {
 	}
 
 	&--body {
-		@include body-font;
+		// Reset til body font (når parent har anden font)
+		font-family: $font-body;
+		font-weight: $font-weight-regular;
 	}
 
 	&--bold {

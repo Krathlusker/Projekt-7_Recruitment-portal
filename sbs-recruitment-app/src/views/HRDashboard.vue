@@ -38,7 +38,10 @@
 				<div class="hr-dashboard__header-left">
 					<h1 class="hr-dashboard__title">HR Dashboard</h1>
 					<p class="hr-dashboard__subtitle">
-						<span class="hr-dashboard__status-dot" :class="{ 'hr-dashboard__status-dot--breathing': isBreathing }"></span>
+						<span
+							class="hr-dashboard__status-dot"
+							:class="{ 'hr-dashboard__status-dot--breathing': isBreathing }"
+						></span>
 						Sidst opdateret: {{ lastUpdated }}
 					</p>
 				</div>
@@ -345,12 +348,14 @@
 
 								<!-- Calendar slot picker for existing slots -->
 								<div class="application-detail__custom-time-section">
-									<h4>{{
-										selectedApplication.confirmedSlot ||
-										(selectedApplication.selectedSlots && selectedApplication.selectedSlots.length > 0)
-											? 'Skift til ny tid'
-											: 'Vælg tid'
-									}}</h4>
+									<h4>
+										{{
+											selectedApplication.confirmedSlot ||
+											(selectedApplication.selectedSlots && selectedApplication.selectedSlots.length > 0)
+												? 'Skift til ny tid'
+												: 'Vælg tid'
+										}}
+									</h4>
 									<CalendarSlotPicker
 										:available-slots="availableSlotsForBooking"
 										:loading="isBookingCustomSlot"
@@ -468,7 +473,12 @@
 
 							<!-- Selected Date Details -->
 							<Transition :name="selectedDateSlideDirection" mode="out-in">
-								<div v-if="selectedDate" :key="selectedDate" ref="selectedDateSection" class="time-slots-manager__selected">
+								<div
+									v-if="selectedDate"
+									:key="selectedDate"
+									ref="selectedDateSection"
+									class="time-slots-manager__selected"
+								>
 									<div class="time-slots-manager__selected-header">
 										<h3>{{ formatSelectedDate(selectedDate) }}</h3>
 										<el-button @click="selectedDate = null" class="btn-dark">Luk</el-button>
@@ -477,7 +487,11 @@
 									<!-- Add time slot for selected date -->
 									<div class="time-slots-manager__add">
 										<div class="time-slots-manager__form">
-											<el-select v-model="newTimeSlot.type" placeholder="Vælg type" class="time-slots-manager__type-select">
+											<el-select
+												v-model="newTimeSlot.type"
+												placeholder="Vælg type"
+												class="time-slots-manager__type-select"
+											>
 												<el-option label="Fysisk (45 min)" value="fysisk" />
 												<el-option label="Virtuel (60 min)" value="virtuel" />
 											</el-select>
@@ -1495,7 +1509,9 @@ watch(showDetailDialog, (newVal) => {
 		height: 8px;
 		background-color: $color-green;
 		border-radius: 50%;
-		transition: transform $transition-duration-slow $transition-ease, opacity $transition-duration-slow $transition-ease;
+		transition:
+			transform $transition-duration-slow $transition-ease,
+			opacity $transition-duration-slow $transition-ease;
 
 		&--breathing {
 			animation: breathe 1s ease-in-out;

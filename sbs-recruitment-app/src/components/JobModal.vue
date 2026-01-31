@@ -18,9 +18,18 @@
 					defer
 				>
 					<div class="job-modal__content">
-						<!-- Image -->
-						<div class="job-modal__image">
-							<img :src="currentJob.image" :alt="currentJob.title" />
+						<!-- Media (Video or Image) -->
+						<div class="job-modal__media">
+							<VideoPlayer
+								v-if="currentJob.video"
+								class="job-modal__video"
+								:src="currentJob.video"
+								:title="currentJob.title"
+								:autoplay="false"
+								:loop="false"
+								:muted="false"
+							/>
+							<img v-else :src="currentJob.image" :alt="currentJob.title" />
 						</div>
 
 						<!-- Section -->
@@ -29,7 +38,7 @@
 							<h2 class="job-modal__title">{{ currentJob.title }}</h2>
 
 							<!-- Quote -->
-							<p class="job-modal__quote">"INSÆT CITAT HER" - FORNAVN</p>
+							<p v-if="currentJob.quote" class="job-modal__quote">{{ currentJob.quote }}</p>
 
 							<!-- Description -->
 							<p class="job-modal__description">{{ currentJob.description }}</p>
@@ -64,12 +73,15 @@
 import { ref, computed, watch } from 'vue'
 import { Check, Right } from '@element-plus/icons-vue'
 import ModalCloseButton from '@/components/ModalCloseButton.vue'
+import VideoPlayer from '@/components/VideoPlayer.vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 
 interface JobData {
 	id: string
 	title: string
 	image: string
+	video?: string
+	quote?: string
 	description: string
 	tasks: string[]
 	requirements: string
@@ -95,6 +107,8 @@ const jobsData: JobData[] = [
 		id: 'pakkeriet',
 		title: 'Pakkeriet',
 		image: 'https://picsum.photos/seed/pakkeriet/400/300',
+		video: '/videos/Emma.mp4',
+		quote: '"Her er der plads til alle, og man lærer hurtigt at kende sine kollegaer!" - Emma',
 		description:
 			'Med job i vores pakkeri får du muligheden for et ufaglært job, hvor du kan blive så længe det passer dig. Oplæringen er kort og simpel hvorefter du kommer til at stå i vores pakkeri, sammen med en masse andre vikarer, studerende og ufaglærte. Der er fokus på det sociale, med rig mulighed for at danne venskaber mens man arbejder og kvalitetssikre.',
 		tasks: [
@@ -110,6 +124,8 @@ const jobsData: JobData[] = [
 		id: 'produktion',
 		title: 'Produktion',
 		image: 'https://picsum.photos/seed/produktion/400/300',
+		video: '/videos/Marco.mp4',
+		quote: '"Jeg elsker at arbejde med maskinerne og se vores produkter blive sendt ud i verden." - Marco',
 		description:
 			'Som produktionsmedarbejder er du ude på gulvet og er med til at producere de bremseklodser vi sender ud til hele verden. Du vil få indgående kendskab til vores specifikke maskiner og processer og blive en del af et socialt team med en masse erfaring at dele ud af. Arbejdet består af følgende opgaver:',
 		tasks: [
@@ -184,20 +200,26 @@ const handleApply = () => {
 		padding-bottom: $spacing-md;
 	}
 
-	&__image {
+	&__media {
 		width: 100%;
 		height: $job-image-height;
 		min-height: $job-image-height;
 		flex-shrink: 0;
 		overflow: hidden;
 		background-color: $color-light-gray;
-		border-radius: 0 0 $border-radius-lg $border-radius-lg; // Runding på nedre hjørner
+		border-radius: 0 0 $border-radius-lg $border-radius-lg;
 
 		img {
 			width: 100%;
 			height: 100%;
 			object-fit: cover;
 		}
+	}
+
+	&__video {
+		width: 100%;
+		height: 100%;
+		border-radius: 0 0 $border-radius-lg $border-radius-lg;
 	}
 
 	&__section {
@@ -208,25 +230,18 @@ const handleApply = () => {
 	}
 
 	&__title {
-		font-family: $font-title;
-		font-weight: 500;
-		font-size: $font-size-title;
-		color: $color-dark-gray;
+		@include title-font;
 		margin: 0;
 	}
 
 	&__quote {
-		font-family: $font-body;
+		// font arves fra body
 		font-style: italic;
-		font-size: $font-size-body;
-		color: $color-dark-gray;
 		margin: 0;
 	}
 
 	&__description {
-		font-family: $font-body;
-		font-size: $font-size-body;
-		color: $color-dark-gray;
+		// font arves fra body
 		line-height: 1.5;
 		margin: 0;
 	}
@@ -244,9 +259,7 @@ const handleApply = () => {
 		display: flex;
 		align-items: flex-start;
 		gap: $spacing-sm;
-		font-family: $font-body;
-		font-size: $font-size-body;
-		color: $color-dark-gray;
+		// font arves fra body
 	}
 
 	&__task-icon {
@@ -256,9 +269,7 @@ const handleApply = () => {
 	}
 
 	&__requirements {
-		font-family: $font-body;
-		font-size: $font-size-body;
-		color: $color-dark-gray;
+		// font arves fra body
 		line-height: 1.5;
 		margin: 0;
 	}

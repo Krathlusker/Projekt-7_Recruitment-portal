@@ -23,14 +23,14 @@
 			<!-- Hero Section -->
 			<section class="landing-page__hero">
 				<div class="landing-page__hero-content">
-					<div class="landing-page__hero-video">
-						<div class="landing-page__hero-video-placeholder">
-							<el-icon :size="64">
-								<VideoPlay />
-							</el-icon>
-							<span>Video afspilles her</span>
-						</div>
-					</div>
+					<VideoPlayer
+						class="landing-page__hero-video"
+						src="/videos/Hero.mp4"
+						title="ARBEJDSPLADSEN SBS"
+						:autoplay="true"
+						:loop="true"
+						:muted="true"
+					/>
 				</div>
 			</section>
 
@@ -39,13 +39,10 @@
 				<div class="landing-page__intro-container">
 					<h1 class="landing-page__intro-title">Hvad er SBS jobportal?</h1>
 					<p class="landing-page__intro-text">
-						Siden 1964 har Scandinavian Brake Systems (SBS) arbejdet på at udvikle og producere bremseteknologi til både
-						2-og 4 hjulede køretøjer. Vi producerer lokalt, men vores løsninger og produkter bliver brugt over hele
-						verden.
+						Her kan du lære om vores arbejdsplads, hvad vi laver på vores fabrik, og om vores medarbejderes job. Du kan altid sende os en ansøgning - vi venter på dig!
 					</p>
 					<p class="landing-page__intro-text">
-						Hos SBS kan du blive en del af et stort team af skønne medarbejder hvor du har mulighed for periodisk at
-						være i vores pakkeri eller over længere tid, udvikle dig selv som industritekniker i vores produktion.
+						Siden 1964 har Scandinavian Brake Systems (SBS) arbejdet på at udvikle og producere bremseteknologi til både 2-og 4 hjulede køretøjer. Vi producerer lokalt, men vores løsninger og produkter bliver brugt over hele verden.
 					</p>
 				</div>
 			</section>
@@ -215,15 +212,6 @@ import { BsYoutube } from '@kalimahapps/vue-icons/bs'
 import { FaBandsFacebookF } from '@kalimahapps/vue-icons/fa'
 import { LaTshirtSolid, MdOutlinedDiscount, ReHomeWifiLine, PhIsland, TaOutlineMassage, MdRoundFitnessCenter, FlFood, CaFruitBowl } from '@kalimahapps/vue-icons';
 import {
-	VideoPlay,
-	Clock,
-	Money,
-	User,
-	House,
-	Bicycle,
-	Coffee,
-	Medal,
-	Present,
 	Location,
 	Phone,
 	Message,
@@ -232,6 +220,7 @@ import {
 import FloatingApplyButton from '@/components/FloatingApplyButton.vue'
 import ApplicationModal from '@/components/ApplicationModal.vue'
 import JobModal from '@/components/JobModal.vue'
+import VideoPlayer from '@/components/VideoPlayer.vue'
 import type { JobPosition } from '@/types'
 
 // Scroll state
@@ -428,6 +417,12 @@ const closeApplicationModal = () => {
 		}
 	}
 
+.el-image-card__button {
+    // Din styling her, f.eks.:
+    margin: $spacing-sm;
+    width: calc($spacing-md * 8);
+}
+
 	&__header-container {
 		@include flex-between;
 		@include content-container;
@@ -442,13 +437,11 @@ const closeApplicationModal = () => {
 	}
 
 	&__header-title {
-		font-family: $font-title;
-		font-weight: $font-weight-medium;
-		font-size: $font-size-title;
-		color: $color-dark-gray;
+		@include title-font;
 		margin: 0;
 		text-transform: uppercase;
 		transition: font-size $transition-duration-slow $transition-ease-smooth;
+		cursor: default;
 	}
 
 	// Hero
@@ -611,9 +604,7 @@ const closeApplicationModal = () => {
 	}
 
 	&__footer-title {
-		font-family: $font-title;
-		font-weight: 500;
-		font-size: $font-size-title;
+		@include title-font;
 		color: $color-white;
 		margin: 0 0 $spacing-sm 0;
 	}
@@ -622,9 +613,7 @@ const closeApplicationModal = () => {
 		display: flex;
 		align-items: center;
 		gap: $spacing-xs;
-		font-family: $font-body;
-		font-weight: 400;
-		font-size: $font-size-body;
+		// font arves fra body
 		color: $color-white;
 	}
 

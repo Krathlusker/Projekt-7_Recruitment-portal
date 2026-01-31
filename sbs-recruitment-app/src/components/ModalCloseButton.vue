@@ -18,6 +18,8 @@ defineEmits<{
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:color';
+
 .modal-close-button {
 	position: absolute;
 	top: -$spacing-lg;
@@ -69,7 +71,7 @@ defineEmits<{
 
 	&:hover {
 		.modal-close-button__background {
-			background-color: darken($color-light-gray, 5%);
+			background-color: color.adjust($color-light-gray, $lightness: -5%);
 		}
 	}
 

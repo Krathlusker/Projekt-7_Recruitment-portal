@@ -20,8 +20,8 @@
 				:class="{
 					'calendar-slot-picker__slot--selected': isSlotSelected(slot.id),
 					'calendar-slot-picker__slot--disabled': multiSelect
-						? (selectedSlotIds.length >= maxSlots && !isSlotSelected(slot.id))
-						: (slot.isBooked || slot.heldBy)
+						? selectedSlotIds.length >= maxSlots && !isSlotSelected(slot.id)
+						: slot.isBooked || slot.heldBy
 				}"
 				@click="selectSlot(slot)"
 			>
@@ -52,10 +52,19 @@
 				>
 					<template v-if="selectedSlotIds[index]">
 						<div class="calendar-slot-picker__selected-slot-info">
-							<span class="calendar-slot-picker__selected-slot-time">{{ getSlotById(selectedSlotIds[index])?.time }}</span>
-							<span class="calendar-slot-picker__selected-slot-date">{{ formatShortDate(getSlotById(selectedSlotIds[index])?.date || '') }}</span>
+							<span class="calendar-slot-picker__selected-slot-time">{{
+								getSlotById(selectedSlotIds[index])?.time
+							}}</span>
+							<span class="calendar-slot-picker__selected-slot-date">{{
+								formatShortDate(getSlotById(selectedSlotIds[index])?.date || '')
+							}}</span>
 						</div>
-						<el-button class="calendar-slot-picker__selected-slot-remove" @click="removeSlotByIndex(index)" :icon="Delete" circle />
+						<el-button
+							class="calendar-slot-picker__selected-slot-remove"
+							@click="removeSlotByIndex(index)"
+							:icon="Delete"
+							circle
+						/>
 					</template>
 					<template v-else>
 						<span class="calendar-slot-picker__selected-slot-empty">{{ index + 1 }}. valg</span>
@@ -93,7 +102,13 @@
 							</Transition>
 							<div class="calendar-modal__controls">
 								<Transition name="fade" mode="out-in">
-									<el-button v-if="!isCurrentMonth" key="prev-btn" class="calendar-modal__nav" :icon="ArrowLeft" @click="prevMonth" />
+									<el-button
+										v-if="!isCurrentMonth"
+										key="prev-btn"
+										class="calendar-modal__nav"
+										:icon="ArrowLeft"
+										@click="prevMonth"
+									/>
 									<span v-else key="prev-placeholder" class="calendar-modal__nav-placeholder"></span>
 								</Transition>
 								<el-button class="calendar-modal__nav" :icon="ArrowRight" @click="nextMonth" />
@@ -198,12 +213,15 @@ const calendarDate = ref(new Date())
 const calendarSlideDirection = ref<'calendar-slide-left' | 'calendar-slide-right'>('calendar-slide-left')
 
 // Watch for initial date changes
-watch(() => props.initialDate, (val) => {
-	if (val) {
-		selectedDate.value = val
-		calendarDate.value = new Date(val)
+watch(
+	() => props.initialDate,
+	(val) => {
+		if (val) {
+			selectedDate.value = val
+			calendarDate.value = new Date(val)
+		}
 	}
-})
+)
 
 // Calendar key for transition
 const calendarKey = computed(() => {
@@ -213,7 +231,7 @@ const calendarKey = computed(() => {
 // Computed: slots for selected date
 const slotsForSelectedDate = computed(() => {
 	if (!selectedDate.value) return []
-	return props.availableSlots.filter(slot => {
+	return props.availableSlots.filter((slot) => {
 		if (slot.date !== selectedDate.value) return false
 		if (slot.isBooked) return false
 		if (slot.heldBy) return false
@@ -235,16 +253,13 @@ const isSlotSelected = (slotId: string): boolean => {
 }
 
 const getSlotById = (slotId: string): TimeSlot | undefined => {
-	return props.availableSlots.find(slot => slot.id === slotId)
+	return props.availableSlots.find((slot) => slot.id === slotId)
 }
 
 // Check if current month is displayed
 const isCurrentMonth = computed(() => {
 	const now = new Date()
-	return (
-		calendarDate.value.getMonth() === now.getMonth() &&
-		calendarDate.value.getFullYear() === now.getFullYear()
-	)
+	return calendarDate.value.getMonth() === now.getMonth() && calendarDate.value.getFullYear() === now.getFullYear()
 })
 
 // Format functions
@@ -256,15 +271,27 @@ const formatShortDate = (dateString: string): string => {
 
 const formatMonthYear = (): string => {
 	const months = [
-		'Januar', 'Februar', 'Marts', 'April', 'Maj', 'Juni',
-		'Juli', 'August', 'September', 'Oktober', 'November', 'December'
+		'Januar',
+		'Februar',
+		'Marts',
+		'April',
+		'Maj',
+		'Juni',
+		'Juli',
+		'August',
+		'September',
+		'Oktober',
+		'November',
+		'December'
 	]
 	return `${months[calendarDate.value.getMonth()]} ${calendarDate.value.getFullYear()}`
 }
 
 // Calendar helpers
 const hasTimeSlotsOnDate = (dateString: string): boolean => {
-	return props.availableSlots.some(slot => slot.date === dateString && !slot.isBooked && !slot.heldBy && !slot.reservedBy)
+	return props.availableSlots.some(
+		(slot) => slot.date === dateString && !slot.isBooked && !slot.heldBy && !slot.reservedBy
+	)
 }
 
 const isDateInPast = (dateString: string): boolean => {
@@ -376,7 +403,7 @@ const removeSlotByIndex = (index: number) => {
 }
 
 const confirmSelection = () => {
-	const slot = props.availableSlots.find(s => s.id === selectedSlotId.value)
+	const slot = props.availableSlots.find((s) => s.id === selectedSlotId.value)
 	if (slot) {
 		emit('confirm', slot)
 	}
@@ -387,11 +414,13 @@ const findFirstAvailableDate = (): string | null => {
 	const today = new Date()
 	today.setHours(0, 0, 0, 0)
 
-	const datesWithSlots = [...new Set(
-		props.availableSlots
-			.filter(slot => !slot.isBooked && !slot.heldBy && !slot.reservedBy && new Date(slot.date) >= today)
-			.map(slot => slot.date)
-	)].sort()
+	const datesWithSlots = [
+		...new Set(
+			props.availableSlots
+				.filter((slot) => !slot.isBooked && !slot.heldBy && !slot.reservedBy && new Date(slot.date) >= today)
+				.map((slot) => slot.date)
+		)
+	].sort()
 
 	return datesWithSlots[0] || null
 }
@@ -403,46 +432,44 @@ const reset = () => {
 }
 
 // Watch for slot changes - clean up selection if slot is no longer available
-watch(() => props.availableSlots, (slots) => {
-	// Auto-select first available date if none selected
-	if (slots.length > 0 && !selectedDate.value) {
-		const firstDate = findFirstAvailableDate()
-		if (firstDate) {
-			selectedDate.value = firstDate
-			calendarDate.value = new Date(firstDate)
-		}
-	}
-
-	// Clear selected slot if it's no longer available
-	if (selectedSlotId.value) {
-		const stillAvailable = slots.some(
-			slot => slot.id === selectedSlotId.value &&
-			!slot.isBooked &&
-			!slot.heldBy &&
-			!slot.reservedBy
-		)
-		if (!stillAvailable) {
-			selectedSlotId.value = null
-		}
-	}
-
-	// If selected date has no more available slots, find a new date
-	if (selectedDate.value) {
-		const slotsOnDate = slots.filter(
-			slot => slot.date === selectedDate.value &&
-			!slot.isBooked &&
-			!slot.heldBy &&
-			!slot.reservedBy
-		)
-		if (slotsOnDate.length === 0) {
-			const newDate = findFirstAvailableDate()
-			if (newDate && newDate !== selectedDate.value) {
-				selectedDate.value = newDate
-				calendarDate.value = new Date(newDate)
+watch(
+	() => props.availableSlots,
+	(slots) => {
+		// Auto-select first available date if none selected
+		if (slots.length > 0 && !selectedDate.value) {
+			const firstDate = findFirstAvailableDate()
+			if (firstDate) {
+				selectedDate.value = firstDate
+				calendarDate.value = new Date(firstDate)
 			}
 		}
-	}
-}, { immediate: true })
+
+		// Clear selected slot if it's no longer available
+		if (selectedSlotId.value) {
+			const stillAvailable = slots.some(
+				(slot) => slot.id === selectedSlotId.value && !slot.isBooked && !slot.heldBy && !slot.reservedBy
+			)
+			if (!stillAvailable) {
+				selectedSlotId.value = null
+			}
+		}
+
+		// If selected date has no more available slots, find a new date
+		if (selectedDate.value) {
+			const slotsOnDate = slots.filter(
+				(slot) => slot.date === selectedDate.value && !slot.isBooked && !slot.heldBy && !slot.reservedBy
+			)
+			if (slotsOnDate.length === 0) {
+				const newDate = findFirstAvailableDate()
+				if (newDate && newDate !== selectedDate.value) {
+					selectedDate.value = newDate
+					calendarDate.value = new Date(newDate)
+				}
+			}
+		}
+	},
+	{ immediate: true }
+)
 
 defineExpose({ reset })
 </script>

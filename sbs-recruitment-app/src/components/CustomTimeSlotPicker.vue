@@ -60,7 +60,13 @@
 							</Transition>
 							<div class="calendar-modal__controls">
 								<Transition name="fade" mode="out-in">
-									<el-button v-if="!isCurrentMonth" key="prev-btn" class="calendar-modal__nav" :icon="ArrowLeft" @click="prevMonth" />
+									<el-button
+										v-if="!isCurrentMonth"
+										key="prev-btn"
+										class="calendar-modal__nav"
+										:icon="ArrowLeft"
+										@click="prevMonth"
+									/>
 									<span v-else key="prev-placeholder" class="calendar-modal__nav-placeholder"></span>
 								</Transition>
 								<el-button class="calendar-modal__nav" :icon="ArrowRight" @click="nextMonth" />
@@ -157,10 +163,7 @@ const calendarKey = computed(() => {
 // Check if current month is displayed
 const isCurrentMonth = computed(() => {
 	const now = new Date()
-	return (
-		calendarDate.value.getMonth() === now.getMonth() &&
-		calendarDate.value.getFullYear() === now.getFullYear()
-	)
+	return calendarDate.value.getMonth() === now.getMonth() && calendarDate.value.getFullYear() === now.getFullYear()
 })
 
 // Watch for prop changes
@@ -201,8 +204,18 @@ const formatShortDate = (dateStr: string): string => {
 
 const formatMonthYear = (): string => {
 	const months = [
-		'Januar', 'Februar', 'Marts', 'April', 'Maj', 'Juni',
-		'Juli', 'August', 'September', 'Oktober', 'November', 'December'
+		'Januar',
+		'Februar',
+		'Marts',
+		'April',
+		'Maj',
+		'Juni',
+		'Juli',
+		'August',
+		'September',
+		'Oktober',
+		'November',
+		'December'
 	]
 	return `${months[calendarDate.value.getMonth()]} ${calendarDate.value.getFullYear()}`
 }

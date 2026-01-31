@@ -70,11 +70,8 @@
 }
 
 @mixin body-bold-font {
-	font-family: $font-body;
+	// Kun weight - font-family, size og line-height arves fra body
 	font-weight: $font-weight-bold;
-	font-size: $font-size-body;
-	line-height: 1.4;
-	color: $color-dark-gray;
 }
 
 @mixin button-font {
@@ -114,7 +111,12 @@
 //
 // Formel: offset = ((1 - capHeight) - descender) / 2
 
-@mixin text-center-fix($padding-y, $padding-x: 0, $cap-height: $font-body-cap-height, $descender: $font-body-descender) {
+@mixin text-center-fix(
+	$padding-y,
+	$padding-x: 0,
+	$cap-height: $font-body-cap-height,
+	$descender: $font-body-descender
+) {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -160,7 +162,7 @@
 	--el-button-disabled-border-color: transparent;
 }
 
-// Button base mixin (includes reset)
+// Button base mixin - brug KUN på .el-button ÉN gang
 @mixin button-base {
 	@include button-reset;
 	@include button-font;
@@ -169,7 +171,11 @@
 	border-radius: $border-radius-md;
 	padding: $spacing-md $spacing-lg;
 	cursor: pointer;
-	transition: background-color $transition-duration $transition-ease, color $transition-duration $transition-ease, box-shadow $transition-duration $transition-ease, filter $transition-duration $transition-ease !important;
+	transition:
+		background-color $transition-duration $transition-ease,
+		color $transition-duration $transition-ease,
+		box-shadow $transition-duration $transition-ease,
+		filter $transition-duration $transition-ease !important;
 
 	&:disabled {
 		opacity: 0.5;
@@ -177,9 +183,12 @@
 	}
 }
 
-// Button styles (only 4 allowed variants)
-@mixin button-dark {
-	@include button-base;
+// ===========================================
+// FARVE-VARIANTER - Kun farver, ingen base!
+// Bruges på .btn-dark, .btn-light, etc.
+// ===========================================
+
+@mixin button-colors-dark {
 	background-color: $color-dark-gray;
 	color: $color-white;
 	box-shadow: $shadow-button;
@@ -191,8 +200,7 @@
 	}
 }
 
-@mixin button-yellow {
-	@include button-base;
+@mixin button-colors-yellow {
 	background-color: $color-yellow;
 	color: $color-dark-gray;
 	box-shadow: $shadow-button;
@@ -203,8 +211,7 @@
 	}
 }
 
-@mixin button-red {
-	@include button-base;
+@mixin button-colors-red {
 	background-color: $color-red;
 	color: $color-white;
 	box-shadow: $shadow-button;
@@ -215,8 +222,7 @@
 	}
 }
 
-@mixin button-light {
-	@include button-base;
+@mixin button-colors-light {
 	background-color: $color-white;
 	color: $color-dark-gray;
 	box-shadow: $shadow-button;
@@ -225,6 +231,31 @@
 		background-color: $color-light-gray;
 		box-shadow: $shadow-button-hover;
 	}
+}
+
+// ===========================================
+// LEGACY MIXINS - For backward compatibility
+// Inkluderer base + farver (brug kun når nødvendigt)
+// ===========================================
+
+@mixin button-dark {
+	@include button-base;
+	@include button-colors-dark;
+}
+
+@mixin button-yellow {
+	@include button-base;
+	@include button-colors-yellow;
+}
+
+@mixin button-red {
+	@include button-base;
+	@include button-colors-red;
+}
+
+@mixin button-light {
+	@include button-base;
+	@include button-colors-light;
 }
 
 // ==================== COMPONENT MIXINS ====================
