@@ -1085,63 +1085,6 @@ const handleCustomTimeSubmit = async (data: { date: string; time: string; type: 
 	}
 }
 
-// Handle selecting an existing slot from the picker
-const handleSelectExistingSlot = async (slot: {
-	id: string
-	date: string
-	time: string
-	type: 'fysisk' | 'virtuel'
-}) => {
-	if (!selectedApplication.value) return
-
-	isBookingCustomSlot.value = true
-
-	try {
-		const applicationId = selectedApplication.value.id
-
-		// Release all existing slots (confirmed and reserved)
-		await releaseAllApplicationSlots(selectedApplication.value)
-
-		// Book the selected slot
-		await api.patch(`/interview-slots/${slot.id}/book`, {
-			applicationId: applicationId
-		})
-
-		// Create confirmed slot object
-		const confirmedSlot: InterviewSlot = {
-			id: slot.id,
-			date: slot.date,
-			time: slot.time,
-			type: slot.type,
-			isBooked: true,
-			bookedBy: applicationId
-		}
-
-		// Update application with the confirmed slot, clear selectedSlots, and set status
-		await api.patch(`/applications/${applicationId}`, {
-			confirmedSlot: confirmedSlot,
-			selectedSlots: [],
-			status: 'interview-scheduled'
-		})
-
-		// Reload data
-		await loadApplications()
-		await loadTimeSlots()
-
-		// Update selected application
-		const updated = applications.value.find((app) => app.id === applicationId)
-		if (updated) {
-			selectedApplication.value = { ...updated }
-		}
-		ElMessage.success('Tid booket')
-	} catch (error) {
-		console.error('Failed to book existing slot:', error)
-		ElMessage.error('Kunne ikke booke tid')
-	} finally {
-		isBookingCustomSlot.value = false
-	}
-}
-
 // Handle confirming a slot from CalendarSlotPicker
 const handleCalendarSlotConfirm = async (slot: {
 	id: string
@@ -1383,7 +1326,7 @@ const clearAllData = async () => {
 	}
 
 	try {
-		const response = await api.delete('/clear-all-data')
+		await api.delete('/clear-all-data')
 
 		showCleanupModal.value = false
 		await loadApplications()

@@ -73,6 +73,12 @@
 	color: $color-dark-gray !important;
 	transition: transform $transition-duration $transition-ease !important;
 
+	// Ensure VueIcon SVGs inherit color
+	svg {
+		fill: currentColor !important;
+		color: inherit !important;
+	}
+
 	&:hover {
 		transform: scale(1.1);
 		color: $color-dark-gray !important;
@@ -276,8 +282,8 @@ body.modal-open {
 	cursor: pointer;
 	height: $image-card-height;
 	transition:
-		transform 0.2s ease,
-		box-shadow 0.2s ease;
+		transform $transition-duration $transition-ease,
+		box-shadow $transition-duration $transition-ease;
 
 	&:hover {
 		transform: translateY(-4px);
@@ -603,12 +609,13 @@ body.modal-open {
 .el-info-card {
 	@include flex-center;
 	@include flex-column;
+	justify-content: flex-start;
 	gap: $spacing-sm;
 	padding: $spacing-lg;
 	text-align: center;
 	transition:
-		transform 0.2s ease,
-		box-shadow 0.2s ease;
+		transform $transition-duration $transition-ease,
+		box-shadow $transition-duration $transition-ease;
 	border-radius: $border-radius-md;
 
 	&:hover {

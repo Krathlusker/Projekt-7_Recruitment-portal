@@ -37,7 +37,7 @@
 			<!-- Introduction Section -->
 			<section class="landing-page__intro">
 				<div class="landing-page__intro-container">
-					<h1 class="landing-page__intro-title">Vi er SBS</h1>
+					<h1 class="landing-page__intro-title">Hvad er SBS jobportal?</h1>
 					<p class="landing-page__intro-text">
 						Siden 1964 har Scandinavian Brake Systems (SBS) arbejdet på at udvikle og producere bremseteknologi til både
 						2-og 4 hjulede køretøjer. Vi producerer lokalt, men vores løsninger og produkter bliver brugt over hele
@@ -120,25 +120,17 @@
 				<div class="landing-page__footer-container">
 					<!-- Social Media -->
 					<div class="landing-page__social">
-						<el-link href="https://linkedin.com/company/sbs-friction" target="_blank" :underline="false" class="social-link">
-							<el-icon :size="20">
-								<Link />
-							</el-icon>
+						<el-link href="https://dk.linkedin.com/company/scandinavian-brake-systems-a-s" target="_blank" :underline="false" class="social-link">
+							<AkLinkedInFill />
 						</el-link>
-						<el-link href="https://facebook.com/sbsfriction" target="_blank" :underline="false" class="social-link">
-							<el-icon :size="20">
-								<ChatDotRound />
-							</el-icon>
+						<el-link href="https://www.facebook.com/sbsbrakes" target="_blank" :underline="false" class="social-link">
+							<FaBandsFacebookF />
 						</el-link>
-						<el-link href="https://instagram.com/sbsfriction" target="_blank" :underline="false" class="social-link">
-							<el-icon :size="20">
-								<Picture />
-							</el-icon>
+						<el-link href="https://www.instagram.com/sbsbrakes/" target="_blank" :underline="false" class="social-link">
+							<AkInstagramFill />
 						</el-link>
-						<el-link href="https://youtube.com/sbsfriction" target="_blank" :underline="false" class="social-link">
-							<el-icon :size="20">
-								<VideoPlay />
-							</el-icon>
+						<el-link href="https://www.youtube.com/@sbsbrakes" target="_blank" :underline="false" class="social-link">
+							<BsYoutube />
 						</el-link>
 					</div>
 
@@ -218,11 +210,12 @@
 <script setup lang="ts">
 import { ref, shallowRef, onMounted, onUnmounted } from 'vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
+import { AkLinkedInFill, AkInstagramFill } from '@kalimahapps/vue-icons/ak'
+import { BsYoutube } from '@kalimahapps/vue-icons/bs'
+import { FaBandsFacebookF } from '@kalimahapps/vue-icons/fa'
+import { LaTshirtSolid, MdOutlinedDiscount, ReHomeWifiLine, PhIsland, TaOutlineMassage, MdRoundFitnessCenter, FlFood, CaFruitBowl } from '@kalimahapps/vue-icons';
 import {
 	VideoPlay,
-	Link,
-	ChatDotRound,
-	Picture,
 	Clock,
 	Money,
 	User,
@@ -325,49 +318,49 @@ const jobs = ref([
 const benefits = ref([
 	{
 		id: 1,
-		icon: shallowRef(User),
+		icon: shallowRef(LaTshirtSolid),
 		title: 'Arbejdsuniformer',
 		text: 'Vi sørger for det rigtige arbejdstøj'
 	},
 	{
 		id: 2,
-		icon: shallowRef(Money),
+		icon: shallowRef(MdOutlinedDiscount),
 		title: 'Selskabs rabatter',
 		text: 'Vi samarbejder med en bred vifte af lokale netværkspartnere – lige fra malerværksteder til motorcykelforhandlere.'
 	},
 	{
 		id: 3,
-		icon: shallowRef(House),
+		icon: shallowRef(ReHomeWifiLine),
 		title: 'Gratis Wifi',
 		text: 'Udstyr dit hjemmekontor med højhastighedsforbindelse.'
 	},
 	{
 		id: 4,
-		icon: shallowRef(Clock),
+		icon: shallowRef(PhIsland),
 		title: '6 ugers ferie',
 		text: 'Nyd en ekstra uges ferie, så du kan lade op og yde dit bedste.'
 	},
 	{
 		id: 5,
-		icon: shallowRef(Medal),
+		icon: shallowRef(TaOutlineMassage),
 		title: 'Massage',
 		text: 'Få løsnet spændte og ømme led med en behandling hos vores interne massør.'
 	},
 	{
 		id: 6,
-		icon: shallowRef(Bicycle),
+		icon: shallowRef(MdRoundFitnessCenter),
 		title: 'Træningscenter',
 		text: 'Vi er en virksomhed med fokus på både krop og sind. Nyd en god træning i vores kontorfitness.'
 	},
 	{
 		id: 7,
-		icon: shallowRef(Coffee),
+		icon: shallowRef(FlFood),
 		title: 'Frokost i vores kantine',
 		text: 'Hårdt arbejde kræver god mad. Nyd lækkerierne fra vores kantine.'
 	},
 	{
 		id: 8,
-		icon: shallowRef(Present),
+		icon: shallowRef(CaFruitBowl),
 		title: 'Frisk frugt hver dag',
 		text: 'Forkæl dig selv med frisk frugt fra lokale leverandører.'
 	}
@@ -647,5 +640,10 @@ const closeApplicationModal = () => {
 		background-color: $color-white;
 		border-radius: 50%;
 	}
+}
+
+svg {
+  stroke-linejoin: round;  /* Runder hjørner hvor linjer mødes */
+  stroke-linecap: round;   /* Runder enden af linjer */
 }
 </style>
