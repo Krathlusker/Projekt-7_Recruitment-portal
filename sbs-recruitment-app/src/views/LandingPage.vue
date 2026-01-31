@@ -30,6 +30,8 @@
 						:autoplay="true"
 						:loop="true"
 						:muted="true"
+						object-fit="contain"
+						max-height="600px"
 					/>
 				</div>
 			</section>
@@ -457,9 +459,6 @@ const closeApplicationModal = () => {
 
 	&__hero-video {
 		width: 100%;
-		height: $hero-image-height;
-		background-color: $color-dark-gray;
-		overflow: hidden;
 	}
 
 	&__hero-video-placeholder {

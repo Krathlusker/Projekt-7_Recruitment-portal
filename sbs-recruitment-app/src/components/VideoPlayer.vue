@@ -5,7 +5,8 @@
 		:class="{
 			'video-player--controls-visible': controlsVisible,
 			'video-player--fullscreen': isFullscreen,
-			'video-player--hide-cursor': isFullscreen && !controlsVisible && !isMouseOverControls
+			'video-player--hide-cursor': isFullscreen && !controlsVisible && !isMouseOverControls,
+			'video-player--contain': objectFit === 'contain'
 		}"
 		@mouseenter="onMouseInteraction"
 		@mouseleave="hideControlsDelayed"
@@ -18,7 +19,7 @@
 		<video
 			ref="videoRef"
 			class="video-player__video"
-			:style="{ objectFit: isFullscreen ? 'contain' : objectFit }"
+			:style="videoStyle"
 			:src="src"
 			:poster="poster"
 			:loop="loop"
@@ -72,30 +73,28 @@
 			<button
 				class="video-player__btn video-player__btn--play"
 				:aria-label="isPlaying ? 'Pause' : 'Afspil'"
-				@click.stop="togglePlay"
+				@click.stop="togglePlay(); onButtonInteraction()"
+				@touchstart.stop="onButtonTouch"
 			>
 				<MdPause v-if="isPlaying" />
 				<MdPlayArrow v-else />
 			</button>
 
 			<!-- Volume control wrapper -->
-			<div
-				class="video-player__volume-wrapper"
-				:class="{ 'video-player__volume-wrapper--mobile-open': volumeSliderOpenMobile }"
-			>
+			<div class="video-player__volume-wrapper">
 				<!-- Volume button -->
 				<button
 					class="video-player__btn video-player__btn--volume"
 					:aria-label="isMuted ? 'Slå lyd til' : 'Slå lyd fra'"
-					@click.stop="toggleMute"
-					@touchstart.stop
+					@click.stop="toggleMute(); onButtonInteraction()"
+					@touchstart.stop="onButtonTouch"
 				>
 					<MdVolumeOff v-if="isMuted || volume === 0" />
 					<MdVolumeMute v-else-if="volume < 0.5" />
 					<MdVolumeUp v-else />
 				</button>
-				<!-- Volume slider (PC: hover/focus, Mobile: tap to open) -->
-				<div class="video-player__volume-slider">
+				<!-- Volume slider (PC only - mobile uses system volume) -->
+				<div v-if="!isTouchDevice" class="video-player__volume-slider">
 					<input
 						type="range"
 						min="0"
@@ -106,8 +105,6 @@
 						aria-label="Lydstyrke"
 						@input="onVolumeChange"
 						@click.stop
-						@touchstart.stop="onVolumeSliderTouchStart"
-						@touchend.stop="onVolumeSliderTouchEnd"
 					/>
 				</div>
 			</div>
@@ -144,7 +141,8 @@
 			<button
 				class="video-player__btn video-player__btn--fullscreen"
 				:aria-label="isFullscreen ? 'Afslut fuldskærm' : 'Fuldskærm'"
-				@click.stop="toggleFullscreen"
+				@click.stop="toggleFullscreen(); onButtonInteraction()"
+				@touchstart.stop="onButtonTouch"
 			>
 				<MdFullscreenExit v-if="isFullscreen" />
 				<MdFullscreen v-else />
@@ -169,6 +167,7 @@ interface Props {
 	controlsAutoHide?: boolean
 	autoHideDelay?: number
 	objectFit?: 'cover' | 'contain'
+	maxHeight?: string
 	// Captions (WCAG 1.2.2)
 	captionsSrc?: string
 	captionsLang?: string
@@ -189,6 +188,7 @@ const props = withDefaults(defineProps<Props>(), {
 	controlsAutoHide: true,
 	autoHideDelay: 2000,
 	objectFit: 'cover',
+	maxHeight: '',
 	// Captions defaults
 	captionsSrc: '',
 	captionsLang: 'da',
@@ -213,6 +213,21 @@ const videoRef = ref<HTMLVideoElement | null>(null)
 const progressRef = ref<HTMLElement | null>(null)
 const isPlaying = ref(false)
 const isMuted = ref(props.muted)
+
+// Computed: object-fit for video (fullscreen always uses contain)
+const objectFit = computed(() => props.objectFit)
+
+// Computed: video element style
+const videoStyle = computed(() => {
+	const style: Record<string, string> = {
+		objectFit: isFullscreen.value ? 'contain' : props.objectFit
+	}
+	// Apply maxHeight only when not fullscreen and using contain
+	if (props.maxHeight && !isFullscreen.value && props.objectFit === 'contain') {
+		style.maxHeight = props.maxHeight
+	}
+	return style
+})
 const volume = ref(props.muted ? 0 : 1)
 const previousVolume = ref(1) // Remember volume before muting
 const isFullscreen = ref(false)
@@ -225,10 +240,8 @@ const isSeeking = ref(false)
 const hasFocus = ref(false) // Keyboard focus in player (for WCAG)
 const isMouseOverControls = ref(false) // Mouse over controls area
 
-// Volume slider state - separate from main controls
-const isTouchDevice = ref(false) // Touch device detection
-const volumeSliderOpenMobile = ref(false) // Mobile only: slider open state
-const isVolumeSliderDragging = ref(false) // Dragging volume slider
+// Touch device detection
+const isTouchDevice = ref(false)
 
 let hideControlsTimeout: number | null = null
 
@@ -245,13 +258,6 @@ const togglePlay = () => {
 
 const toggleMute = () => {
 	if (!videoRef.value) return
-
-	// Mobile: first tap opens slider, second tap mutes/unmutes
-	if (isTouchDevice.value && !volumeSliderOpenMobile.value) {
-		volumeSliderOpenMobile.value = true
-		showControlsWithDelay(10000) // Extended delay when slider is open
-		return
-	}
 
 	// Toggle mute
 	if (isMuted.value || volume.value === 0) {
@@ -288,14 +294,35 @@ const onVolumeChange = (event: Event) => {
 }
 
 const toggleFullscreen = async () => {
-	if (!playerRef.value) return
+	if (!playerRef.value || !videoRef.value) return
 
 	try {
-		if (!document.fullscreenElement) {
-			await playerRef.value.requestFullscreen()
-			isFullscreen.value = true
+		// Check if already in fullscreen
+		const isCurrentlyFullscreen = document.fullscreenElement || (document as any).webkitFullscreenElement
+
+		if (!isCurrentlyFullscreen) {
+			// Try standard Fullscreen API first (works on most browsers)
+			if (playerRef.value.requestFullscreen) {
+				await playerRef.value.requestFullscreen()
+				isFullscreen.value = true
+			}
+			// Webkit prefix for older Safari
+			else if ((playerRef.value as any).webkitRequestFullscreen) {
+				await (playerRef.value as any).webkitRequestFullscreen()
+				isFullscreen.value = true
+			}
+			// iOS Safari: use video element's webkitEnterFullscreen
+			else if ((videoRef.value as any).webkitEnterFullscreen) {
+				(videoRef.value as any).webkitEnterFullscreen()
+				isFullscreen.value = true
+			}
 		} else {
-			await document.exitFullscreen()
+			// Exit fullscreen
+			if (document.exitFullscreen) {
+				await document.exitFullscreen()
+			} else if ((document as any).webkitExitFullscreen) {
+				await (document as any).webkitExitFullscreen()
+			}
 			isFullscreen.value = false
 		}
 	} catch (err) {
@@ -304,7 +331,7 @@ const toggleFullscreen = async () => {
 }
 
 const onFullscreenChange = () => {
-	isFullscreen.value = !!document.fullscreenElement
+	isFullscreen.value = !!(document.fullscreenElement || (document as any).webkitFullscreenElement)
 }
 
 // Show controls with auto-hide timer
@@ -312,41 +339,45 @@ const showControlsWithDelay = (delay: number) => {
 	controlsVisible.value = true
 	clearHideTimeout()
 
-	// Don't auto-hide if: has keyboard focus, dragging slider, or mouse over controls
-	if (props.controlsAutoHide && isPlaying.value && hasInteracted.value && !hasFocus.value && !isVolumeSliderDragging.value) {
+	// Don't auto-hide if: has keyboard focus
+	// On touch devices, ignore isMouseOverControls (irrelevant)
+	if (props.controlsAutoHide && isPlaying.value && hasInteracted.value && !hasFocus.value) {
 		hideControlsTimeout = window.setTimeout(() => {
-			if (isPlaying.value && !isSeeking.value && !hasFocus.value && !isVolumeSliderDragging.value && !isMouseOverControls.value) {
+			// Check conditions again when timer fires
+			const mouseBlocking = !isTouchDevice.value && isMouseOverControls.value
+			if (isPlaying.value && !isSeeking.value && !hasFocus.value && !mouseBlocking) {
 				controlsVisible.value = false
-				volumeSliderOpenMobile.value = false // Close mobile slider
 			}
 		}, delay)
 	}
 }
 
 const showControls = () => {
-	// Extended delay when mobile slider is open
-	const delay = (isTouchDevice.value && volumeSliderOpenMobile.value) ? 10000 : props.autoHideDelay
-	showControlsWithDelay(delay)
-}
-
-// Volume slider touch handlers - prevent auto-hide while dragging
-const onVolumeSliderTouchStart = () => {
-	isVolumeSliderDragging.value = true
-	clearHideTimeout()
-}
-
-const onVolumeSliderTouchEnd = () => {
-	isVolumeSliderDragging.value = false
-	// Reset auto-hide timer after finishing drag
-	if (isTouchDevice.value && volumeSliderOpenMobile.value) {
-		showControlsWithDelay(10000)
-	}
+	showControlsWithDelay(props.autoHideDelay)
 }
 
 // Called only on actual mouse interaction (not programmatic)
 const onMouseInteraction = () => {
 	hasInteracted.value = true
 	showControls()
+}
+
+// Called on touchstart on buttons - marks device as touch
+const onButtonTouch = () => {
+	isTouchDevice.value = true
+}
+
+// Called after button interactions on mobile to start auto-hide timer
+const onButtonInteraction = () => {
+	if (isTouchDevice.value) {
+		hasInteracted.value = true
+		// Delay to let state update (e.g., isPlaying changes)
+		setTimeout(() => {
+			if (isPlaying.value) {
+				showControlsWithDelay(3000) // 3 second auto-hide on mobile after button
+			}
+		}, 50)
+	}
 }
 
 // When mouse leaves controls, blur any focused element (so hasFocus doesn't block auto-hide)
@@ -370,34 +401,46 @@ const onMouseMove = () => {
 		clearTimeout(mouseMoveTimeout)
 	}
 
-	// Start auto-hide timer
-	if (props.controlsAutoHide && isPlaying.value && !hasFocus.value && !isVolumeSliderDragging.value) {
+	// Start auto-hide timer (PC only - touch devices use different logic)
+	if (props.controlsAutoHide && isPlaying.value && !hasFocus.value && !isTouchDevice.value) {
 		hideControlsTimeout = window.setTimeout(() => {
-			if (isPlaying.value && !isSeeking.value && !hasFocus.value && !isVolumeSliderDragging.value && !isMouseOverControls.value) {
+			if (isPlaying.value && !isSeeking.value && !hasFocus.value && !isMouseOverControls.value) {
 				controlsVisible.value = false
-				volumeSliderOpenMobile.value = false
 			}
 		}, props.autoHideDelay)
 	}
 }
 
 const hideControlsDelayed = () => {
-	if (props.controlsAutoHide && isPlaying.value && hasInteracted.value && !hasFocus.value) {
+	// PC only - on touch devices, controls are toggled explicitly
+	if (props.controlsAutoHide && isPlaying.value && hasInteracted.value && !hasFocus.value && !isTouchDevice.value) {
 		hideControlsTimeout = window.setTimeout(() => {
 			if (!hasFocus.value && !isMouseOverControls.value) {
 				controlsVisible.value = false
-				volumeSliderOpenMobile.value = false
 			}
 		}, 500)
 	}
 }
 
-const toggleControlsTouch = () => {
+// Debounce touch to prevent multiple rapid toggles (blinking)
+let lastTouchTime = 0
+const toggleControlsTouch = (event: TouchEvent) => {
+	// Mark as touch device when user actually touches
 	isTouchDevice.value = true
+	
+	// Don't toggle if touch was on a control element (button, slider, etc.)
+	const target = event.target as HTMLElement
+	if (target.closest('.video-player__controls')) {
+		return
+	}
+
+	const now = Date.now()
+	if (now - lastTouchTime < 400) return // Debounce 400ms
+	lastTouchTime = now
+
 	hasInteracted.value = true
 	if (controlsVisible.value && isPlaying.value) {
 		controlsVisible.value = false
-		volumeSliderOpenMobile.value = false
 	} else {
 		showControls()
 	}
@@ -500,7 +543,7 @@ const startSeeking = (event: MouseEvent | TouchEvent) => {
 
 	const onMove = (e: MouseEvent | TouchEvent) => {
 		if (!videoRef.value) return
-		const progressEl = document.querySelector('.video-player__progress') as HTMLElement
+		const progressEl = progressRef.value
 		if (!progressEl) return
 
 		const rect = progressEl.getBoundingClientRect()
@@ -558,6 +601,9 @@ const onEnded = () => {
 
 // Lifecycle
 onMounted(() => {
+	// isTouchDevice is set to true when user first touches the player
+	// This ensures volume slider is shown on PC even if device reports touch support
+
 	if (videoRef.value) {
 		videoRef.value.muted = props.muted
 
@@ -572,8 +618,9 @@ onMounted(() => {
 		}
 	}
 
-	// Listen for fullscreen changes
+	// Listen for fullscreen changes (including webkit prefix for Safari)
 	document.addEventListener('fullscreenchange', onFullscreenChange)
+	document.addEventListener('webkitfullscreenchange', onFullscreenChange)
 })
 
 onUnmounted(() => {
@@ -582,6 +629,7 @@ onUnmounted(() => {
 		clearTimeout(mouseMoveTimeout)
 	}
 	document.removeEventListener('fullscreenchange', onFullscreenChange)
+	document.removeEventListener('webkitfullscreenchange', onFullscreenChange)
 })
 
 // Expose methods for parent components
@@ -606,6 +654,18 @@ defineExpose({
 	background-color: $color-dark-gray;
 	cursor: pointer;
 
+	// Contain mode: height follows video aspect ratio
+	&--contain {
+		height: auto;
+		background-color: transparent;
+	}
+
+	// Fullscreen always fills and centers
+	&--fullscreen {
+		height: 100%;
+		background-color: $color-dark-gray;
+	}
+
 	// Hide cursor in fullscreen when controls are hidden
 	&--hide-cursor {
 		cursor: none;
@@ -617,8 +677,15 @@ defineExpose({
 	}
 
 	&__video {
+		display: block; // Remove inline element gap
 		width: 100%;
-		height: 100%;
+		height: auto; // Let video keep its aspect ratio
+
+		// Fullscreen: fill container, centered
+		.video-player--fullscreen & {
+			height: 100%;
+			object-fit: contain;
+		}
 	}
 
 	// Dark gradient overlay (bottom to transparent)
@@ -699,6 +766,9 @@ defineExpose({
 		cursor: pointer;
 		transition: all $transition-duration $transition-ease;
 		flex-shrink: 0;
+		user-select: none;
+		-webkit-user-select: none;
+		-webkit-tap-highlight-color: transparent;
 
 		svg {
 			width: $spacing-lg;
@@ -739,8 +809,7 @@ defineExpose({
 
 		// Enable hover bridge when hovering or keyboard focus
 		&:hover::before,
-		&:focus-within::before,
-		&--mobile-open::before {
+		&:focus-within::before {
 			pointer-events: auto;
 		}
 	}
@@ -773,13 +842,6 @@ defineExpose({
 
 		// Keyboard: Show on focus-within (tab navigation)
 		.video-player__volume-wrapper:focus-within & {
-			opacity: 1;
-			pointer-events: auto;
-			transform: translateX(-50%) translateY(0);
-		}
-
-		// Mobile: Show when explicitly opened
-		.video-player__volume-wrapper--mobile-open & {
 			opacity: 1;
 			pointer-events: auto;
 			transform: translateX(-50%) translateY(0);
