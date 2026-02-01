@@ -25,9 +25,11 @@
 								class="job-modal__video"
 								:src="currentJob.video"
 								:title="currentJob.title"
-								:autoplay="false"
-								:loop="false"
-								:muted="false"
+								:autoplay="true"
+								:loop="true"
+								:muted="true"
+								object-fit="contain"
+								max-height="450px"
 							/>
 							<ResponsiveImage
 								v-else-if="currentJob.baseName"
@@ -69,7 +71,6 @@
 				<div class="modal-wrapper__actions">
 					<el-button type="danger" size="large" class="job-modal__cta-btn" @click="handleApply">
 						ANSØG NU
-						<el-icon :size="24"><Right /></el-icon>
 					</el-button>
 				</div>
 			</div>
@@ -153,7 +154,7 @@ const jobsData: JobData[] = [
 	{
 		id: 'andre',
 		title: 'Andre stillinger',
-		baseName: 'andre-stillinger_claus_compressed',
+		baseName: 'andre-stillinger_compressed',
 		breakpoints: '400,0;800,400;1200,800',
 		focusPosition: '55% 40%',
 		description:
@@ -216,12 +217,16 @@ const handleApply = () => {
 
 	&__media {
 		width: 100%;
-		height: $job-image-height;
-		min-height: $job-image-height;
-		flex-shrink: 0;
 		overflow: hidden;
-		background-color: $color-light-gray;
+		background-color: $color-dark-gray;
 		border-radius: 0 0 $border-radius-lg $border-radius-lg;
+
+		// Only apply fixed height for images, not videos
+		&:has(img):not(:has(.video-player)) {
+			height: $job-image-height;
+			min-height: $job-image-height;
+			flex-shrink: 0;
+		}
 
 		img {
 			width: 100%;
@@ -232,7 +237,6 @@ const handleApply = () => {
 
 	&__video {
 		width: 100%;
-		height: 100%;
 		border-radius: 0 0 $border-radius-lg $border-radius-lg;
 	}
 
@@ -279,7 +283,6 @@ const handleApply = () => {
 	&__task-icon {
 		color: $color-dark-gray;
 		flex-shrink: 0;
-		margin-top: $spacing-xs;
 	}
 
 	&__requirements {

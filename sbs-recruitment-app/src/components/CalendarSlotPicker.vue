@@ -320,6 +320,7 @@ const isToday = (dateString: string): boolean => {
 const prevMonth = () => {
 	calendarSlideDirection.value = 'calendar-slide-right'
 	const newDate = new Date(calendarDate.value)
+	newDate.setDate(1) // Sæt til 1. for at undgå overflow (f.eks. 31 jan -> 1 mar)
 	newDate.setMonth(newDate.getMonth() - 1)
 	calendarDate.value = newDate
 }
@@ -327,6 +328,7 @@ const prevMonth = () => {
 const nextMonth = () => {
 	calendarSlideDirection.value = 'calendar-slide-left'
 	const newDate = new Date(calendarDate.value)
+	newDate.setDate(1) // Sæt til 1. for at undgå overflow (f.eks. 31 jan -> 1 mar)
 	newDate.setMonth(newDate.getMonth() + 1)
 	calendarDate.value = newDate
 }

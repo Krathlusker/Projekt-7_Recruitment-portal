@@ -206,7 +206,7 @@
 	box-shadow: $shadow-button;
 
 	&:hover {
-		filter: brightness(0.9);
+		filter: brightness(0.95);
 		box-shadow: $shadow-button-hover;
 	}
 }
@@ -420,7 +420,8 @@
 @mixin selected-slot-empty {
 	background-color: transparent;
 	border-style: dashed;
-	justify-content: flex-start;
+	justify-content: center;
+	padding-top: $spacing-sm;
 }
 
 // Selected slot info container
@@ -446,23 +447,22 @@
 	opacity: 0.7;
 }
 
-// Selected slot remove button
+// Selected slot remove button (on dark background)
 @mixin selected-slot-remove-btn {
+	@include button-colors-dark;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	width: $spacing-lg;
 	height: $spacing-lg;
 	padding: 0;
-	border: none;
-	background-color: transparent;
-	color: $color-white;
-	cursor: pointer;
+	border: $border-width-thin solid transparent;
 	border-radius: $border-radius-sm;
-	transition: background-color $transition-duration $transition-ease;
+	cursor: pointer;
+	transition: all $transition-duration $transition-ease;
 
 	&:hover {
-		background-color: rgba($color-white, 0.2);
+		border-color: $color-white;
 	}
 }
 

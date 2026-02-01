@@ -261,8 +261,8 @@
 
 							<div v-if="selectedApplication.cvFileName" class="application-detail__section">
 								<h3>CV</h3>
-								<el-button @click="downloadCV(selectedApplication.cvFileName)" class="btn-dark">
-									Download CV
+								<el-button @click="openCVViewer(selectedApplication.cvFileName)" class="btn-dark">
+									Se CV
 								</el-button>
 							</div>
 
@@ -580,6 +580,70 @@
 				</el-button>
 			</template>
 		</el-dialog>
+
+		<!-- CV Viewer Modal -->
+		<Transition name="modal">
+			<div v-if="showCVViewer" class="cv-viewer-overlay" @click.self="closeCVViewer">
+				<div class="cv-viewer-modal">
+					<ModalCloseButton @click="closeCVViewer" />
+					<div class="cv-viewer-modal__header">
+						<div class="cv-viewer-modal__zoom">
+							<el-button
+								:disabled="cvScale <= 0.5"
+								@click="cvScale = Math.max(0.5, cvScale - 0.25)"
+								class="btn-dark"
+								size="small"
+							>
+								−
+							</el-button>
+							<span>{{ Math.round(cvScale * 100) }}%</span>
+							<el-button
+								:disabled="cvScale >= 2"
+								@click="cvScale = Math.min(2, cvScale + 0.25)"
+								class="btn-dark"
+								size="small"
+							>
+								+
+							</el-button>
+						</div>
+						<div class="cv-viewer-modal__pagination">
+							<el-button
+								:disabled="cvCurrentPage <= 1"
+								@click="cvCurrentPage--"
+								class="btn-dark"
+								size="small"
+							>
+								Forrige
+							</el-button>
+							<span>Side {{ cvCurrentPage }} af {{ cvTotalPages }}</span>
+							<el-button
+								:disabled="cvCurrentPage >= cvTotalPages"
+								@click="cvCurrentPage++"
+								class="btn-dark"
+								size="small"
+							>
+								Næste
+							</el-button>
+						</div>
+						<div class="cv-viewer-modal__spacer"></div>
+					</div>
+					<OverlayScrollbarsComponent
+						class="cv-viewer-modal__content"
+						:options="{ scrollbars: { autoHide: 'leave' } }"
+					>
+						<div class="cv-viewer-modal__pdf-wrapper">
+							<VuePDF
+								v-if="cvPdf"
+								:pdf="cvPdf"
+								:page="cvCurrentPage"
+								:scale="cvScale"
+								text-layer
+							/>
+						</div>
+					</OverlayScrollbarsComponent>
+				</div>
+			</div>
+		</Transition>
 	</div>
 </template>
 
@@ -588,6 +652,8 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { User, Message, Phone, Calendar } from '@element-plus/icons-vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
+import { VuePDF, usePDF } from '@tato30/vue-pdf'
+import '@tato30/vue-pdf/style.css'
 import ModalCloseButton from '@/components/ModalCloseButton.vue'
 import CalendarSlotPicker from '@/components/CalendarSlotPicker.vue'
 import CustomTimeSlotPicker from '@/components/CustomTimeSlotPicker.vue'
@@ -836,9 +902,45 @@ const deleteApplication = async (id?: string) => {
 	}
 }
 
-// Download CV
-const downloadCV = (filename: string) => {
-	window.open(`${api.defaults.baseURL}/download-cv/${filename}`, '_blank')
+// CV Viewer state
+const showCVViewer = ref(false)
+const cvPdfSource = ref('')
+const cvCurrentPage = ref(1)
+const cvTotalPages = ref(0)
+const cvScale = ref(1)
+const { pdf: cvPdf, pages: cvPages } = usePDF(cvPdfSource)
+
+// Watch for pages changes
+watch(cvPages, (pages) => {
+	if (pages) {
+		cvTotalPages.value = pages
+	}
+})
+
+// Open CV in viewer modal
+const openCVViewer = async (filename: string) => {
+	try {
+		const response = await api.get(`/download-cv/${filename}`, {
+			responseType: 'blob'
+		})
+		const blob = new Blob([response.data], { type: 'application/pdf' })
+		cvPdfSource.value = URL.createObjectURL(blob)
+		cvCurrentPage.value = 1
+		cvScale.value = 1
+		showCVViewer.value = true
+	} catch (error) {
+		console.error('Failed to load CV:', error)
+		ElMessage.error('Kunne ikke indlæse CV')
+	}
+}
+
+// Close CV viewer
+const closeCVViewer = () => {
+	showCVViewer.value = false
+	if (cvPdfSource.value) {
+		URL.revokeObjectURL(cvPdfSource.value)
+		cvPdfSource.value = ''
+	}
 }
 
 // View application details
@@ -1387,6 +1489,7 @@ watch(showDetailDialog, (newVal) => {
 
 <style lang="scss" scoped>
 @use 'sass:color';
+@use 'sass:math';
 
 .hr-dashboard {
 	min-height: 100vh;
@@ -1743,7 +1846,7 @@ watch(showDetailDialog, (newVal) => {
 		max-width: 60%;
 
 		:deep(.el-input__wrapper) {
-			padding: 2px 8px;
+			padding: math.div($spacing-xs, 2) $spacing-sm;
 			min-height: 28px;
 			font-size: $font-size-body;
 		}
@@ -2094,7 +2197,7 @@ watch(showDetailDialog, (newVal) => {
 		@include body-font;
 		font-size: $font-size-body;
 		color: $color-dark-gray;
-		padding: 2px 8px;
+		padding: math.div($spacing-xs, 2) $spacing-sm;
 		background-color: $color-light-gray;
 		border-radius: $border-radius-sm;
 	}
@@ -2102,19 +2205,13 @@ watch(showDetailDialog, (newVal) => {
 	&__status {
 		@include body-font;
 		font-size: $font-size-body;
-		padding: 2px 8px;
+		padding: math.div($spacing-xs, 2) $spacing-sm;
+		padding-top: $spacing-xs;
 		border-radius: $border-radius-sm;
 		margin-left: auto;
 	}
 
 	&--available {
-		.time-slot-item__status {
-			color: $color-dark-gray;
-			background-color: $color-light-gray;
-		}
-	}
-
-	&--reserved {
 		border-color: $color-yellow;
 		background-color: lighten($color-yellow, 35%);
 
@@ -2124,13 +2221,20 @@ watch(showDetailDialog, (newVal) => {
 		}
 	}
 
-	&--booked {
+	&--reserved {
 		border-color: $color-red;
 		background-color: lighten($color-red, 35%);
 
 		.time-slot-item__status {
 			color: $color-white;
 			background-color: $color-red;
+		}
+	}
+
+	&--booked {
+		.time-slot-item__status {
+			color: $color-white;
+			background-color: $color-dark-gray;
 		}
 	}
 }
@@ -2155,15 +2259,15 @@ watch(showDetailDialog, (newVal) => {
 		border-radius: $border-radius-sm;
 
 		&--available {
-			background-color: $color-dark-gray;
-		}
-
-		&--reserved {
 			background-color: $color-yellow;
 		}
 
-		&--booked {
+		&--reserved {
 			background-color: $color-red;
+		}
+
+		&--booked {
+			background-color: $color-dark-gray;
 		}
 	}
 
@@ -2305,6 +2409,87 @@ watch(showDetailDialog, (newVal) => {
 		@include body-font;
 		color: $color-dark-gray;
 		margin-bottom: $spacing-md;
+	}
+}
+
+// CV Viewer Modal
+.cv-viewer-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.7);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 3000;
+}
+
+.cv-viewer-modal {
+	position: relative;
+	background-color: $color-white;
+	border-radius: $border-radius-lg;
+	width: 90%;
+	max-width: 900px;
+	max-height: 90vh;
+	display: flex;
+	flex-direction: column;
+	box-shadow: $shadow-card;
+
+	&__header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: $spacing-md $spacing-lg;
+		border-bottom: 1px solid $color-light-gray;
+	}
+
+	&__zoom {
+		display: flex;
+		align-items: center;
+		gap: $spacing-xs;
+		min-width: 120px;
+
+		span {
+			@include body-font;
+			min-width: 50px;
+			text-align: center;
+		}
+	}
+
+	&__pagination {
+		display: flex;
+		align-items: center;
+		gap: $spacing-sm;
+
+		span {
+			@include body-font;
+			min-width: 100px;
+			text-align: center;
+		}
+	}
+
+	&__spacer {
+		min-width: 120px;
+	}
+
+	&__content {
+		flex: 1;
+		overflow: hidden;
+		background-color: $color-light-gray;
+	}
+
+	&__pdf-wrapper {
+		padding: $spacing-md;
+		display: flex;
+		justify-content: center;
+		min-height: 100%;
+
+		canvas {
+			max-width: 100%;
+			height: auto;
+		}
 	}
 }
 </style>

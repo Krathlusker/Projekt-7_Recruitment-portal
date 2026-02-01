@@ -92,17 +92,27 @@
 												<span class="application-modal__cv-hint">{{ formData.hasCV ? 'Ja' : 'Nej' }}</span>
 											</div>
 
-											<div v-if="formData.hasCV" class="application-modal__cv-upload">
+											<div
+												v-if="formData.hasCV"
+												class="application-modal__cv-upload"
+												:class="{ 'is-dragover': isDragOver, 'has-file': formData.cvFile }"
+												@dragenter.prevent="onDragEnter"
+												@dragover.prevent="onDragOver"
+												@dragleave.prevent="onDragLeave"
+												@drop.prevent="onDrop"
+											>
 												<el-upload
 													ref="uploadRef"
 													:auto-upload="false"
 													:limit="1"
-													accept=".pdf,.doc,.docx"
-													drag
+													:show-file-list="false"
+													:on-exceed="handleFileExceed"
+													:before-upload="beforeUpload"
+													accept=".pdf,.doc,.docx,.odt,.rtf,.gdoc"
 													@change="handleFileChange"
 												>
 													<span class="application-modal__cv-dropzone-text">
-														{{ formData.cvFile ? formData.cvFile.name : 'Træk eller klik for at uploade' }}
+														{{ formData.cvFile ? truncateFilename(formData.cvFile.name) : 'Træk eller klik for upload' }}
 													</span>
 												</el-upload>
 											</div>
@@ -304,9 +314,14 @@
 						v-if="currentStep > 1"
 						type="primary"
 						@click="previousStep"
-						class="modal-nav-btn"
-						:icon="ArrowLeft"
-					/>
+						class="modal-nav-btn modal-nav-btn--prev"
+					>
+						<span class="modal-nav-btn__arrows">
+							<el-icon class="modal-nav-btn__arrow modal-nav-btn__arrow--3"><ArrowLeft /></el-icon>
+							<el-icon class="modal-nav-btn__arrow modal-nav-btn__arrow--2"><ArrowLeft /></el-icon>
+							<el-icon class="modal-nav-btn__arrow modal-nav-btn__arrow--1"><ArrowLeft /></el-icon>
+						</span>
+					</el-button>
 					<el-button
 						v-else
 						type="primary"
@@ -318,14 +333,25 @@
 						type="warning"
 						@click="nextStep"
 						:disabled="!canProceed"
-						class="modal-nav-btn"
-						:icon="ArrowRight"
-					/>
+						class="modal-nav-btn modal-nav-btn--next"
+					>
+						<span class="modal-nav-btn__arrows">
+							<el-icon class="modal-nav-btn__arrow modal-nav-btn__arrow--1"><ArrowRight /></el-icon>
+							<el-icon class="modal-nav-btn__arrow modal-nav-btn__arrow--2"><ArrowRight /></el-icon>
+							<el-icon class="modal-nav-btn__arrow modal-nav-btn__arrow--3"><ArrowRight /></el-icon>
+						</span>
+					</el-button>
 				</div>
 
 				<!-- Step 4: Send step with Send button -->
 				<div v-else-if="currentStep === 4" class="modal-wrapper__actions">
-					<el-button type="primary" @click="previousStep" class="modal-nav-btn" :icon="ArrowLeft" />
+					<el-button type="primary" @click="previousStep" class="modal-nav-btn modal-nav-btn--prev">
+						<span class="modal-nav-btn__arrows">
+							<el-icon class="modal-nav-btn__arrow modal-nav-btn__arrow--3"><ArrowLeft /></el-icon>
+							<el-icon class="modal-nav-btn__arrow modal-nav-btn__arrow--2"><ArrowLeft /></el-icon>
+							<el-icon class="modal-nav-btn__arrow modal-nav-btn__arrow--1"><ArrowLeft /></el-icon>
+						</span>
+					</el-button>
 					<el-button type="warning" @click="handleSubmit" :disabled="!consentAccepted" class="modal-nav-btn">
 						<el-icon><Message /></el-icon>
 						<span>Send</span>
@@ -424,7 +450,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import type { FormInstance, FormRules, UploadFile } from 'element-plus'
+import type { FormInstance, FormRules, UploadFile, UploadRawFile, UploadInstance } from 'element-plus'
 import ModalCloseButton from '@/components/ModalCloseButton.vue'
 import ConsentModal from '@/components/ConsentModal.vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
@@ -562,6 +588,9 @@ watch(
 
 // Form ref
 const personalFormRef = ref<FormInstance>()
+
+// Upload ref
+const uploadRef = ref<UploadInstance>()
 
 // Current step (1: Info, 2: Quiz, 3: Date, 4: Rejected, 5: Success)
 const currentStep = ref(1)
@@ -789,9 +818,106 @@ const calculateDiscResult = (): DiscResult => {
 	}
 }
 
+// Allowed file extensions
+const allowedExtensions = ['.pdf', '.doc', '.docx', '.odt', '.rtf', '.gdoc']
+
+// Warning message for invalid file types
+const FILE_TYPE_WARNING = 'Kun PDF, Word, Google Docs, ODT og RTF filer er tilladt'
+
+// Truncate filename to show beginning + extension
+const truncateFilename = (filename: string, maxLength: number = 20): string => {
+	if (filename.length <= maxLength) return filename
+	const lastDot = filename.lastIndexOf('.')
+	if (lastDot === -1) return filename.substring(0, maxLength - 3) + '...'
+	const ext = filename.substring(lastDot + 1) // extension without the dot
+	const nameWithoutExt = filename.substring(0, lastDot)
+	const availableLength = maxLength - ext.length - 3 // 3 for '...'
+	if (availableLength <= 0) return filename.substring(0, maxLength - 3) + '...'
+	return nameWithoutExt.substring(0, availableLength) + '...' + ext
+}
+
+// Check if file type is valid
+const isValidFileType = (file: File): boolean => {
+	const fileName = file.name.toLowerCase()
+	return allowedExtensions.some(ext => fileName.endsWith(ext))
+}
+
+// Drag state
+const isDragOver = ref(false)
+let dragCounter = 0
+
+const onDragEnter = () => {
+	dragCounter++
+	isDragOver.value = true
+}
+
+const onDragOver = () => {
+	isDragOver.value = true
+}
+
+const onDragLeave = () => {
+	dragCounter--
+	if (dragCounter === 0) {
+		isDragOver.value = false
+	}
+}
+
+const onDrop = (event: DragEvent) => {
+	isDragOver.value = false
+	dragCounter = 0
+
+	const files = event.dataTransfer?.files
+	if (files && files.length > 0) {
+		const file = files[0]
+		if (!isValidFileType(file)) {
+			ElMessage.warning({ message: FILE_TYPE_WARNING, duration: 5000 })
+			return
+		}
+		// Handle the file directly since we're intercepting the drop
+		if (uploadRef.value) {
+			uploadRef.value.clearFiles()
+			formData.value.cvFile = file
+			uploadRef.value.handleStart(file as unknown as UploadRawFile)
+		}
+	}
+}
+
+// Before upload validation
+const beforeUpload = (file: UploadRawFile): boolean => {
+	if (!isValidFileType(file)) {
+		ElMessage.warning({ message: FILE_TYPE_WARNING, duration: 5000 })
+		return false
+	}
+	return true
+}
+
 // Handle file change
 const handleFileChange = (file: UploadFile) => {
-	formData.value.cvFile = file.raw || null
+	if (file.raw && isValidFileType(file.raw)) {
+		formData.value.cvFile = file.raw
+	} else if (file.raw) {
+		// Invalid file type - clear the upload
+		ElMessage.warning({ message: FILE_TYPE_WARNING, duration: 5000 })
+		if (uploadRef.value) {
+			uploadRef.value.clearFiles()
+		}
+	}
+}
+
+// Handle file exceed (replace existing file)
+const handleFileExceed = (files: File[]) => {
+	if (uploadRef.value) {
+		const file = files[0]
+		if (file && !isValidFileType(file)) {
+			ElMessage.warning({ message: FILE_TYPE_WARNING, duration: 5000 })
+			return
+		}
+		uploadRef.value.clearFiles()
+		if (file) {
+			formData.value.cvFile = file
+			uploadRef.value.handleStart(file as unknown as UploadRawFile)
+		}
+	}
 }
 
 // Slot selection helpers
@@ -1290,26 +1416,60 @@ const handleClose = async () => {
 	&__cv-upload {
 		flex: 1;
 		margin-left: auto;
-		height: 32px;
+		height: 100%;
+
+		// Vue wrapper div needs height 100%
+		> div {
+			height: 100%;
+		}
 
 		:deep(.el-upload) {
 			width: 100%;
 			height: 100%;
-		}
-
-		:deep(.el-upload-dragger) {
-			width: 100%;
-			height: 32px;
-			padding: 0 $spacing-sm;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			border: $border-width-thin dashed $color-dark-gray;
 			border-radius: $border-radius-sm;
 			background-color: transparent;
+			transition: all 0.2s ease;
+			cursor: pointer;
+			padding: 0 $spacing-sm;
+			text-align: center;
 
 			&:hover {
-				border-color: $color-yellow;
+				background-color: $color-dark-gray;
+				border-color: $color-white;
+				border-style: solid;
+
+				.application-modal__cv-dropzone-text {
+					color: $color-white;
+				}
+			}
+		}
+
+		// File selected state - no border, dark background
+		&.has-file :deep(.el-upload) {
+			background-color: $color-dark-gray;
+			border: none;
+
+			.application-modal__cv-dropzone-text {
+				color: $color-white;
+			}
+
+			&:hover {
+				background-color: #5a5a5a;
+			}
+		}
+
+		// Drag over state
+		&.is-dragover :deep(.el-upload) {
+			background-color: $color-dark-gray;
+			border-color: $color-yellow;
+			border-style: dashed;
+
+			.application-modal__cv-dropzone-text {
+				color: $color-yellow;
 			}
 		}
 	}
@@ -1658,6 +1818,7 @@ const handleClose = async () => {
 
 	&__selected-slot {
 		@include selected-slot;
+		padding: $spacing-xs;
 
 		&--empty {
 			@include selected-slot-empty;
@@ -1666,6 +1827,7 @@ const handleClose = async () => {
 
 	&__selected-slot-info {
 		@include selected-slot-info;
+		gap: $spacing-xs;
 	}
 
 	&__selected-slot-priority {

@@ -67,6 +67,7 @@ defineEmits<{
 		border-radius: 0 $border-radius-lg 0 20px; // top-right: standard, bottom-left: større
 		z-index: 1;
 		transition: background-color $transition-duration $transition-ease;
+		box-shadow: $shadow-card;
 	}
 
 	&:hover {

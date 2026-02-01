@@ -48,6 +48,22 @@
 	// Note: Focus-specifik styling defineres i input/button sektionerne nedenfor
 }
 
+// ==================== EL-MESSAGE WARNING STYLING ====================
+.el-message--warning {
+	background-color: $color-yellow !important;
+	border-color: $color-yellow !important;
+
+	.el-message__content {
+		color: $color-dark-gray !important;
+		font-family: $font-body !important;
+		font-weight: $font-weight-bold !important;
+	}
+
+	.el-message__icon {
+		color: $color-dark-gray !important;
+	}
+}
+
 // ==================== EL-LINK GLOBAL STYLING ====================
 // Footer links use el-link for consistent styling across pages
 
@@ -155,6 +171,32 @@
 .el-button.is-plain,
 .el-button.is-text {
 	@include button-colors-dark;
+}
+
+// Disabled button styling - greyed out instead of transparent
+.el-button.is-disabled,
+.el-button.is-disabled:hover,
+.el-button.is-disabled:focus,
+.el-button.is-disabled:active {
+	background-color: $color-light-gray !important;
+	color: $color-dark-gray !important;
+	opacity: 0.6;
+	cursor: not-allowed;
+	box-shadow: none !important;
+	border-color: transparent !important;
+	pointer-events: none;
+
+	// Prevent arrow animation on disabled state
+	.modal-nav-btn__arrow {
+		transform: none !important;
+		opacity: 1 !important;
+		transition: none !important;
+
+		&--2,
+		&--3 {
+			opacity: 0 !important;
+		}
+	}
 }
 
 // ==================== GLOBAL ELEMENT PLUS FOCUS STYLING ====================
@@ -538,17 +580,17 @@ body.modal-open {
 
 	// Custom color variants for calendar
 	&--available {
-		background-color: $color-dark-gray !important;
-		color: $color-white !important;
-	}
-
-	&--reserved {
 		background-color: $color-yellow !important;
 		color: $color-dark-gray !important;
 	}
 
-	&--booked {
+	&--reserved {
 		background-color: $color-red !important;
+		color: $color-white !important;
+	}
+
+	&--booked {
+		background-color: $color-dark-gray !important;
 		color: $color-white !important;
 	}
 }
@@ -673,6 +715,12 @@ body.modal-open {
 		z-index: 1;
 		height: $modal-height-standard; // Total højde inklusiv knapper
 		max-height: calc(100vh - #{$spacing-md * 2}); // Viewport minus padding
+		transition: height $transition-duration $transition-ease;
+
+		// Større højde på bredere skærme
+		@media (min-width: 990px) {
+			height: 850px;
+		}
 
 		&--fullscreen {
 			max-width: min($modal-max-width-wide, calc(100vw - $spacing-xl));
@@ -753,6 +801,116 @@ body.modal-open {
 		&:focus,
 		&:active {
 			color: $color-dark-gray;
+		}
+	}
+
+	// Next button with animated arrows (racer style)
+	&--next {
+		overflow: hidden;
+
+		.modal-nav-btn__arrows {
+			display: flex;
+			align-items: center;
+			position: relative;
+		}
+
+		.modal-nav-btn__arrow {
+			font-size: $font-size-subtitle;
+			transition: all $transition-duration $transition-ease;
+
+			// Alle pile overlapper - negativ margin
+			&--1,
+			&--2,
+			&--3 {
+				margin-left: -0.7em;
+			}
+
+			// Første pil har ingen negativ margin
+			&--1 {
+				margin-left: 0;
+			}
+
+			// Ekstra pile starter skjult til venstre
+			&--2,
+			&--3 {
+				opacity: 0;
+				transform: translateX(-0.5em);
+			}
+		}
+
+		&:hover {
+			// Hovedpil rykker til højre
+			.modal-nav-btn__arrow--1 {
+				transform: translateX(0.5em);
+			}
+
+			// Ekstra pile fader ind og følger med
+			.modal-nav-btn__arrow--2 {
+				opacity: 1;
+				transform: translateX(-0.6em);
+				transition-delay: 0.1s;
+			}
+
+			.modal-nav-btn__arrow--3 {
+				opacity: 1;
+				transform: translateX(-0.5em);
+				transition-delay: 0.05s;
+			}
+		}
+	}
+
+	// Prev button with animated arrows (mirrored racer style)
+	&--prev {
+		overflow: hidden;
+
+		.modal-nav-btn__arrows {
+			display: flex;
+			align-items: center;
+			position: relative;
+		}
+
+		.modal-nav-btn__arrow {
+			font-size: $font-size-subtitle;
+			transition: all $transition-duration $transition-ease;
+
+			// Alle pile overlapper - negativ margin (spejlvendt)
+			&--1,
+			&--2,
+			&--3 {
+				margin-right: -0.7em;
+			}
+
+			// Sidste pil (visuelt første) har ingen negativ margin
+			&--1 {
+				margin-right: 0;
+			}
+
+			// Ekstra pile starter skjult til højre
+			&--2,
+			&--3 {
+				opacity: 0;
+				transform: translateX(0.5em);
+			}
+		}
+
+		&:hover {
+			// Hovedpil rykker til venstre
+			.modal-nav-btn__arrow--1 {
+				transform: translateX(-0.5em);
+			}
+
+			// Ekstra pile fader ind og følger med
+			.modal-nav-btn__arrow--2 {
+				opacity: 1;
+				transform: translateX(0.6em);
+				transition-delay: 0.1s;
+			}
+
+			.modal-nav-btn__arrow--3 {
+				opacity: 1;
+				transform: translateX(0.5em);
+				transition-delay: 0.05s;
+			}
 		}
 	}
 }
@@ -954,7 +1112,7 @@ body.modal-open {
 		flex-direction: column;
 		justify-content: space-between;
 		flex: 1;
-		min-height: 350px; // Plads til 6 rækker + legend
+		min-height: 368px; // Plads til 6 rækker + legend
 		width: 100%;
 	}
 
@@ -978,7 +1136,8 @@ body.modal-open {
 		.el-calendar-table {
 			table-layout: fixed;
 			width: 100%;
-			border-collapse: collapse;
+			border-collapse: separate;
+			border-spacing: 4px;
 			border: none !important;
 			height: 100%;
 
@@ -1044,6 +1203,7 @@ body.modal-open {
 		width: calc(100% - 2px);
 		min-height: 44px;
 		min-width: 44px;
+		padding-top: 6px;
 		// font arves fra body
 		cursor: default;
 		border-radius: $border-radius-sm;
@@ -1057,8 +1217,8 @@ body.modal-open {
 		}
 
 		&--has-slots {
-			background-color: $color-dark-gray;
-			color: $color-white;
+			background-color: $color-yellow;
+			color: $color-dark-gray;
 			cursor: pointer;
 
 			&:hover {
@@ -1069,8 +1229,8 @@ body.modal-open {
 
 		// Available dates (for manual date picker - all future dates are selectable)
 		&--available {
-			background-color: $color-dark-gray;
-			color: $color-white;
+			background-color: $color-yellow;
+			color: $color-dark-gray;
 			cursor: pointer;
 
 			&:hover {
@@ -1088,12 +1248,12 @@ body.modal-open {
 
 		&--selected#{&}--has-slots,
 		&--selected#{&}--available {
-			background-color: $color-yellow;
-			color: $color-dark-gray;
+			background-color: $color-dark-gray;
+			color: $color-white;
 
 			&:hover {
-				background-color: $color-yellow;
-				color: $color-dark-gray;
+				background-color: $color-dark-gray;
+				color: $color-white;
 			}
 		}
 
@@ -1142,11 +1302,11 @@ body.modal-open {
 		}
 
 		&--available {
-			background-color: $color-dark-gray;
+			background-color: $color-yellow;
 		}
 
 		&--selected {
-			background-color: $color-yellow;
+			background-color: $color-dark-gray;
 		}
 	}
 

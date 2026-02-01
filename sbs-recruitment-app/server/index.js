@@ -40,12 +40,12 @@ const upload = multer({
 	storage,
 	limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
 	fileFilter: (req, file, cb) => {
-		const allowedTypes = ['.pdf', '.doc', '.docx']
+		const allowedTypes = ['.pdf', '.doc', '.docx', '.odt', '.rtf', '.gdoc']
 		const ext = path.extname(file.originalname).toLowerCase()
 		if (allowedTypes.includes(ext)) {
 			cb(null, true)
 		} else {
-			cb(new Error('Invalid file type. Only PDF and Word documents are allowed.'))
+			cb(new Error('Invalid file type. Only PDF, Word, Google Docs, ODT and RTF documents are allowed.'))
 		}
 	}
 })
