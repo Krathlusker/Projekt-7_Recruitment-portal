@@ -335,9 +335,20 @@
 	transition: all $transition-duration $transition-ease;
 	position: relative;
 	background-color: $c-bg;
+	-webkit-tap-highlight-color: transparent;
 
-	&:hover:not(&--disabled):not(&--selected):not(&--reserved) {
-		background-color: $c-fill-light;
+	// Only apply hover on devices that support hover (not touch)
+	@media (hover: hover) and (pointer: fine) {
+		&:hover:not(&--disabled):not(&--selected):not(&--reserved) {
+			background-color: $c-fill-light;
+		}
+	}
+
+	// On touch devices, remove sticky hover by resetting on touchend
+	@media (hover: none) {
+		&:hover {
+			background-color: $c-bg;
+		}
 	}
 }
 
@@ -346,9 +357,12 @@
 	background-color: $c-primary !important;
 	color: $c-bg;
 
-	&:hover {
-		background-color: $c-fill-light !important;
-		color: $c-primary;
+	// Only apply hover effect on non-touch devices
+	@media (hover: hover) and (pointer: fine) {
+		&:hover {
+			background-color: $c-fill-light !important;
+			color: $c-primary;
+		}
 	}
 }
 
@@ -368,7 +382,7 @@
 // Slot type badge
 @mixin slot-type-badge {
 	@include body-font;
-	padding: $spacing-xs $spacing-sm;
+	padding: math.div($spacing-xs, 2) $spacing-sm;
 	border: $border-width-thin solid currentColor;
 	border-radius: $border-radius-sm;
 	color: inherit;
@@ -401,9 +415,9 @@
 // Selected slots count text
 @mixin selected-slots-count {
 	@include body-bold-font;
-	font-size: $font-size-button;
+	font-size: 14px;
 	text-align: center;
-	margin-top: $spacing-sm;
+	padding-top: $spacing-xs;
 }
 
 // Selected slots grid
@@ -411,7 +425,7 @@
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: $spacing-sm;
-	height: 52px;
+	height: 74px;
 	padding-bottom: $spacing-sm;
 }
 
@@ -420,7 +434,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: flex-start;
-	padding: $spacing-sm;
+	padding: $spacing-xs;
 	border: $border-width-normal solid $c-primary;
 	border-radius: $border-radius-md;
 	background-color: $c-primary;
@@ -438,11 +452,11 @@
 // Selected slot info container
 @mixin selected-slot-info {
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	align-items: center;
 	gap: $spacing-sm;
 	flex: 1;
-	padding-top: 3px;
+	padding-top: math.div($spacing-xs, 2);
 }
 
 // Selected slot time text

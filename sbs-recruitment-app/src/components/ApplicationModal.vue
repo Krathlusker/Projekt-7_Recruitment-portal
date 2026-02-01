@@ -224,11 +224,16 @@
 												>
 													<template v-if="selectedSlots[index]">
 														<div class="application-modal__selected-slot-info">
-															<span class="application-modal__selected-slot-time">{{
-																getSlotById(selectedSlots[index])?.time
-															}}</span>
-															<span class="application-modal__selected-slot-date">{{
-																formatShortDate(getSlotById(selectedSlots[index])?.date || '')
+															<div class="application-modal__selected-slot-row">
+																<span class="application-modal__selected-slot-time">{{
+																	getSlotById(selectedSlots[index])?.time
+																}}</span>
+																<span class="application-modal__selected-slot-date">{{
+																	formatShortDate(getSlotById(selectedSlots[index])?.date || '')
+																}}</span>
+															</div>
+															<span class="application-modal__selected-slot-type">{{
+																getSlotById(selectedSlots[index])?.type === 'fysisk' ? 'Fysisk' : 'Virtuel'
 															}}</span>
 														</div>
 														<el-button
@@ -1596,17 +1601,21 @@ const handleClose = async () => {
 	// Date selection
 	&__date-section {
 		@include flex-column;
-		gap: $spacing-md;
+		flex: 1;
+		min-height: 0; // Allow flex shrinking
 	}
 
 	&__date-top {
 		@include flex-column;
 		gap: $spacing-sm;
+		flex: 1;
+		min-height: 0; // Allow flex shrinking
 	}
 
 	&__date-header {
 		@include slot-picker-header;
 		width: 100%;
+		flex-shrink: 0; // Keep header fixed size
 	}
 
 	&__date-display {
@@ -1620,12 +1629,32 @@ const handleClose = async () => {
 	&__no-date,
 	&__no-slots {
 		@include slot-empty-state;
+		flex: 1;
 	}
 
 	&__slots {
 		@include slot-grid;
 		flex: 1;
 		align-content: start;
+		// Allow scrolling when content overflows
+		overflow-y: auto;
+		padding-right: $spacing-xs;
+		min-height: 0; // Allow flex shrinking
+
+		// Scrollbar styling
+		&::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		&::-webkit-scrollbar-track {
+			background: $c-fill-light;
+			border-radius: $border-radius-sm;
+		}
+
+		&::-webkit-scrollbar-thumb {
+			background: $c-primary;
+			border-radius: $border-radius-sm;
+		}
 	}
 
 	&__date-title {
@@ -1831,6 +1860,8 @@ const handleClose = async () => {
 
 	&__selected-section {
 		@include selected-slots-section;
+		flex-shrink: 0; // Keep at fixed height in bottom
+		margin-top: auto; // Push to bottom
 	}
 
 	&__slots-count {
@@ -1860,12 +1891,23 @@ const handleClose = async () => {
 		opacity: 0.7;
 	}
 
+	&__selected-slot-row {
+		display: flex;
+		align-items: center;
+		gap: $spacing-xs;
+	}
+
 	&__selected-slot-time {
 		@include selected-slot-time;
 	}
 
 	&__selected-slot-date {
 		@include selected-slot-date;
+	}
+
+	&__selected-slot-type {
+		@include slot-type-badge;
+		font-size: $font-size-small;
 	}
 
 	&__selected-slot-empty {

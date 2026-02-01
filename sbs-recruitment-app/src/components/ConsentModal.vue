@@ -117,10 +117,25 @@ const handleDecline = () => {
 
 .consent-checkbox {
 	margin: $spacing-md 0;
+	align-items: flex-start; // Align checkbox to top of text
+	width: 100%; // Fill available width
+
+	// Override Element Plus checkbox alignment
+	:deep(.el-checkbox__input) {
+		margin-top: 3px; // Fine-tune vertical alignment with first line
+		flex-shrink: 0; // Prevent checkbox from shrinking
+	}
+
+	:deep(.el-checkbox__label) {
+		flex: 1; // Let label take remaining space
+	}
 
 	&__text {
 		@include body-font;
 		line-height: 1.4;
+		white-space: normal; // Allow text to wrap
+		text-align: left; // Ensure left alignment
+		display: block;
 	}
 
 	&__link {
