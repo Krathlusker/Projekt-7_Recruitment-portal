@@ -19,6 +19,7 @@
     "@element-plus/icons-vue": "^2.3.2",
     "@kalimahapps/vue-icons": "^1.9.5",
     "@tato30/vue-pdf": "^1.11.5",
+    "@videojs-player/vue": "^1.0.0",
     "axios": "^1.6.0",
     "better-sqlite3": "^9.2.2",
     "cors": "^2.8.5",
@@ -30,6 +31,7 @@
     "overlayscrollbars": "^2.13.0",
     "overlayscrollbars-vue": "^0.5.9",
     "uuid": "^9.0.1",
+    "video.js": "^8.23.4",
     "vue": "^3.4.0",
     "vue-router": "^4.2.5"
   },

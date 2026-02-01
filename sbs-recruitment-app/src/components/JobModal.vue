@@ -20,7 +20,7 @@
 					<div class="job-modal__content">
 						<!-- Media (Video or Image) -->
 						<div class="job-modal__media">
-							<VideoPlayer
+							<VideoPlayerV2
 								v-if="currentJob.video"
 								class="job-modal__video"
 								:src="currentJob.video"
@@ -29,7 +29,6 @@
 								:loop="true"
 								:muted="false"
 								object-fit="contain"
-								max-height="450px"
 							/>
 							<ResponsiveImage
 								v-else-if="currentJob.baseName"
@@ -82,7 +81,7 @@
 import { ref, computed, watch } from 'vue'
 import { Check } from '@element-plus/icons-vue'
 import ModalCloseButton from '@/components/ModalCloseButton.vue'
-import VideoPlayer from '@/components/VideoPlayer.vue'
+import VideoPlayerV2 from '@/components/VideoPlayerV2.vue'
 import ResponsiveImage from '@/components/ResponsiveImage.vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 

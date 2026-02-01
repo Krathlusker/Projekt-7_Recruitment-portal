@@ -23,7 +23,7 @@
 			<!-- Hero Section -->
 			<section class="landing-page__hero">
 				<div class="landing-page__hero-content">
-					<VideoPlayer
+					<VideoPlayerV2
 						ref="heroVideoRef"
 						class="landing-page__hero-video"
 						src="/videos/Hero.mp4"
@@ -32,7 +32,6 @@
 						:loop="true"
 						:muted="true"
 						object-fit="contain"
-						max-height="600px"
 					/>
 				</div>
 			</section>
@@ -228,12 +227,12 @@ import {
 import FloatingApplyButton from '@/components/FloatingApplyButton.vue'
 import ApplicationModal from '@/components/ApplicationModal.vue'
 import JobModal from '@/components/JobModal.vue'
-import VideoPlayer from '@/components/VideoPlayer.vue'
+import VideoPlayerV2 from '@/components/VideoPlayerV2.vue'
 import ResponsiveImage from '@/components/ResponsiveImage.vue'
 import type { JobPosition } from '@/types'
 
 // Video player ref
-const heroVideoRef = ref<InstanceType<typeof VideoPlayer> | null>(null)
+const heroVideoRef = ref<InstanceType<typeof VideoPlayerV2> | null>(null)
 
 // Scroll state
 const isScrolled = ref(false)
