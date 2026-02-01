@@ -1,0 +1,313 @@
+// =============================================================================
+// VIDEO PLAYER
+// =============================================================================
+// Fælles Video.js override styles til custom video player.
+// Bruges i: VideoPlayerV2.vue
+//
+// OBS: Disse styles anvendes via :deep() i Vue-komponenten
+// da video.js genererer DOM dynamisk.
+
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Local video player variables
+$video-max-height: 600px;
+$video-control-bar-total-height: calc($video-control-bar-height + $spacing-sm);
+$video-title-offset: calc($video-control-bar-total-height + $spacing-md);
+$video-progress-bar-height: $spacing-xs;
+$video-progress-bar-radius: calc($video-progress-bar-height / 2);
+$video-handle-size: $spacing-sm + 2px;
+
+// =============================================================================
+// VIDEO PLAYER CONTAINER
+// =============================================================================
+
+.video-player-v2 {
+	position: relative;
+	width: 100%;
+	height: auto;
+	max-height: $video-max-height;
+	overflow: hidden;
+	background-color: $c-primary;
+
+	// Contain mode: height follows video aspect ratio
+	&--contain {
+		height: auto;
+		background-color: transparent;
+	}
+
+	// Rounded corners only in modals
+	&--rounded {
+		border-radius: $border-radius-lg;
+	}
+}
+
+// =============================================================================
+// TITLE OVERLAY
+// =============================================================================
+
+.video-player-v2__title-wrapper {
+	position: absolute;
+	bottom: $spacing-md;
+	left: $spacing-lg;
+	right: $spacing-lg;
+	pointer-events: none;
+	z-index: 1;
+	opacity: 1;
+	transition:
+		bottom $transition-duration $transition-ease,
+		opacity $transition-duration $transition-ease;
+
+	// After video has started: move up and fade out
+	.video-player-v2--has-started & {
+		bottom: $video-title-offset;
+		opacity: 0;
+	}
+
+	// When controls are visible: fade in
+	.video-player-v2--controls-visible & {
+		opacity: 1;
+	}
+}
+
+.video-player-v2__title {
+	@include title-font;
+	color: $c-bg;
+	margin: 0;
+	text-shadow: 0 2px 8px rgba(var(--el-color-primary-rgb), 0.5);
+}
+
+.video-player-v2__subtitle {
+	@include subtitle-font;
+	color: $c-bg;
+	margin: $spacing-xs 0 0;
+	opacity: 0.9;
+	text-shadow: 0 1px 4px rgba(var(--el-color-primary-rgb), 0.5);
+}
+
+// =============================================================================
+// VIDEO.JS OVERRIDES
+// =============================================================================
+// Note: These need :deep() in Vue component or be applied globally
+
+.video-player-v2__player {
+	width: 100%;
+
+	// Base video.js styling
+	.video-js {
+		font-family: $font-body;
+		max-height: $video-max-height;
+	}
+
+	// Video element
+	.vjs-tech {
+		position: relative !important;
+		display: block;
+		max-height: $video-max-height;
+		background-color: $c-primary;
+	}
+
+	// Poster
+	.vjs-poster {
+		background-size: cover;
+	}
+
+	// Control bar
+	.vjs-control-bar {
+		background: linear-gradient(to top, rgba(var(--el-color-primary-rgb), 0.6) 0%, transparent 100%);
+		height: $video-control-bar-total-height;
+		padding: 0 $spacing-md $spacing-sm $spacing-md;
+	}
+
+	// Control buttons
+	.vjs-button {
+		@include button-colors-light;
+		@include flex-center;
+		width: $spacing-xl;
+		height: $spacing-xl;
+		border: $border-width-thin solid transparent;
+		border-radius: $border-radius-sm;
+		transition: all $transition-duration $transition-ease;
+
+		&:hover {
+			border-color: $c-bg !important;
+		}
+
+		&:active {
+			transform: scale(0.98);
+		}
+
+		@include focus-visible;
+
+		.vjs-icon-placeholder::before {
+			font-size: $spacing-lg;
+			line-height: $spacing-xl;
+		}
+	}
+
+	// Play/pause
+	.vjs-play-control {
+		margin-right: $spacing-xs;
+	}
+
+	// Volume panel
+	.vjs-volume-panel.vjs-volume-panel-vertical {
+		margin-right: $spacing-md;
+		z-index: 20;
+
+		.vjs-volume-control.vjs-volume-vertical {
+			background-color: $c-bg;
+			border-radius: $border-radius-sm;
+			box-shadow: $shadow-modal;
+			z-index: 20;
+			left: -3.77em !important;
+
+			.vjs-volume-bar.vjs-slider-vertical {
+				background-color: $c-fill-light;
+				border-radius: $video-progress-bar-radius;
+
+				&:focus,
+				&:focus-visible {
+					outline: $border-width-normal solid $c-warning;
+					outline-offset: 2px;
+				}
+
+				.vjs-volume-level {
+					background-color: $c-primary;
+					border-radius: $video-progress-bar-radius;
+
+					&::before {
+						content: '';
+						position: absolute;
+						top: 0;
+						left: 50%;
+						width: $video-handle-size;
+						height: $video-handle-size;
+						background-color: $c-primary;
+						border-radius: $border-radius-circle;
+						transform: translate(-50%, -50%);
+					}
+				}
+			}
+		}
+	}
+
+	// Time display
+	.vjs-time-control {
+		@include body-font;
+		font-variant-numeric: tabular-nums;
+		color: $c-bg;
+		padding: 0 $spacing-xs;
+		min-width: 40px;
+		@include flex-center;
+	}
+
+	.vjs-time-divider {
+		color: $c-bg;
+		padding: 0;
+		min-width: auto;
+	}
+
+	// Progress bar
+	.vjs-progress-control {
+		flex: 1;
+		height: $spacing-xl;
+
+		.vjs-progress-holder {
+			height: $video-progress-bar-height;
+			border-radius: $video-progress-bar-radius;
+			background-color: rgba(var(--el-color-white-rgb), 0.3);
+
+			@include focus-visible;
+		}
+
+		.vjs-play-progress {
+			background-color: $c-bg;
+			border-radius: $video-progress-bar-radius;
+
+			&::before {
+				content: '';
+				position: absolute;
+				top: 50%;
+				right: calc($video-handle-size / -2);
+				width: $video-handle-size;
+				height: $video-handle-size;
+				background-color: $c-bg;
+				border-radius: $border-radius-circle;
+				transform: translateY(-50%);
+				box-shadow: $shadow-button;
+				opacity: 0;
+				transition: opacity $transition-duration $transition-ease;
+			}
+		}
+
+		.vjs-load-progress {
+			background-color: rgba(var(--el-color-white-rgb), 0.3);
+			border-radius: $video-progress-bar-radius;
+
+			div {
+				background-color: rgba(var(--el-color-white-rgb), 0.2);
+			}
+		}
+
+		&:hover .vjs-play-progress::before {
+			opacity: 1;
+		}
+
+		// Hide play progress tooltip
+		.vjs-play-progress .vjs-time-tooltip {
+			display: none !important;
+		}
+
+		// Mouse display tooltip
+		.vjs-mouse-display {
+			display: block !important;
+			opacity: 0;
+			transition: opacity $transition-duration $transition-ease;
+
+			.vjs-time-tooltip {
+				background-color: $c-bg;
+				color: $c-primary;
+				padding: $spacing-xs $spacing-sm;
+				border-radius: $border-radius-sm;
+				font-size: $font-size-body;
+				font-variant-numeric: tabular-nums;
+				box-shadow: $shadow-card;
+			}
+		}
+
+		&:hover .vjs-mouse-display {
+			opacity: 1;
+		}
+	}
+
+	// Fullscreen button
+	.vjs-fullscreen-control {
+		margin-left: $spacing-xs;
+	}
+
+	// Hide text tracks menu
+	.vjs-subs-caps-button {
+		display: none;
+	}
+
+	// Loading spinner
+	.vjs-loading-spinner {
+		border-color: rgba(var(--el-color-white-rgb), 0.5);
+
+		&::before,
+		&::after {
+			border-top-color: $c-bg;
+		}
+	}
+
+	// Error display
+	.vjs-error-display {
+		background-color: rgba(var(--el-color-primary-rgb), 0.8);
+
+		.vjs-modal-dialog-content {
+			color: $c-bg;
+			font-family: $font-body;
+		}
+	}
+}

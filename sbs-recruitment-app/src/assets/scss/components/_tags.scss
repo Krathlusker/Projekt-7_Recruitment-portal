@@ -13,7 +13,7 @@
 
 	// Calendar status chips - mini size
 	&.el-tag--mini {
-		font-size: 10px;
+		font-size: $font-size-xs;
 		font-weight: $font-weight-medium;
 		padding: 2px 5px;
 		height: auto;

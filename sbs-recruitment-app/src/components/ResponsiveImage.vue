@@ -71,6 +71,7 @@ const parsedImage = computed(() => {
 
 const containerRef = ref<HTMLElement | null>(null)
 const shouldLoad = ref(!props.lazy)
+const isFirstLoad = ref(true)
 
 // Track hvilke billeder der er loaded og hvilken der er aktiv
 const loadedSources = ref(new Set<string>())
@@ -121,6 +122,13 @@ const onImageLoad = (src: string) => {
 	// Første billede ved page load
 	else if (!activeSource.value) {
 		activeSource.value = src
+	}
+
+	// Efter første billede er loaded, deaktiver fade
+	if (isFirstLoad.value) {
+		setTimeout(() => {
+			isFirstLoad.value = false
+		}, 400) // Vent til fade er færdig
 	}
 }
 
@@ -194,7 +202,8 @@ const imageStyle = computed(() => ({
 			:class="{
 				'responsive-image': true,
 				'responsive-image--active': src === activeSource,
-				'responsive-image--loaded': loadedSources.has(src)
+				'responsive-image--loaded': loadedSources.has(src),
+				'responsive-image--first-load': isFirstLoad
 			}"
 			@load="onImageLoad(src)"
 		/>
@@ -217,6 +226,11 @@ const imageStyle = computed(() => ({
 	height: 100%;
 	opacity: 0;
 	pointer-events: none;
+}
+
+/* Kun fade-in første gang billedet loader */
+.responsive-image--first-load {
+	transition: opacity 0.4s ease-in-out;
 }
 
 .responsive-image--active.responsive-image--loaded {

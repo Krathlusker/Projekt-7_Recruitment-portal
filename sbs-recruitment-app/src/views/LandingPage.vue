@@ -465,7 +465,6 @@ const closeApplicationModal = () => {
 	&__header-title {
 		@include title-font;
 		margin: 0;
-		text-transform: uppercase;
 		transition: font-size $transition-duration-slow $transition-ease-smooth;
 		cursor: default;
 	}
@@ -650,7 +649,7 @@ const closeApplicationModal = () => {
 		width: $spacing-xs;
 		height: $spacing-xs;
 		background-color: $c-bg;
-		border-radius: 50%;
+		border-radius: $border-radius-circle;
 	}
 }
 

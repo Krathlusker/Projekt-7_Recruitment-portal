@@ -161,19 +161,26 @@
 											</div>
 											<div class="application-card__row application-card__row--status">
 												<span class="application-card__label">Status:</span>
-												<el-select
-													v-model="application.status"
-													size="small"
-													class="application-card__status-select"
-													@change="updateApplicationStatus(application.id, application.status)"
+												<el-tooltip
+													:disabled="!(application.status === 'interview-scheduled' && application.confirmedSlot)"
+													content="Frigiv eller afhold samtalen før du kan ændre status"
+													placement="top"
 												>
-													<el-option value="pending" label="Afventer" />
-													<el-option value="reviewing" label="Under behandling" />
-													<el-option value="interview-scheduled" label="Samtale planlagt" />
-													<el-option value="interview-completed" label="Samtale afholdt" />
-													<el-option value="accepted" label="Accepteret" />
-													<el-option value="rejected" label="Afvist" />
-												</el-select>
+													<el-select
+														v-model="application.status"
+														size="small"
+														class="application-card__status-select"
+														:disabled="application.status === 'interview-scheduled' && !!application.confirmedSlot"
+														@change="updateApplicationStatus(application.id, application.status)"
+													>
+														<el-option value="pending" label="Afventer" />
+														<el-option value="reviewing" label="Under behandling" />
+														<el-option value="interview-scheduled" label="Samtale planlagt" disabled />
+														<el-option value="interview-completed" label="Samtale afholdt" />
+														<el-option value="accepted" label="Accepteret" />
+														<el-option value="rejected" label="Afvist" />
+													</el-select>
+												</el-tooltip>
 											</div>
 											<div class="application-card__row">
 												<span class="application-card__label">
@@ -208,7 +215,7 @@
 											</div>
 
 											<div class="application-card__row application-card__row--button">
-												<el-button @click="viewApplication(application)" class="btn-dark"> DETALJER </el-button>
+												<el-button @click="viewApplication(application)" class="btn-dark btn--full-width"> DETALJER </el-button>
 											</div>
 										</div>
 									</div>
@@ -243,27 +250,65 @@
 					>
 						<div v-if="selectedApplication" class="application-detail">
 							<h2 class="application-detail__title">Ansøgning detaljer</h2>
-							<div class="application-detail__section">
-								<h3>Personlige oplysninger</h3>
-								<el-text><strong>Navn:</strong> {{ selectedApplication.fullName }}</el-text>
-								<el-text><strong>Email:</strong> {{ selectedApplication.email }}</el-text>
-								<el-text><strong>Telefon:</strong> {{ selectedApplication.phone }}</el-text>
-								<el-text><strong>Alder:</strong> {{ selectedApplication.age }}</el-text>
-								<el-text><strong>Stilling:</strong> {{ formatJobPosition(selectedApplication.jobPosition) }}</el-text>
-							</div>
 
-							<div class="application-detail__section">
-								<h3>DISC Resultat</h3>
-								<el-text><strong>Total point:</strong> {{ selectedApplication.discResult?.totalPoints }} / 15</el-text>
-								<el-text><strong>Kvalificeret:</strong> {{ selectedApplication.discResult?.isQualified ? 'Ja' : 'Nej' }}</el-text>
-								<el-text><strong>Dominant profil:</strong> {{ selectedApplication.discResult?.dominantProfile }}</el-text>
-							</div>
+							<!-- Top grid: Personal info, DISC, CV -->
+							<div class="application-detail__top-grid">
+								<div class="application-detail__section">
+									<h3>Personlige oplysninger</h3>
+									<div class="application-detail__info-grid">
+										<el-text class="application-detail__label">Navn</el-text>
+										<el-text class="application-detail__value">{{ selectedApplication.fullName }}</el-text>
+										<el-text class="application-detail__label">Email</el-text>
+										<el-text class="application-detail__value">{{ selectedApplication.email }}</el-text>
+										<el-text class="application-detail__label">Telefon</el-text>
+										<el-text class="application-detail__value">{{ selectedApplication.phone }}</el-text>
+										<el-text class="application-detail__label">Alder</el-text>
+										<el-text class="application-detail__value">{{ selectedApplication.age }}</el-text>
+										<el-text class="application-detail__label">Stilling</el-text>
+										<el-text class="application-detail__value">{{ formatJobPosition(selectedApplication.jobPosition) }}</el-text>
+									</div>
+								</div>
 
-							<div v-if="selectedApplication.cvFileName" class="application-detail__section">
-								<h3>CV</h3>
-								<el-button @click="openCVViewer(selectedApplication.cvFileName)" class="btn-dark">
-									Se CV
-								</el-button>
+								<div class="application-detail__section">
+									<h3>DISC Resultat</h3>
+									<div class="application-detail__info-grid">
+										<el-text class="application-detail__label">Total point</el-text>
+										<el-text class="application-detail__value">{{ selectedApplication.discResult?.totalPoints }} / 15</el-text>
+										<el-text class="application-detail__label">Kvalificeret</el-text>
+										<el-text class="application-detail__value">{{ selectedApplication.discResult?.isQualified ? 'Ja' : 'Nej' }}</el-text>
+										<el-text class="application-detail__label">Dominant profil</el-text>
+										<el-text class="application-detail__value">{{ selectedApplication.discResult?.dominantProfile }}</el-text>
+									</div>
+								</div>
+
+								<div v-if="selectedApplication.cvFileName" class="application-detail__section application-detail__section--cv">
+									<h3>CV</h3>
+									<el-button @click="openCVViewer(selectedApplication.cvFileName)" class="btn-dark btn--full-width">
+										Se CV
+									</el-button>
+								</div>
+
+								<div class="application-detail__section application-detail__section--status">
+									<h3>Status</h3>
+									<el-tooltip
+										:disabled="!(selectedApplication?.status === 'interview-scheduled' && selectedApplication?.confirmedSlot)"
+										content="Frigiv eller afhold samtalen før du kan ændre status"
+										placement="top"
+									>
+										<el-select
+											v-model="selectedApplication.status"
+											:disabled="selectedApplication?.status === 'interview-scheduled' && !!selectedApplication?.confirmedSlot"
+											@change="updateApplicationStatus(selectedApplication.id, selectedApplication.status)"
+										>
+											<el-option value="pending" label="Afventer" />
+											<el-option value="reviewing" label="Under behandling" />
+											<el-option value="interview-scheduled" label="Samtale planlagt" disabled />
+											<el-option value="interview-completed" label="Samtale afholdt" />
+											<el-option value="accepted" label="Accepteret" />
+											<el-option value="rejected" label="Afvist" />
+										</el-select>
+									</el-tooltip>
+								</div>
 							</div>
 
 							<div class="application-detail__section">
@@ -321,22 +366,36 @@
 											</span>
 										</div>
 										<div class="application-detail__slot-actions">
-											<el-button
-												v-if="!selectedApplication.confirmedSlot"
-												@click="confirmInterviewSlot(selectedApplication.id, slotId)"
-												class="btn-yellow"
-											>
-												Bekræft tid
-											</el-button>
+											<!-- No confirmed slot yet - show confirm button or reserved badge -->
+											<template v-if="!selectedApplication.confirmedSlot">
+												<!-- Check if slot is still available (held by this application) -->
+												<template v-if="isSlotAvailableForApplication(slotId, selectedApplication.id)">
+													<span class="application-detail__reserved-badge">Reserveret</span>
+													<el-button
+														@click="confirmInterviewSlot(selectedApplication.id, slotId)"
+														class="btn-yellow"
+													>
+														Bekræft tid
+													</el-button>
+												</template>
+												<!-- Slot was taken by someone else -->
+												<span v-else class="application-detail__unavailable-badge">Ikke længere tilgængelig</span>
+											</template>
+											<!-- This is the confirmed slot -->
 											<template v-else-if="slotId === selectedApplication.confirmedSlot?.id">
 												<span class="application-detail__confirmed-badge">Bekræftet</span>
 												<el-button size="small" class="btn-red" @click="releaseConfirmedSlot(selectedApplication.id)">
 													Frigiv tid
 												</el-button>
 											</template>
-											<el-button v-else @click="changeToSelectedSlot(selectedApplication.id, slotId)" class="btn-dark">
-												Skift til denne tid
-											</el-button>
+											<!-- Other selected slot (not confirmed) - check if still available -->
+											<template v-else-if="isSlotAvailableForApplication(slotId, selectedApplication.id)">
+												<el-button @click="changeToSelectedSlot(selectedApplication.id, slotId)" class="btn-dark">
+													Skift til denne tid
+												</el-button>
+											</template>
+											<!-- Slot was taken by someone else -->
+											<span v-else class="application-detail__unavailable-badge">Ikke længere tilgængelig</span>
 										</div>
 									</div>
 								</div>
@@ -381,25 +440,11 @@
 								</div>
 							</div>
 
-							<div class="application-detail__section">
-								<h3>Status</h3>
-								<el-select
-									v-model="selectedApplication.status"
-									@change="updateApplicationStatus(selectedApplication.id, selectedApplication.status)"
+							<div class="application-detail__actions">
+								<el-button @click="showDetailDialog = false" class="btn-dark">Luk</el-button>
+								<el-button @click="deleteApplication(selectedApplication?.id)" class="btn-red"
+									>Slet ansøgning</el-button
 								>
-									<el-option value="pending" label="Afventer" />
-									<el-option value="reviewing" label="Under behandling" />
-									<el-option value="interview-scheduled" label="Samtale planlagt" />
-									<el-option value="interview-completed" label="Samtale afholdt" />
-									<el-option value="accepted" label="Accepteret" />
-									<el-option value="rejected" label="Afvist" />
-								</el-select>
-								<div class="application-detail__actions">
-									<el-button @click="showDetailDialog = false" class="btn-dark">Luk</el-button>
-									<el-button @click="deleteApplication(selectedApplication?.id)" class="btn-red"
-										>Slet ansøgning</el-button
-									>
-								</div>
 							</div>
 						</div>
 					</OverlayScrollbarsComponent>
@@ -1065,6 +1110,35 @@ const getSlotInfo = (slotId: string): InterviewSlot | undefined => {
 	return availableTimeSlots.value.find((slot) => slot.id === slotId)
 }
 
+// Check if a slot is available for a specific application (held by this application or not held/booked at all)
+const isSlotAvailableForApplication = (slotId: string, applicationId: string): boolean => {
+	const slot = availableTimeSlots.value.find((s) => s.id === slotId)
+	if (!slot) return false
+
+	// SQLite returns 0/1 for booleans, so check both
+	const isBooked = slot.isBooked === true || slot.isBooked === 1
+
+	// If booked - only available if booked by this application
+	if (isBooked) {
+		return slot.bookedBy === applicationId
+	}
+
+	// If held - only available if held by this application
+	if (slot.heldBy) {
+		return slot.heldBy === applicationId
+	}
+
+	// If reserved (temporary) - only available if reserved by this application's session
+	// Note: reservedBy is typically a session ID, not an application ID, so this check
+	// is mainly for showing temporary reservations from landing page
+	if (slot.reservedBy) {
+		return false // Reserved by someone on landing page
+	}
+
+	// Not booked, not held, not reserved - available
+	return true
+}
+
 // Confirm interview slot
 const confirmInterviewSlot = async (applicationId: string, slotId: string) => {
 	try {
@@ -1603,16 +1677,16 @@ watch(showDetailDialog, (newVal) => {
 	&__subtitle {
 		@include body-font;
 		color: $c-primary;
-		display: flex;
-		align-items: center;
+		@include flex-center;
+		justify-content: flex-start;
 		gap: $spacing-xs;
 	}
 
 	&__status-dot {
-		width: 8px;
-		height: 8px;
+		width: $spacing-sm;
+		height: $spacing-sm;
 		background-color: $c-success;
-		border-radius: 50%;
+		border-radius: $border-radius-circle;
 		transition:
 			transform $transition-duration-slow $transition-ease,
 			opacity $transition-duration-slow $transition-ease;
@@ -1781,7 +1855,7 @@ watch(showDetailDialog, (newVal) => {
 		@include flex-between;
 		padding: $spacing-md;
 		background-color: $c-bg;
-		border-bottom: 1px solid $c-fill-light;
+		border-bottom: $border-width-thin solid $c-fill-light;
 	}
 
 	&__name {
@@ -1815,7 +1889,7 @@ watch(showDetailDialog, (newVal) => {
 
 		&--confirmed {
 			padding-top: $spacing-sm;
-			border-top: 1px solid $c-fill-light;
+			border-top: $border-width-thin solid $c-fill-light;
 			margin-top: $spacing-xs;
 		}
 
@@ -1880,7 +1954,7 @@ watch(showDetailDialog, (newVal) => {
 		gap: $spacing-md;
 		margin-top: $spacing-lg;
 		padding-top: $spacing-lg;
-		border-top: 1px solid $c-fill-light;
+		border-top: $border-width-thin solid $c-fill-light;
 	}
 
 	&__section {
@@ -1895,6 +1969,49 @@ watch(showDetailDialog, (newVal) => {
 
 		p {
 			@include body-font;
+		}
+
+		&--cv {
+			.btn {
+				margin-top: $spacing-sm;
+			}
+		}
+	}
+
+	// Grid layout for top sections (Personlige oplysninger, DISC, CV)
+	&__top-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+		gap: $spacing-lg;
+	}
+
+	&__info-grid {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: $spacing-xs $spacing-md;
+		align-items: baseline;
+	}
+
+	&__label {
+		@include body-bold-font;
+		color: $c-primary-light-5;
+	}
+
+	&__value {
+		@include body-font;
+		word-break: break-word;
+	}
+
+	&__confirmed-slot {
+		@include flex-column;
+		gap: $spacing-sm;
+		padding: $spacing-md;
+		background-color: $c-fill-light;
+		border-radius: $border-radius-md;
+
+		h4 {
+			@include body-bold-font;
+			margin-bottom: $spacing-xs;
 		}
 	}
 
@@ -1912,9 +2029,7 @@ watch(showDetailDialog, (newVal) => {
 	}
 
 	&__slot {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
+		@include flex-between;
 		padding: $spacing-md;
 		background-color: $c-bg;
 		border-radius: $border-radius-md;
@@ -1922,15 +2037,13 @@ watch(showDetailDialog, (newVal) => {
 	}
 
 	&__slot-actions {
-		display: flex;
+		@include flex-center;
 		gap: $spacing-sm;
-		align-items: center;
 	}
 
 	&__slot-info {
-		display: flex;
+		@include flex-center;
 		gap: $spacing-md;
-		align-items: center;
 		flex-wrap: wrap;
 	}
 
@@ -1952,8 +2065,8 @@ watch(showDetailDialog, (newVal) => {
 
 	&__slot-type {
 		@include body-font;
-		font-size: 11px;
-		padding: 2px 8px;
+		font-size: $font-size-body;
+		padding: math.div($spacing-xs, 2) $spacing-sm;
 		background-color: $c-bg;
 		border-radius: $border-radius-sm;
 	}
@@ -1972,19 +2085,51 @@ watch(showDetailDialog, (newVal) => {
 	}
 
 	&__custom-time {
-		display: flex;
+		@include flex-center;
 		gap: $spacing-sm;
-		align-items: center;
 	}
 
 	&__confirmed-badge {
 		@include body-bold-font;
-		@include text-center-fix($spacing-xs, $spacing-sm);
-		font-size: 11px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		line-height: 1;
+		padding: calc(#{$spacing-xs} + #{math.div((1 - $font-body-cap-height) - $font-body-descender, 2)}em) $spacing-sm calc(#{$spacing-xs} - #{math.div((1 - $font-body-cap-height) - $font-body-descender, 2)}em) $spacing-sm;
+		font-size: $font-size-body;
 		background-color: $c-success;
 		color: $c-bg;
 		border-radius: $border-radius-sm;
 		white-space: nowrap;
+	}
+
+	&__reserved-badge {
+		@include body-bold-font;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		line-height: 1;
+		padding: calc(#{$spacing-xs} + #{math.div((1 - $font-body-cap-height) - $font-body-descender, 2)}em) $spacing-sm calc(#{$spacing-xs} - #{math.div((1 - $font-body-cap-height) - $font-body-descender, 2)}em) $spacing-sm;
+		font-size: $font-size-body;
+		background-color: $c-warning;
+		color: $c-bg;
+		border-radius: $border-radius-sm;
+		white-space: nowrap;
+	}
+
+	&__unavailable-badge {
+		@include body-font;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		line-height: 1;
+		padding: calc(#{$spacing-xs} + #{math.div((1 - $font-body-cap-height) - $font-body-descender, 2)}em) $spacing-sm calc(#{$spacing-xs} - #{math.div((1 - $font-body-cap-height) - $font-body-descender, 2)}em) $spacing-sm;
+		font-size: $font-size-body;
+		background-color: $c-primary-light-5;
+		color: $c-bg;
+		border-radius: $border-radius-sm;
+		white-space: nowrap;
+		font-style: italic;
 	}
 
 	&__no-slots {
@@ -2163,20 +2308,20 @@ watch(showDetailDialog, (newVal) => {
 	&__date {
 		@include body-font;
 		font-weight: $font-weight-medium;
-		font-size: 14px;
+		font-size: $font-size-body;
 	}
 
 	&__chips {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 2px;
+		gap: math.div($spacing-xs, 3);
 		width: 100%;
 	}
 }
 
 .time-slot-item {
-	display: flex;
-	align-items: center;
+	@include flex-center;
+	justify-content: flex-start;
 	gap: $spacing-md;
 	padding: $spacing-md;
 	background-color: $c-bg;
@@ -2242,21 +2387,19 @@ watch(showDetailDialog, (newVal) => {
 
 // Calendar Legend
 .calendar-legend {
-	display: flex;
+	@include flex-center;
 	gap: $spacing-lg;
 	padding: $spacing-md;
-	justify-content: center;
 	flex-wrap: wrap;
 
 	&__item {
-		display: flex;
-		align-items: center;
+		@include flex-center;
 		gap: $spacing-sm;
 	}
 
 	&__color {
-		width: 16px;
-		height: 16px;
+		width: $spacing-sm + math.div($spacing-xs, 2);
+		height: $spacing-sm + math.div($spacing-xs, 2);
 		border-radius: $border-radius-sm;
 
 		&--available {
@@ -2274,7 +2417,7 @@ watch(showDetailDialog, (newVal) => {
 
 	&__label {
 		@include body-font;
-		font-size: 13px;
+		font-size: $font-size-small;
 		color: $c-primary;
 	}
 }
@@ -2333,7 +2476,7 @@ watch(showDetailDialog, (newVal) => {
 .slide-left-leave-active,
 .slide-right-enter-active,
 .slide-right-leave-active {
-	transition: all 0.25s ease;
+	transition: all $transition-duration-slow $transition-ease;
 }
 
 .slide-left-enter-from {
@@ -2416,16 +2559,13 @@ watch(showDetailDialog, (newVal) => {
 // CV Viewer - bruger modal-wrapper fra global SCSS for DRY
 .cv-viewer {
 	&__header {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
+		@include flex-between;
 		padding: $spacing-md $spacing-lg;
-		border-bottom: 1px solid $c-fill-light;
+		border-bottom: $border-width-thin solid $c-fill-light;
 	}
 
 	&__zoom {
-		display: flex;
-		align-items: center;
+		@include flex-center;
 		gap: $spacing-xs;
 		min-width: 120px;
 
@@ -2437,8 +2577,7 @@ watch(showDetailDialog, (newVal) => {
 	}
 
 	&__pagination {
-		display: flex;
-		align-items: center;
+		@include flex-center;
 		gap: $spacing-sm;
 
 		span {

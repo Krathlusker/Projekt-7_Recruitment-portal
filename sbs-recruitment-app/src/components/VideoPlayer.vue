@@ -925,7 +925,7 @@ defineExpose({
 		width: 70px;
 		height: 4px;
 		background: $c-fill-light;
-		border-radius: 2px;
+		border-radius: $border-radius-xs;
 		outline: none;
 		cursor: pointer;
 		transform: rotate(-90deg);
@@ -937,7 +937,7 @@ defineExpose({
 			width: 12px;
 			height: 12px;
 			background: $c-primary;
-			border-radius: 50%;
+			border-radius: $border-radius-circle;
 			cursor: pointer;
 			transition: transform $transition-duration $transition-ease;
 
@@ -952,13 +952,13 @@ defineExpose({
 			height: 12px;
 			background: $c-primary;
 			border: none;
-			border-radius: 50%;
+			border-radius: $border-radius-circle;
 			cursor: pointer;
 		}
 
 		&::-moz-range-track {
 			background: $c-fill-light;
-			border-radius: 2px;
+			border-radius: $border-radius-xs;
 			height: 4px;
 		}
 
@@ -1030,7 +1030,7 @@ defineExpose({
 		width: 100%;
 		height: 6px;
 		background-color: rgba(var(--el-color-white-rgb), 0.3);
-		border-radius: 3px;
+		border-radius: $border-radius-xs;
 		overflow: visible;
 	}
 
@@ -1040,7 +1040,7 @@ defineExpose({
 		left: 0;
 		height: 100%;
 		background-color: $c-bg;
-		border-radius: 3px;
+		border-radius: $border-radius-xs;
 		transition: width 0.1s linear;
 	}
 
@@ -1050,7 +1050,7 @@ defineExpose({
 		width: 14px;
 		height: 14px;
 		background-color: $c-bg;
-		border-radius: 50%;
+		border-radius: $border-radius-circle;
 		transform: translate(-50%, -50%);
 		box-shadow: 0 2px 4px rgba(var(--el-color-primary-rgb), 0.3);
 		opacity: 0;

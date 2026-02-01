@@ -5,6 +5,40 @@
 
 import { initDatabase, getDb } from './database.js'
 import { v4 as uuidv4 } from 'uuid'
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// Source CV file to copy for dummy data
+const SOURCE_CV = path.join(__dirname, 'Multimedie Designer - invitation til dimission 27. januar 2026 - kl. 13.30.pdf')
+const UPLOADS_DIR = path.join(__dirname, 'uploads')
+
+// Ensure uploads directory exists
+function ensureUploadsDir() {
+	if (!fs.existsSync(UPLOADS_DIR)) {
+		fs.mkdirSync(UPLOADS_DIR, { recursive: true })
+		console.log('Created uploads directory')
+	}
+}
+
+// Copy source CV to uploads with unique name
+function createDummyCV() {
+	ensureUploadsDir()
+
+	const uniqueName = `${Date.now()}-${uuidv4()}.pdf`
+	const destPath = path.join(UPLOADS_DIR, uniqueName)
+
+	try {
+		fs.copyFileSync(SOURCE_CV, destPath)
+		return uniqueName
+	} catch (err) {
+		console.error('Error copying CV file:', err)
+		return null
+	}
+}
 
 // DISC Configuration (matches app)
 const QUALIFICATION_THRESHOLD = 11
@@ -173,6 +207,10 @@ async function seed() {
 		UPDATE interview_slots SET isBooked = 1, bookedBy = ? WHERE id = ?
 	`)
 
+	const holdSlotStmt = db.prepare(`
+		UPDATE interview_slots SET heldBy = ? WHERE id = ?
+	`)
+
 	const usedSlots = new Set()
 	const usedEmails = new Set()
 
@@ -220,6 +258,10 @@ async function seed() {
 		const slots = getTwoUniqueSlots()
 		if (!slots) continue
 
+		// Mark both slots as used (reserved by this application)
+		usedSlots.add(slots[0].id)
+		usedSlots.add(slots[1].id)
+
 		const disc = generateDiscResult(true) // Qualified
 		const createdAt = new Date(now.getTime() - Math.random() * 5 * 24 * 60 * 60 * 1000).toISOString()
 		const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString()
@@ -228,12 +270,17 @@ async function seed() {
 		// selectedSlots is an array of slot IDs only (like frontend sends)
 		const selectedSlotsArr = JSON.stringify([slots[0].id, slots[1].id])
 
+		const cvFileName = createDummyCV()
 		appStmt.run(
 			appId, fullName, randomPhone(), email, randomAge(),
 			jobPositions[Math.floor(Math.random() * jobPositions.length)],
-			`cv-${uuidv4()}.pdf`, disc.result, selectedSlotsArr, null, 'pending',
+			cvFileName, disc.result, selectedSlotsArr, null, 'pending',
 			createdAt, createdAt, expiresAt
 		)
+
+		// Hold both slots for this application
+		holdSlotStmt.run(appId, slots[0].id)
+		holdSlotStmt.run(appId, slots[1].id)
 
 		console.log(`    ${fullName} - pending, ${disc.totalPoints} point, ${disc.dominantProfile}-profil (2 valgte, ingen bekræftet)`)
 	}
@@ -249,8 +296,9 @@ async function seed() {
 		const slots = getTwoUniqueSlots()
 		if (!slots) continue
 
-		// Mark the first slot as the confirmed one
+		// Mark both slots as used
 		usedSlots.add(slots[0].id)
+		usedSlots.add(slots[1].id)
 
 		const disc = generateDiscResult(true)
 		const createdAt = new Date(now.getTime() - Math.random() * 5 * 24 * 60 * 60 * 1000).toISOString()
@@ -261,10 +309,11 @@ async function seed() {
 		const selectedSlotsArr = JSON.stringify([slots[0].id, slots[1].id])
 		const confirmedSlot = JSON.stringify({ id: slots[0].id, date: slots[0].date, time: slots[0].time, type: slots[0].type })
 
+		const cvFileName = createDummyCV()
 		appStmt.run(
 			appId, fullName, randomPhone(), email, randomAge(),
 			jobPositions[Math.floor(Math.random() * jobPositions.length)],
-			`cv-${uuidv4()}.pdf`, disc.result, selectedSlotsArr, confirmedSlot, 'interview-scheduled',
+			cvFileName, disc.result, selectedSlotsArr, confirmedSlot, 'interview-scheduled',
 			createdAt, createdAt, expiresAt
 		)
 
@@ -293,11 +342,12 @@ async function seed() {
 
 		const appId = uuidv4()
 		const confirmedSlot = JSON.stringify({ id: slot.id, date: slot.date, time: slot.time, type: slot.type })
+		const cvFileName = createDummyCV()
 
 		appStmt.run(
 			appId, fullName, randomPhone(), email, randomAge(),
 			jobPositions[Math.floor(Math.random() * jobPositions.length)],
-			`cv-${uuidv4()}.pdf`, disc.result, null, confirmedSlot, 'accepted',
+			cvFileName, disc.result, null, confirmedSlot, 'accepted',
 			createdAt, createdAt, expiresAt
 		)
 
@@ -323,11 +373,12 @@ async function seed() {
 		const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString()
 
 		const appId = uuidv4()
+		const cvFileName = createDummyCV()
 
 		appStmt.run(
 			appId, fullName, randomPhone(), email, randomAge(),
 			jobPositions[Math.floor(Math.random() * jobPositions.length)],
-			`cv-${uuidv4()}.pdf`, disc.result, null, null, 'rejected',
+			cvFileName, disc.result, null, null, 'rejected',
 			createdAt, createdAt, expiresAt
 		)
 
@@ -355,11 +406,12 @@ async function seed() {
 			id: slot.id, date: slot.date, time: slot.time, type: slot.type,
 			manuallyAssigned: true
 		})
+		const cvFileName = createDummyCV()
 
 		appStmt.run(
 			appId, fullName, randomPhone(), email, randomAge(),
 			jobPositions[Math.floor(Math.random() * jobPositions.length)],
-			`cv-${uuidv4()}.pdf`, disc.result, null, confirmedSlot, 'pending',
+			cvFileName, disc.result, null, confirmedSlot, 'pending',
 			createdAt, createdAt, expiresAt
 		)
 
@@ -388,11 +440,12 @@ async function seed() {
 			id: slot.id, date: slot.date, time: slot.time, type: slot.type,
 			manuallyAssigned: true
 		})
+		const cvFileName = createDummyCV()
 
 		appStmt.run(
 			appId, fullName, randomPhone(), email, randomAge(),
 			jobPositions[Math.floor(Math.random() * jobPositions.length)],
-			`cv-${uuidv4()}.pdf`, disc.result, null, confirmedSlot, 'accepted',
+			cvFileName, disc.result, null, confirmedSlot, 'accepted',
 			createdAt, createdAt, expiresAt
 		)
 

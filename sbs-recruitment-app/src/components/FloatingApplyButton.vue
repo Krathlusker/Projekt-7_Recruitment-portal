@@ -18,7 +18,7 @@ defineEmits<{
 .floating-apply-button {
 	position: fixed;
 	top: 70%;
-	right: calc(#{$floating-btn-offset} + var(--scrollbar-width, 0px));
+	right: $spacing-xl;
 	transform: rotate(-90deg);
 	transform-origin: 100% 0;
 	z-index: $z-index-floating-button;
@@ -29,10 +29,6 @@ defineEmits<{
 
 	&:hover {
 		transform: rotate(-90deg) translateY(-6px) !important;
-	}
-
-	@include mobile {
-		right: $spacing-xl;
 	}
 }
 </style>

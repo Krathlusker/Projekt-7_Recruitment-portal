@@ -6,6 +6,7 @@ import express from 'express'
 import cors from 'cors'
 import multer from 'multer'
 import path from 'path'
+import fs from 'fs'
 import { fileURLToPath } from 'url'
 import { v4 as uuidv4 } from 'uuid'
 import dotenv from 'dotenv'
@@ -103,6 +104,20 @@ app.post('/api/apply', upload.single('cv'), (req, res) => {
 		const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days
 		const cvFileName = req.file ? req.file.filename : null
 
+		// Parse and validate selected slots - only keep slots that are actually available
+		const slotsArray = JSON.parse(selectedSlots || '[]')
+		const availableSlots = []
+
+		if (slotsArray.length > 0) {
+			for (const slotId of slotsArray) {
+				const slot = db.prepare('SELECT * FROM interview_slots WHERE id = ?').get(slotId)
+				// Only include slot if it exists, is not booked, and is not held by another application
+				if (slot && !slot.isBooked && !slot.heldBy) {
+					availableSlots.push(slotId)
+				}
+			}
+		}
+
 		const stmt = db.prepare(`
       INSERT INTO applications (
         id, fullName, phone, email, age, jobPosition,
@@ -120,27 +135,27 @@ app.post('/api/apply', upload.single('cv'), (req, res) => {
 			jobPosition,
 			cvFileName,
 			discResult,
-			selectedSlots,
+			JSON.stringify(availableSlots), // Only store available slots
 			'pending',
 			now,
 			now,
 			expiresAt
 		)
 
-		// Mark selected slots as "held" by this application
-		const slotsArray = JSON.parse(selectedSlots || '[]')
-		if (slotsArray.length > 0) {
+		// Mark available slots as "held" by this application
+		if (availableSlots.length > 0) {
 			const holdStmt = db.prepare(
-				'UPDATE interview_slots SET heldBy = ?, reservedBy = NULL, reservedAt = NULL WHERE id = ?'
+				'UPDATE interview_slots SET heldBy = ?, reservedBy = NULL, reservedAt = NULL WHERE id = ? AND isBooked = 0 AND heldBy IS NULL'
 			)
-			for (const slotId of slotsArray) {
+			for (const slotId of availableSlots) {
 				holdStmt.run(id, slotId)
 			}
 		}
 
 		res.status(201).json({
 			id,
-			message: 'Application submitted successfully'
+			message: 'Application submitted successfully',
+			availableSlots // Return which slots were actually reserved
 		})
 	} catch (error) {
 		console.error('Error submitting application:', error)
@@ -154,7 +169,7 @@ app.get('/api/applications', authenticateHR, (req, res) => {
 		const db = getDb()
 		const applications = db.prepare('SELECT * FROM applications ORDER BY createdAt DESC').all()
 
-		// Parse JSON fields
+		// Parse JSON fields - keep all selectedSlots, frontend shows availability status
 		const parsed = applications.map((app) => ({
 			...app,
 			discResult: JSON.parse(app.discResult || '{}'),
@@ -179,6 +194,7 @@ app.get('/api/applications/:id', authenticateHR, (req, res) => {
 			return res.status(404).json({ error: 'Application not found' })
 		}
 
+		// Parse JSON fields - keep all selectedSlots, frontend shows availability status
 		const parsed = {
 			...application,
 			discResult: JSON.parse(application.discResult || '{}'),
@@ -249,6 +265,9 @@ app.delete('/api/applications/:id', authenticateHR, (req, res) => {
 		const db = getDb()
 		const applicationId = req.params.id
 
+		// Get the CV filename before deleting the application
+		const application = db.prepare('SELECT cvFileName FROM applications WHERE id = ?').get(applicationId)
+
 		// Release all slots held by this application
 		db.prepare('UPDATE interview_slots SET heldBy = NULL WHERE heldBy = ?').run(applicationId)
 
@@ -259,6 +278,16 @@ app.delete('/api/applications/:id', authenticateHR, (req, res) => {
 
 		if (result.changes === 0) {
 			return res.status(404).json({ error: 'Application not found' })
+		}
+
+		// Delete the CV file if it exists
+		if (application?.cvFileName) {
+			const cvPath = path.join(__dirname, 'uploads', application.cvFileName)
+			fs.unlink(cvPath, (err) => {
+				if (err && err.code !== 'ENOENT') {
+					console.error('Error deleting CV file:', err)
+				}
+			})
 		}
 
 		res.json({ message: 'Application deleted successfully' })
@@ -272,6 +301,23 @@ app.delete('/api/applications/:id', authenticateHR, (req, res) => {
 app.delete('/api/clear-all-data', authenticateHR, (req, res) => {
 	try {
 		const db = getDb()
+
+		// Delete all files in uploads folder
+		const uploadsDir = path.join(__dirname, 'uploads')
+		fs.readdir(uploadsDir, (err, files) => {
+			if (!err) {
+				for (const file of files) {
+					// Skip .gitkeep or other hidden files
+					if (!file.startsWith('.')) {
+						fs.unlink(path.join(uploadsDir, file), (unlinkErr) => {
+							if (unlinkErr) {
+								console.error('Error deleting file:', file, unlinkErr)
+							}
+						})
+					}
+				}
+			}
+		})
 
 		// Delete all applications
 		const deletedApps = db.prepare('DELETE FROM applications').run()
@@ -387,7 +433,12 @@ app.post('/api/interview-slots/:id/reserve', (req, res) => {
 			return res.status(400).json({ error: 'Slot is already booked' })
 		}
 
-		// Check if already reserved by another session
+		// Check if held by an application (permanent reservation from submitted application)
+		if (slot.heldBy) {
+			return res.status(409).json({ error: 'Slot is already reserved by another applicant' })
+		}
+
+		// Check if already reserved by another session (temporary reservation)
 		if (slot.reservedBy && slot.reservedBy !== sessionId) {
 			const reservedAt = new Date(slot.reservedAt).getTime()
 			const now = Date.now()
@@ -508,8 +559,17 @@ app.patch('/api/interview-slots/:id/book', authenticateHR, (req, res) => {
 			return res.status(400).json({ error: 'Slot is already booked by another applicant' })
 		}
 
-		// Book the slot
-		db.prepare('UPDATE interview_slots SET isBooked = 1, bookedBy = ? WHERE id = ?').run(applicationId, slotId)
+		// Check if slot is held by another application
+		if (slot.heldBy && slot.heldBy !== applicationId) {
+			return res.status(400).json({ error: 'Slot is reserved by another applicant' })
+		}
+
+		// Book the slot - clear all reservations (heldBy, reservedBy)
+		db.prepare(`
+			UPDATE interview_slots
+			SET isBooked = 1, bookedBy = ?, heldBy = NULL, reservedBy = NULL, reservedAt = NULL
+			WHERE id = ?
+		`).run(applicationId, slotId)
 
 		res.json({ message: 'Slot booked successfully' })
 	} catch (error) {
@@ -557,11 +617,17 @@ app.post('/api/applications/:id/confirm-slot', (req, res) => {
 			return res.status(400).json({ error: 'Slot is already booked' })
 		}
 
-		// Update the confirmed slot - mark as booked and clear heldBy
-		db.prepare('UPDATE interview_slots SET isBooked = 1, bookedBy = ?, heldBy = NULL WHERE id = ?').run(
-			applicationId,
-			slotId
-		)
+		// Check if slot is held by another application
+		if (slot.heldBy && slot.heldBy !== applicationId) {
+			return res.status(400).json({ error: 'Slot is reserved by another applicant' })
+		}
+
+		// Update the confirmed slot - mark as booked and clear all reservations
+		db.prepare(`
+			UPDATE interview_slots
+			SET isBooked = 1, bookedBy = ?, heldBy = NULL, reservedBy = NULL, reservedAt = NULL
+			WHERE id = ?
+		`).run(applicationId, slotId)
 
 		// Release all other slots held by this application (make them available again)
 		db.prepare('UPDATE interview_slots SET heldBy = NULL WHERE heldBy = ? AND id != ?').run(applicationId, slotId)
@@ -581,13 +647,13 @@ app.post('/api/applications/:id/confirm-slot', (req, res) => {
 	}
 })
 
-// Release confirmed interview slot (make it available again)
+// Release confirmed interview slot (make it available again, but keep slots reserved)
 app.post('/api/applications/:id/release-confirmed-slot', authenticateHR, (req, res) => {
 	try {
 		const db = getDb()
 		const applicationId = req.params.id
 
-		// Get the application to find the confirmed slot
+		// Get the application to find the confirmed slot and selected slots
 		const application = db.prepare('SELECT * FROM applications WHERE id = ?').get(applicationId)
 		if (!application) {
 			return res.status(404).json({ error: 'Application not found' })
@@ -598,14 +664,35 @@ app.post('/api/applications/:id/release-confirmed-slot', authenticateHR, (req, r
 		}
 
 		const confirmedSlot = JSON.parse(application.confirmedSlot)
+		let selectedSlots = JSON.parse(application.selectedSlots || '[]')
 
-		// Release the slot - mark as not booked and clear bookedBy
+		// Release the booked slot (make it available again)
 		db.prepare('UPDATE interview_slots SET isBooked = 0, bookedBy = NULL WHERE id = ?').run(confirmedSlot.id)
 
-		// Clear confirmed slot from application and reset status
-		db.prepare('UPDATE applications SET confirmedSlot = NULL, status = ? WHERE id = ?').run('pending', applicationId)
+		// Try to re-hold slots that are still available (not booked or held by others)
+		// Keep all selectedSlots in the list - frontend will show "not available" for unavailable ones
+		if (selectedSlots.length > 0) {
+			// Only set heldBy if slot is not booked AND (not held OR held by this application)
+			const holdStmt = db.prepare(`
+				UPDATE interview_slots
+				SET heldBy = ?
+				WHERE id = ? AND isBooked = 0 AND (heldBy IS NULL OR heldBy = ?)
+			`)
 
-		res.json({ message: 'Confirmed slot released successfully' })
+			for (const slotId of selectedSlots) {
+				// Try to hold - will only succeed if slot is available
+				holdStmt.run(applicationId, slotId, applicationId)
+			}
+		}
+
+		// Clear confirmed slot from application, update selectedSlots, and reset status
+		db.prepare('UPDATE applications SET confirmedSlot = NULL, selectedSlots = ?, status = ? WHERE id = ?').run(
+			JSON.stringify(selectedSlots),
+			'pending',
+			applicationId
+		)
+
+		res.json({ message: 'Confirmed slot released successfully, slots are now reserved' })
 	} catch (error) {
 		console.error('Error releasing confirmed slot:', error)
 		res.status(500).json({ error: 'Failed to release confirmed slot' })
@@ -635,7 +722,19 @@ app.get('/api/download-cv/:filename', authenticateHR, (req, res) => {
 const isProduction = process.env.NODE_ENV === 'production'
 if (isProduction) {
 	const distPath = path.join(__dirname, '..', 'dist')
-	app.use(express.static(distPath))
+
+	// Serve static files with correct MIME types
+	app.use(express.static(distPath, {
+		setHeaders: (res, filePath) => {
+			if (filePath.endsWith('.js')) {
+				res.setHeader('Content-Type', 'application/javascript')
+			} else if (filePath.endsWith('.css')) {
+				res.setHeader('Content-Type', 'text/css')
+			} else if (filePath.endsWith('.html')) {
+				res.setHeader('Content-Type', 'text/html')
+			}
+		}
+	}))
 
 	// Handle SPA routing - serve index.html for all non-API routes
 	app.get('*', (req, res, next) => {
@@ -656,14 +755,23 @@ const HOST = process.env.HOST || '0.0.0.0'
 // Initialize database and start server
 initDatabase()
 	.then(() => {
-		app.listen(PORT, HOST, () => {
-			const mode = isProduction ? 'PRODUCTION' : 'DEVELOPMENT'
-			console.log(`[${mode}] Server running on http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`)
-			if (HOST === '0.0.0.0') {
-				console.log(`[${mode}] Network access enabled - server accessible from LAN`)
-			}
-			console.log(`[backend] HR Password: ${HR_PASSWORD}`)
-		})
+		// Check if running under Phusion Passenger (cPanel)
+		if (typeof(PhusionPassenger) !== 'undefined') {
+			PhusionPassenger.configure({ autoInstall: false })
+			app.listen('passenger', () => {
+				console.log('[PASSENGER] Server running via Phusion Passenger')
+				console.log(`[backend] HR Password: ${HR_PASSWORD}`)
+			})
+		} else {
+			app.listen(PORT, HOST, () => {
+				const mode = isProduction ? 'PRODUCTION' : 'DEVELOPMENT'
+				console.log(`[${mode}] Server running on http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`)
+				if (HOST === '0.0.0.0') {
+					console.log(`[${mode}] Network access enabled - server accessible from LAN`)
+				}
+				console.log(`[backend] HR Password: ${HR_PASSWORD}`)
+			})
+		}
 	})
 	.catch((error) => {
 		console.error('Failed to initialize database:', error)

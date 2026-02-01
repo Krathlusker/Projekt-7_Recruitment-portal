@@ -180,6 +180,13 @@
 		@include flex-column;
 		gap: $spacing-sm;
 		justify-content: center;
+		align-items: stretch;
+
+		.el-button {
+			width: 100%;
+			justify-content: center;
+			margin-left: 0 !important;
+		}
 	}
 }
 
@@ -207,14 +214,14 @@
 		width: $benefit-icon-size;
 		height: $benefit-icon-size;
 		background-color: $c-fill-light;
-		border-radius: 50%;
+		border-radius: $border-radius-circle;
 		color: $c-primary;
 		margin-bottom: $spacing-sm;
 	}
 
 	&__title {
 		@include body-bold-font;
-		font-size: 14px;
+		font-size: $font-size-body;
 		color: $c-primary;
 		margin: 0;
 	}

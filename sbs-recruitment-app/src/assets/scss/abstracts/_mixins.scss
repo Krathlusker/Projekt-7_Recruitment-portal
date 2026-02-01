@@ -58,7 +58,7 @@
 @mixin section-intro {
 	@include body-font;
 	display: block; // el-text er span - margin virker kun på block
-	font-size: 14px;
+	font-size: $font-size-body;
 	line-height: 1.6;
 	margin-bottom: $spacing-md;
 }
@@ -93,6 +93,7 @@
 	font-size: $font-size-title;
 	line-height: 1;
 	color: $c-primary;
+	text-transform: uppercase;
 }
 
 /// Undertitel font styling.
@@ -107,6 +108,7 @@
 	font-size: $font-size-subtitle;
 	line-height: 1;
 	color: $c-primary;
+	text-transform: uppercase;
 }
 
 /// Brødtekst font styling (Helvetica Neue).
@@ -200,35 +202,6 @@
 		outline: $border-width-normal solid $c-warning;
 		outline-offset: 2px;
 	}
-}
-
-/// Optisk centrering af tekst i badges/labels.
-/// Beregner asymmetrisk vertikal padding baseret på font metrics
-/// for at opnå visuelt (ikke baseline) centreret tekst.
-/// @param {Length} $padding-y - Ønsket visuel vertikal padding
-/// @param {Length} $padding-x [0] - Horisontal padding
-/// @param {Number} $cap-height [$font-body-cap-height] - Font cap height ratio (0-1)
-/// @param {Number} $descender [$font-body-descender] - Font descender ratio (0-1)
-/// @example scss
-///   .badge {
-///     @include text-center-fix(8px, 16px);
-///   }
-@mixin text-center-fix(
-	$padding-y,
-	$padding-x: 0,
-	$cap-height: $font-body-cap-height,
-	$descender: $font-body-descender
-) {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	line-height: 1;
-
-	// Beregn optisk korrektion (i em, skalerer med font-size)
-	$offset: math.div((1.2 - $cap-height) - $descender, 2);
-
-	// Anvend asymmetrisk padding: mere i top, mindre i bund
-	padding: calc(#{$padding-y} + #{$offset}em) #{$padding-x} calc(#{$padding-y} - #{$offset}em) #{$padding-x};
 }
 
 // =============================================================================
@@ -636,7 +609,7 @@
 ///   }
 @mixin selected-slots-count {
 	@include body-bold-font;
-	font-size: 14px;
+	font-size: $font-size-body;
 	text-align: center;
 	padding-top: $spacing-xs;
 }

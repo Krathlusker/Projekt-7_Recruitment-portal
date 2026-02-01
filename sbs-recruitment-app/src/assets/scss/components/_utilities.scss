@@ -15,7 +15,7 @@
 		.el-divider__text {
 			@include body-font;
 			color: $c-primary;
-			font-size: 11px;
+			font-size: $font-size-xs;
 			background-color: transparent;
 			padding: 0 $spacing-sm;
 		}

@@ -7,6 +7,26 @@
 @use '../abstracts/variables' as *;
 @use '../abstracts/mixins' as *;
 
+// Global Element Plus dialog (modal) styling
+// Max 950px bred på PC/tablet, altid luft til siderne
+.el-dialog {
+	max-width: 950px;
+	width: calc(100% - #{$spacing-lg * 2}) !important;
+	margin: $spacing-lg auto;
+	border-radius: $border-radius-lg !important;
+	box-shadow: $shadow-modal !important;
+
+	&__footer {
+		display: flex;
+		gap: $spacing-sm;
+		justify-content: flex-start;
+
+		.el-button {
+			margin-left: 0 !important;
+		}
+	}
+}
+
 // Modal Wrapper - custom modal container
 // Højde: 660px (eller viewport - 24px padding hvis for lille)
 // Max bredde PC: 950px, Altid 12px padding i siderne

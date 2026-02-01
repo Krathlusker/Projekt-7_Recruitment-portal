@@ -39,7 +39,7 @@
 									<h3>Hvilke oplysninger behandler vi?</h3>
 									<ul>
 										<li>Navn</li>
-										<li>Alder (hvis oplyst)</li>
+										<li>Alder</li>
 										<li>Telefonnummer</li>
 										<li>E-mail</li>
 										<li>Jobpræference</li>

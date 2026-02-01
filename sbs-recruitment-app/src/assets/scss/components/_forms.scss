@@ -17,7 +17,7 @@ $dropdown-offset: math.div((1.25 - $font-body-cap-height) - $font-body-descender
 .el-input__inner,
 .el-textarea__inner {
 	padding-top: #{$input-offset}em !important;
-	font-size: 16px !important; // Prevent iOS Safari auto-zoom
+	font-size: $font-size-input !important; // Prevent iOS Safari auto-zoom
 }
 
 // Input wrapper styling
@@ -41,18 +41,22 @@ $dropdown-offset: math.div((1.25 - $font-body-cap-height) - $font-body-descender
 
 .el-select__input,
 .el-select__placeholder {
-	font-size: 16px !important; // Prevent iOS Safari auto-zoom
+	font-size: $font-size-input !important; // Prevent iOS Safari auto-zoom
 }
 
 // Dropdown items
-.el-select-dropdown__item span {
-	display: inline-block;
-	transform: translateY(#{$dropdown-offset}em);
-}
+.el-select-dropdown__item {
+	font-size: $font-size-input !important; // Match input font-size
 
-.el-select-dropdown__item.is-selected {
-	color: $c-primary;
-	background-color: $c-warning;
+	span {
+		display: inline-block;
+		transform: translateY(#{$dropdown-offset}em);
+	}
+
+	&.is-selected {
+		color: $c-primary;
+		background-color: $c-warning;
+	}
 }
 
 // Input/Select focus
@@ -74,29 +78,18 @@ $dropdown-offset: math.div((1.25 - $font-body-cap-height) - $font-body-descender
 	outline-offset: 2px;
 }
 
-// Prevent layout shift when modal opens and body scroll is disabled
-body.modal-open {
-	overflow: hidden;
-	padding-right: var(--scrollbar-width, 0);
-}
-
-// Global Element Plus dialog (modal) styling
-// Max 950px bred på PC/tablet, altid luft til siderne
-.el-dialog {
-	max-width: 950px;
-	width: calc(100% - #{$spacing-lg * 2}) !important;
-	margin: $spacing-lg auto;
-	border-radius: $border-radius-lg !important;
-	box-shadow: $shadow-modal !important;
-}
-
 // Tooltip styling - overskriver Element Plus CSS custom properties
 .el-popper.is-light {
 	--el-popper-bg-color-light: #ffffff;
 	color: $c-primary;
 }
 
-// Element Plus text alignment
-.el-text {
-	align-self: normal;
+// Age hint tooltip (ApplicationModal alder-felt)
+.age-hint-tooltip {
+	font-size: $font-size-body;
+	line-height: 1.4;
+	font-style: italic;
+	font-weight: 600;
+	box-shadow: $shadow-card;
+	z-index: 10;
 }

@@ -47,20 +47,18 @@
 											<el-input v-model="formData.email" placeholder="Skriv her..." />
 										</el-form-item>
 
-										<el-form-item label="Alder (valgfri)" prop="age">
+										<el-form-item label="Alder" prop="age" required>
 											<el-tooltip
 												:visible="isAgeFocused"
-												content="Det er ikke et krav at oplyse din alder. Hvis du ikke ønsker at dele dette, er det helt fint."
+												content="Vi bruger din alder til at sikre, at vi kun indkalder ansøgere, der opfylder alderskravet for stillingen."
 												:placement="ageTooltipPlacement"
-												effect="light"
+												effect="dark"
 												:teleported="false"
-												popper-class="age-hint-tooltip"
 											>
 												<el-select
 													v-model="formData.age"
 													placeholder="Vælg her..."
 													class="application-modal__select"
-													clearable
 													@focus="isAgeFocused = true"
 													@visible-change="handleAgeVisibleChange"
 												>
@@ -771,6 +769,7 @@ const personalFormRules: FormRules = {
 		{ required: true, message: 'E-mail er påkrævet', trigger: 'submit' },
 		{ type: 'email', message: 'Indtast en gyldig e-mail', trigger: 'submit' }
 	],
+	age: [{ required: true, message: 'Vælg venligst din alder', trigger: 'change' }],
 	jobPosition: [{ required: true, message: 'Vælg venligst en stilling', trigger: 'change' }]
 }
 
@@ -796,7 +795,7 @@ watch(
 // Computed: Can proceed to next step
 const canProceed = computed(() => {
 	if (currentStep.value === 1) {
-		return formData.value.fullName && formData.value.phone && formData.value.email && formData.value.jobPosition
+		return formData.value.fullName && formData.value.phone && formData.value.email && formData.value.age && formData.value.jobPosition
 	}
 	if (currentStep.value === 2) {
 		return discAnswers.value[currentQuestion.value] !== undefined
@@ -1473,7 +1472,7 @@ const handleClose = async () => {
 			border: $border-width-thin dashed $c-primary;
 			border-radius: $border-radius-sm;
 			background-color: transparent;
-			transition: all 0.2s ease;
+			transition: all $transition-duration $transition-ease;
 			cursor: pointer;
 			padding: 0 $spacing-sm;
 			text-align: center;
@@ -1499,7 +1498,7 @@ const handleClose = async () => {
 			}
 
 			&:hover {
-				background-color: #5a5a5a;
+				background-color: $c-primary-light-5;
 			}
 		}
 
@@ -1571,7 +1570,7 @@ const handleClose = async () => {
 
 	&__quiz-question {
 		@include body-font;
-		font-size: 16px;
+		font-size: $font-size-input;
 		margin: 0;
 	}
 
@@ -1905,7 +1904,7 @@ const handleClose = async () => {
 	}
 
 	&__selected-slot-priority {
-		font-size: 10px;
+		font-size: $font-size-xs;
 		opacity: 0.7;
 	}
 

@@ -15,7 +15,7 @@
 	width: $font-size-title !important;
 	height: $font-size-title !important;
 	background-color: $c-bg !important;
-	border-radius: 50% !important;
+	border-radius: $border-radius-circle !important;
 	color: $c-primary !important;
 	transition: transform $transition-duration $transition-ease !important;
 

@@ -57,6 +57,11 @@ a {
 	}
 }
 
+// Element Plus text component alignment
+.el-text {
+	align-self: normal;
+}
+
 // Text utility classes following BEM-like approach
 .text {
 	&--title {

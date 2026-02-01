@@ -3,10 +3,29 @@
 // =============================================================================
 // Box-sizing, margin reset og grundlæggende normalisering.
 
+@use '../abstracts/variables' as *;
+
 *,
 *::before,
 *::after {
 	box-sizing: border-box;
 	margin: 0;
 	padding: 0;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+	min-height: 100vh;
+}
+
+#app {
+	min-height: 100vh;
+}
+
+// Prevent layout shift when modal opens and body scroll is disabled
+body.modal-open {
+	overflow: hidden;
+	padding-right: var(--scrollbar-width, 0);
 }
