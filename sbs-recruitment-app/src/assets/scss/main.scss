@@ -148,8 +148,19 @@ a {
 	border-radius: $border-radius-sm !important;
 }
 
+// Prevent iOS Safari auto-zoom on input focus (requires 16px minimum)
+.el-input__inner,
+.el-textarea__inner {
+	font-size: 16px !important;
+}
+
 .el-select__wrapper {
 	border-radius: $border-radius-sm !important;
+}
+
+.el-select__input,
+.el-select__placeholder {
+	font-size: 16px !important;
 }
 
 .el-dialog {

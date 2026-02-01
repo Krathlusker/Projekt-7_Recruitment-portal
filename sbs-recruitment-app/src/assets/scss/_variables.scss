@@ -12,8 +12,15 @@ $color-green: #2ec700;
 $color-gray: $color-dark-gray;
 
 // Typography - Font Families
-$font-title: 'neo-sans', sans-serif;
-$font-body: 'helvetica-neue-lt-pro', sans-serif;
+// Primary: Adobe Fonts (neo-sans, helvetica-neue-lt-pro)
+// Fallback: Comprehensive system font stack for all platforms
+// iOS/macOS: -apple-system, BlinkMacSystemFont, SF Pro, Helvetica Neue
+// Windows: Segoe UI
+// Android: Roboto
+// Linux: Ubuntu, Cantarell, Fira Sans
+// Generic: sans-serif
+$font-title: neo-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Ubuntu, Cantarell, "Fira Sans", Arial, sans-serif;
+$font-body: helvetica-neue-lt-pro, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Ubuntu, Cantarell, "Fira Sans", Arial, sans-serif;
 
 // Typography - Font Sizes
 $font-size-title: 36px;

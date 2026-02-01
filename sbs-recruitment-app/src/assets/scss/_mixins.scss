@@ -3,6 +3,7 @@
 // ==============================================
 
 @use 'sass:color';
+@use 'sass:math';
 @forward 'variables';
 @use 'variables' as *;
 
@@ -123,7 +124,7 @@
 	line-height: 1;
 
 	// Beregn optisk korrektion (i em, skalerer med font-size)
-	$offset: ((1.2 - $cap-height) - $descender) / 2;
+	$offset: math.div((1.2 - $cap-height) - $descender, 2);
 
 	// Anvend asymmetrisk padding: mere i top, mindre i bund
 	padding: calc(#{$padding-y} + #{$offset}em) #{$padding-x} calc(#{$padding-y} - #{$offset}em) #{$padding-x};

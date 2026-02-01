@@ -25,9 +25,9 @@
 								class="job-modal__video"
 								:src="currentJob.video"
 								:title="currentJob.title"
-								:autoplay="true"
+								:autoplay="false"
 								:loop="true"
-								:muted="true"
+								:muted="false"
 								object-fit="contain"
 								max-height="450px"
 							/>
@@ -80,7 +80,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { Check, Right } from '@element-plus/icons-vue'
+import { Check } from '@element-plus/icons-vue'
 import ModalCloseButton from '@/components/ModalCloseButton.vue'
 import VideoPlayer from '@/components/VideoPlayer.vue'
 import ResponsiveImage from '@/components/ResponsiveImage.vue'

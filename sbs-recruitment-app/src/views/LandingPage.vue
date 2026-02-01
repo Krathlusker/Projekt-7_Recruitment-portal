@@ -24,6 +24,7 @@
 			<section class="landing-page__hero">
 				<div class="landing-page__hero-content">
 					<VideoPlayer
+						ref="heroVideoRef"
 						class="landing-page__hero-video"
 						src="/videos/Hero.mp4"
 						title="ARBEJDSPLADSEN SBS"
@@ -124,16 +125,16 @@
 				<div class="landing-page__footer-container">
 					<!-- Social Media -->
 					<div class="landing-page__social">
-						<el-link href="https://dk.linkedin.com/company/scandinavian-brake-systems-a-s" target="_blank" :underline="false" class="social-link">
+						<el-link href="https://dk.linkedin.com/company/scandinavian-brake-systems-a-s" target="_blank" underline="never" class="social-link">
 							<AkLinkedInFill />
 						</el-link>
-						<el-link href="https://www.facebook.com/sbsbrakes" target="_blank" :underline="false" class="social-link">
+						<el-link href="https://www.facebook.com/sbsbrakes" target="_blank" underline="never" class="social-link">
 							<FaBandsFacebookF />
 						</el-link>
-						<el-link href="https://www.instagram.com/sbsbrakes/" target="_blank" :underline="false" class="social-link">
+						<el-link href="https://www.instagram.com/sbsbrakes/" target="_blank" underline="never" class="social-link">
 							<AkInstagramFill />
 						</el-link>
-						<el-link href="https://www.youtube.com/@sbsbrakes" target="_blank" :underline="false" class="social-link">
+						<el-link href="https://www.youtube.com/@sbsbrakes" target="_blank" underline="never" class="social-link">
 							<BsYoutube />
 						</el-link>
 					</div>
@@ -212,7 +213,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, onMounted, onUnmounted } from 'vue'
+import { ref, shallowRef, onMounted, onUnmounted, computed, watch } from 'vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 import { AkLinkedInFill, AkInstagramFill } from '@kalimahapps/vue-icons/ak'
 import { BsYoutube } from '@kalimahapps/vue-icons/bs'
@@ -230,6 +231,9 @@ import JobModal from '@/components/JobModal.vue'
 import VideoPlayer from '@/components/VideoPlayer.vue'
 import ResponsiveImage from '@/components/ResponsiveImage.vue'
 import type { JobPosition } from '@/types'
+
+// Video player ref
+const heroVideoRef = ref<InstanceType<typeof VideoPlayer> | null>(null)
 
 // Scroll state
 const isScrolled = ref(false)
@@ -291,6 +295,16 @@ const showJobModal = ref(false)
 const showApplicationModal = ref(false)
 const selectedJobId = ref('')
 const selectedJob = ref<JobPosition | ''>('')
+
+// Computed to check if any modal is open
+const isAnyModalOpen = computed(() => showJobModal.value || showApplicationModal.value)
+
+// Pause hero video when any modal opens (don't resume on close)
+watch(isAnyModalOpen, (isOpen) => {
+	if (isOpen) {
+		heroVideoRef.value?.pause()
+	}
+})
 
 // Job listings - Simpelt! Bare angiv baseName og focusPosition
 const jobs = ref([

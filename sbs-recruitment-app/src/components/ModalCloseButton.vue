@@ -1,5 +1,5 @@
 <template>
-	<el-button class="modal-close-button" @click="$emit('click')" type="button" aria-label="Luk">
+	<el-button class="modal-close-button" @click="$emit('click')" type="default" aria-label="Luk">
 		<div class="modal-close-button__icon-wrapper">
 			<el-icon :size="48">
 				<Plus />

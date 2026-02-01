@@ -548,11 +548,6 @@ body.modal-open {
 	transform: rotate(45deg) translateY(3px) !important;
 }
 
-// Step title styling - outside nesting for correct specificity
-.el-step.is-simple .el-step__title {
-	padding-top: $spacing-xs !important;
-}
-
 // Step title - remove break-word
 .el-step.is-simple:not(:last-of-type) .el-step__title {
 	overflow-wrap: normal !important;
@@ -717,9 +712,20 @@ body.modal-open {
 		max-height: calc(100vh - #{$spacing-md * 2}); // Viewport minus padding
 		transition: height $transition-duration $transition-ease;
 
-		// Større højde på bredere skærme
+		// Større højde på bredere skærme (ikke for application modal)
 		@media (min-width: 990px) {
 			height: 850px;
+		}
+
+		// Application modal skal forblive 660px og 570px bred
+		&--fixed-height {
+			height: $modal-height-standard;
+			max-width: 570px;
+
+			@media (min-width: 990px) {
+				height: $modal-height-standard;
+				max-width: 570px;
+			}
 		}
 
 		&--fullscreen {

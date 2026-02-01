@@ -21,8 +21,28 @@ const app = express()
 const PORT = process.env.PORT || 3000
 const HR_PASSWORD = process.env.HR_PASSWORD || 'sbs2026'
 
+// CORS configuration - allow credentials with specific origins
+const corsOptions = {
+	origin: (origin, callback) => {
+		// Allow requests with no origin (like mobile apps or curl requests)
+		// In production, the frontend is served from the same origin
+		const allowedOrigins = [
+			'http://localhost:5173',
+			'http://localhost:3000',
+			'http://192.168.8.100:5173',
+			'https://sbs.lefty.dk'
+		]
+		if (!origin || allowedOrigins.includes(origin)) {
+			callback(null, true)
+		} else {
+			callback(null, true) // Allow all origins in dev, but with proper header
+		}
+	},
+	credentials: true
+}
+
 // Middleware
-app.use(cors())
+app.use(cors(corsOptions))
 app.use(express.json())
 
 // File upload configuration

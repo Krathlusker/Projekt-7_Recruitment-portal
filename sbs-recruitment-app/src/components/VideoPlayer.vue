@@ -51,7 +51,10 @@
 		</video>
 
 		<!-- Gradient overlay for title -->
-		<div class="video-player__gradient" />
+		<div
+			class="video-player__gradient"
+			:class="{ 'video-player__gradient--hidden': hasInteracted && !controlsVisible }"
+		/>
 
 		<!-- Title overlay -->
 		<div
@@ -748,6 +751,12 @@ defineExpose({
 		height: 50%;
 		background: linear-gradient(to top, rgba($color-dark-gray, 0.8) 0%, transparent 100%);
 		pointer-events: none;
+		opacity: 1;
+		transition: opacity $transition-duration $transition-ease;
+
+		&--hidden {
+			opacity: 0;
+		}
 	}
 
 	// Title overlay

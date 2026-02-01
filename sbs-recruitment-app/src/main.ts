@@ -7,6 +7,27 @@ import router from './router'
 import './assets/scss/main.scss'
 import 'overlayscrollbars/overlayscrollbars.css'
 
+// Passive event listener polyfill for third-party libraries
+// Fixes Chrome warnings about non-passive touch/wheel events
+;(function () {
+	const originalAddEventListener = EventTarget.prototype.addEventListener
+	EventTarget.prototype.addEventListener = function (
+		type: string,
+		listener: EventListenerOrEventListenerObject | null,
+		options?: boolean | AddEventListenerOptions
+	) {
+		const passiveEvents = ['touchstart', 'touchmove', 'wheel', 'mousewheel']
+		if (passiveEvents.includes(type)) {
+			const newOptions: AddEventListenerOptions =
+				typeof options === 'boolean'
+					? { capture: options, passive: true }
+					: { ...(options || {}), passive: options?.passive ?? true }
+			return originalAddEventListener.call(this, type, listener, newOptions)
+		}
+		return originalAddEventListener.call(this, type, listener, options)
+	}
+})()
+
 const app = createApp(App)
 
 app.use(ElementPlus, { locale: da })

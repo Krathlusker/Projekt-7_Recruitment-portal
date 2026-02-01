@@ -2213,7 +2213,7 @@ watch(showDetailDialog, (newVal) => {
 
 	&--available {
 		border-color: $color-yellow;
-		background-color: lighten($color-yellow, 35%);
+		background-color: color.adjust($color-yellow, $lightness: 35%);
 
 		.time-slot-item__status {
 			color: $color-dark-gray;
@@ -2223,7 +2223,7 @@ watch(showDetailDialog, (newVal) => {
 
 	&--reserved {
 		border-color: $color-red;
-		background-color: lighten($color-red, 35%);
+		background-color: color.adjust($color-red, $lightness: 35%);
 
 		.time-slot-item__status {
 			color: $color-white;

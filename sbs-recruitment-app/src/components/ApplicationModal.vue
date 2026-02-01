@@ -2,7 +2,7 @@
 	<Transition name="modal">
 		<div v-if="dialogVisible" class="modal-wrapper">
 			<div class="modal-wrapper__backdrop"></div>
-			<div class="modal-wrapper__container">
+			<div class="modal-wrapper__container modal-wrapper__container--fixed-height">
 				<!-- Modal white box containing scrollable content + stepper -->
 				<div class="modal-wrapper__modal">
 					<!-- Close button (rotated X in corner) -->
@@ -765,12 +765,6 @@ const canProceed = computed(() => {
 	}
 	return true
 })
-
-// Check if option is selected
-const isOptionSelected = (questionId: number, option: DiscOption): boolean => {
-	const answer = discAnswers.value[questionId]
-	return answer?.profile === option.profile
-}
 
 // Get selected option value (index) for el-radio-group
 const getSelectedOptionValue = (questionId: number): number | undefined => {
