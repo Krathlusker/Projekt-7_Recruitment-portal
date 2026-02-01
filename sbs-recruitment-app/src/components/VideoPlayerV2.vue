@@ -1,5 +1,6 @@
 <template>
 	<div
+		ref="containerRef"
 		class="video-player-v2"
 		:class="{
 			'video-player-v2--contain': objectFit === 'contain'
@@ -9,7 +10,6 @@
 		<div
 			v-if="title"
 			class="video-player-v2__title-wrapper"
-			:class="{ 'video-player-v2__title-wrapper--fade': state?.playing && !state?.userActive }"
 		>
 			<h2 class="video-player-v2__title">{{ title }}</h2>
 			<el-text v-if="subtitle" class="video-player-v2__subtitle">{{ subtitle }}</el-text>
@@ -50,18 +50,11 @@ import 'video.js/dist/video-js.css'
 // Types
 import type Player from 'video.js/dist/types/player'
 
+// Video.js player state (from @videojs-player/vue)
 interface VideoPlayerState {
 	playing: boolean
-	paused: boolean
-	ended: boolean
-	waiting: boolean
-	seeking: boolean
-	muted: boolean
-	volume: number
 	currentTime: number
 	duration: number
-	userActive: boolean
-	isFullscreen: boolean
 }
 
 // Props
@@ -101,7 +94,8 @@ const emit = defineEmits<{
 
 // State
 const player = ref<Player | null>(null)
-const state = ref<VideoPlayerState | null>(null)
+const containerRef = ref<HTMLElement | null>(null)
+const hasStarted = ref(false)
 
 // Video.js options
 const videoOptions = computed(() => ({
@@ -132,37 +126,52 @@ const videoOptions = computed(() => ({
 // Event handlers
 const onMounted = (payload: { video: HTMLVideoElement; player: Player; state: VideoPlayerState }) => {
 	player.value = payload.player
-	state.value = payload.state
 
-	// Apply object-fit via CSS class
-	if (props.objectFit === 'cover') {
-		payload.video.style.objectFit = 'cover'
-	}
+	// Listen for useractive/userinactive to toggle container class (only after video has started)
+	payload.player.on('useractive', () => {
+		if (hasStarted.value) {
+			containerRef.value?.classList.add('video-player-v2--controls-visible')
+		}
+	})
+	payload.player.on('userinactive', () => {
+		containerRef.value?.classList.remove('video-player-v2--controls-visible')
+	})
 
 	emit('mounted', payload.player)
 }
 
-const onPlay = () => emit('play')
+const onPlay = () => {
+	// Mark as started on first play - now title can move/fade with controls
+	if (!hasStarted.value) {
+		hasStarted.value = true
+		containerRef.value?.classList.add('video-player-v2--has-started')
+		// Set controls visible immediately since user just clicked
+		if (player.value?.userActive()) {
+			containerRef.value?.classList.add('video-player-v2--controls-visible')
+		}
+	}
+	emit('play')
+}
 const onPause = () => emit('pause')
 const onEnded = () => emit('ended')
 
 const onTimeUpdate = () => {
-	if (state.value) {
-		emit('timeupdate', state.value.currentTime, state.value.duration)
+	const p = player.value
+	if (p) {
+		emit('timeupdate', p.currentTime() || 0, p.duration() || 0)
 	}
 }
 
 // Expose player instance for parent control
 defineExpose({
 	player,
-	state,
 	play: () => player.value?.play(),
 	pause: () => player.value?.pause(),
 	togglePlay: () => {
-		if (state.value?.playing) {
-			player.value?.pause()
-		} else {
+		if (player.value?.paused()) {
 			player.value?.play()
+		} else {
+			player.value?.pause()
 		}
 	},
 	mute: () => player.value?.muted(true),
@@ -175,6 +184,13 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
+// Local variables for video player
+$control-bar-total-height: calc($video-control-bar-height + $spacing-sm);
+$title-offset-above-controls: calc($control-bar-total-height + $spacing-md);
+$progress-bar-height: $spacing-xs;
+$progress-bar-radius: calc($progress-bar-height / 2);
+$handle-size: $spacing-sm + 2px;
+
 .video-player-v2 {
 	position: relative;
 	width: 100%;
@@ -192,17 +208,24 @@ defineExpose({
 	// Title wrapper (positioned at bottom like v1)
 	&__title-wrapper {
 		position: absolute;
-		bottom: calc(48px + $spacing-lg); // Control bar height + 18px gap
+		bottom: $spacing-md; // Default: at bottom before play
 		left: $spacing-lg;
 		right: $spacing-lg;
 		pointer-events: none;
 		z-index: 1; // Below control bar (z-index 2)
 		opacity: 1;
-		transition: opacity $transition-duration $transition-ease;
+		transition: bottom $transition-duration $transition-ease, opacity $transition-duration $transition-ease;
+	}
 
-		&--fade {
-			opacity: 0;
-		}
+	// After video has started: move up permanently and fade out
+	&--has-started &__title-wrapper {
+		bottom: $title-offset-above-controls;
+		opacity: 0;
+	}
+
+	// When controls are visible (after started): just fade in (position already set by has-started)
+	&--controls-visible &__title-wrapper {
+		opacity: 1;
 	}
 
 	&__title {
@@ -249,44 +272,14 @@ defineExpose({
 		// Control bar
 		:deep(.vjs-control-bar) {
 			background: linear-gradient(to top, rgba(var(--el-color-primary-rgb), 0.6) 0%, transparent 100%);
-			height: calc(48px + $spacing-sm);
+			height: $control-bar-total-height;
 			padding: 0 $spacing-md $spacing-sm $spacing-md;
-		}
-
-		// Big play button
-		:deep(.vjs-big-play-button) {
-			@include button-colors-light;
-			border: $border-width-thin solid transparent;
-			border-radius: 50%;
-			width: 80px;
-			height: 80px;
-			line-height: 80px;
-			font-size: 40px;
-			transition: all $transition-duration $transition-ease;
-			top: 50%;
-			left: 50%;
-			transform: translate(-50%, -50%);
-
-			&:hover {
-				border-color: $c-bg !important;
-				transform: translate(-50%, -50%) scale(1.05);
-			}
-
-			&:focus-visible {
-				outline: 2px solid $c-warning;
-				outline-offset: 2px;
-			}
-
-			.vjs-icon-placeholder::before {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-			}
 		}
 
 		// Control buttons
 		:deep(.vjs-button) {
 			@include button-colors-light;
+			@include flex-center;
 			width: $spacing-xl;
 			height: $spacing-xl;
 			border: $border-width-thin solid transparent;
@@ -301,13 +294,10 @@ defineExpose({
 				transform: scale(0.98);
 			}
 
-			&:focus-visible {
-				outline: 2px solid $c-warning;
-				outline-offset: 2px;
-			}
+			@include focus-visible;
 
 			.vjs-icon-placeholder::before {
-				font-size: 24px;
+				font-size: $spacing-lg;
 				line-height: $spacing-xl;
 			}
 		}
@@ -328,17 +318,24 @@ defineExpose({
 				border-radius: $border-radius-sm;
 				box-shadow: $shadow-modal;
 				z-index: 20;
-				left: -3.75em !important;
+				left: -3.77em !important;
 
 				// Volume bar track
 				.vjs-volume-bar.vjs-slider-vertical {
 					background-color: $c-fill-light;
-					border-radius: 2px;
+					border-radius: $progress-bar-radius;
+
+					// Focus state for keyboard navigation
+					&:focus,
+					&:focus-visible {
+						outline: $border-width-normal solid $c-warning;
+						outline-offset: 2px;
+					}
 
 					// Volume level fill
 					.vjs-volume-level {
 						background-color: $c-primary;
-						border-radius: 2px;
+						border-radius: $progress-bar-radius;
 
 						// Handle/knop at top of level
 						&::before {
@@ -346,8 +343,8 @@ defineExpose({
 							position: absolute;
 							top: 0;
 							left: 50%;
-							width: 12px;
-							height: 12px;
+							width: $handle-size;
+							height: $handle-size;
 							background-color: $c-primary;
 							border-radius: 50%;
 							transform: translate(-50%, -50%);
@@ -360,13 +357,11 @@ defineExpose({
 		// Time display
 		:deep(.vjs-time-control) {
 			@include body-font;
-			font-size: $font-size-body;
 			font-variant-numeric: tabular-nums;
 			color: $c-bg;
 			padding: 0 $spacing-xs;
 			min-width: 40px;
-			display: flex;
-			align-items: center;
+			@include flex-center;
 		}
 
 		:deep(.vjs-time-divider) {
@@ -381,32 +376,29 @@ defineExpose({
 			height: $spacing-xl;
 
 			.vjs-progress-holder {
-				height: 6px;
-				border-radius: 3px;
+				height: $progress-bar-height;
+				border-radius: $progress-bar-radius;
 				background-color: rgba(var(--el-color-white-rgb), 0.3);
 
-				&:focus-visible {
-					outline: 2px solid $c-warning;
-					outline-offset: 2px;
-				}
+				@include focus-visible;
 			}
 
 			.vjs-play-progress {
 				background-color: $c-bg;
-				border-radius: 3px;
+				border-radius: $progress-bar-radius;
 
 				// Progress handle
 				&::before {
 					content: '';
 					position: absolute;
 					top: 50%;
-					right: -7px;
-					width: 14px;
-					height: 14px;
+					right: calc($handle-size / -2);
+					width: $handle-size;
+					height: $handle-size;
 					background-color: $c-bg;
 					border-radius: 50%;
 					transform: translateY(-50%);
-					box-shadow: 0 2px 4px rgba(var(--el-color-primary-rgb), 0.3);
+					box-shadow: $shadow-button;
 					opacity: 0;
 					transition: opacity $transition-duration $transition-ease;
 				}
@@ -414,7 +406,7 @@ defineExpose({
 
 			.vjs-load-progress {
 				background-color: rgba(var(--el-color-white-rgb), 0.3);
-				border-radius: 3px;
+				border-radius: $progress-bar-radius;
 
 				div {
 					background-color: rgba(var(--el-color-white-rgb), 0.2);
@@ -426,22 +418,31 @@ defineExpose({
 				opacity: 1;
 			}
 
-			// Time tooltip
-			.vjs-time-tooltip {
-				background-color: $c-bg;
-				color: $c-primary;
-				padding: $spacing-xs $spacing-sm;
-				border-radius: $border-radius-sm;
-				font-size: $font-size-body;
-				font-variant-numeric: tabular-nums;
-				box-shadow: $shadow-card;
+			// Hide play progress tooltip (prevents duplicate - only show mouse-display)
+			.vjs-play-progress .vjs-time-tooltip {
+				display: none !important;
 			}
 
+			// Mouse display element - hidden by default, shown on hover
 			.vjs-mouse-display {
+				display: block !important;
+				opacity: 0;
+				transition: opacity $transition-duration $transition-ease;
+
 				.vjs-time-tooltip {
 					background-color: $c-bg;
 					color: $c-primary;
+					padding: $spacing-xs $spacing-sm;
+					border-radius: $border-radius-sm;
+					font-size: $font-size-body;
+					font-variant-numeric: tabular-nums;
+					box-shadow: $shadow-card;
 				}
+			}
+
+			// Show mouse display tooltip on hover over progress bar
+			&:hover .vjs-mouse-display {
+				opacity: 1;
 			}
 		}
 

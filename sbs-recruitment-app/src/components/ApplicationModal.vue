@@ -51,8 +51,9 @@
 											<el-tooltip
 												:visible="isAgeFocused"
 												content="Det er ikke et krav at oplyse din alder. Hvis du ikke ønsker at dele dette, er det helt fint."
-												placement="top"
+												:placement="ageTooltipPlacement"
 												effect="light"
+												:teleported="false"
 												popper-class="age-hint-tooltip"
 											>
 												<el-select
@@ -161,7 +162,7 @@
 
 								<!-- Step 3: Date Selection (Qualified) -->
 								<div v-else-if="currentStep === 3" class="application-modal__step">
-									<h2 class="application-modal__title">Din ønskede tid</h2>
+									<h2 class="application-modal__title">Din samtale</h2>
 									<el-text class="application-modal__description">
 										Her kan du vælge 2 tidspunkter på de dage vi holder samtaler, og selv passe din aftale ind i din
 										hverdag.
@@ -613,6 +614,7 @@ const formData = ref<ApplicationFormData>({
 
 // Focus state for age field
 const isAgeFocused = ref(false)
+const ageTooltipPlacement = ref<'top' | 'bottom'>('top')
 
 // DISC answers
 const discAnswers = ref<DiscAnswers>({})
@@ -718,8 +720,39 @@ onUnmounted(() => {
 // Age options from 16 to 99
 const ageOptions = Array.from({ length: 84 }, (_, i) => i + 16)
 
+// Check dropdown direction and update tooltip placement
+const checkDropdownDirection = () => {
+	const popper = document.querySelector('.el-select__popper')
+	if (popper) {
+		const selectEl = document.querySelector('.application-modal__select .el-select__wrapper')
+		if (selectEl) {
+			const selectRect = selectEl.getBoundingClientRect()
+			const popperRect = popper.getBoundingClientRect()
+			// If popper is above select, tooltip should go below
+			ageTooltipPlacement.value = popperRect.top < selectRect.top ? 'bottom' : 'top'
+		}
+	}
+}
+
+// Resize handler for dropdown direction
+const handleResize = () => {
+	if (isAgeFocused.value) {
+		checkDropdownDirection()
+	}
+}
+
 const handleAgeVisibleChange = (visible: boolean) => {
 	isAgeFocused.value = visible
+
+	if (visible) {
+		// Wait for dropdown to render, then check direction
+		setTimeout(checkDropdownDirection, 50)
+		// Listen for resize while dropdown is open
+		window.addEventListener('resize', handleResize)
+	} else {
+		// Remove resize listener when dropdown closes
+		window.removeEventListener('resize', handleResize)
+	}
 }
 
 // Form validation rules
@@ -1563,14 +1596,12 @@ const handleClose = async () => {
 	// Date selection
 	&__date-section {
 		@include flex-column;
-		justify-content: space-between;
-		flex: 1;
+		gap: $spacing-md;
 	}
 
 	&__date-top {
 		@include flex-column;
 		gap: $spacing-sm;
-		flex: 1;
 	}
 
 	&__date-header {
@@ -1911,15 +1942,6 @@ const handleClose = async () => {
 		color: $c-danger;
 		font-weight: $font-weight-bold;
 	}
-}
-
-// Custom tooltip styling for age hint
-:deep(.age-hint-tooltip) {
-	max-width: 282px;
-	font-size: 12px;
-	line-height: 1.4;
-	font-style: italic;
-	box-shadow: $shadow-card;
 }
 
 // Calendar Modal Styles are in _global.scss

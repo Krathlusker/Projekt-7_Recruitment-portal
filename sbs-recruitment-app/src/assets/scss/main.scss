@@ -139,6 +139,10 @@ a {
 }
 
 // Element Plus overrides for consistent styling
+.el-text {
+	align-self: normal
+}
+
 .el-button {
 	@include button-font;
 	font-size: $font-size-body !important;

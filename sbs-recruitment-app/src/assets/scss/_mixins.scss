@@ -101,6 +101,16 @@
 	flex-direction: column;
 }
 
+// ==================== FOCUS MIXINS ====================
+
+// Standard focus-visible style for keyboard navigation
+@mixin focus-visible {
+	&:focus-visible {
+		outline: $border-width-normal solid $c-warning;
+		outline-offset: 2px;
+	}
+}
+
 // Optisk centrering af tekst i badges/labels
 // Beregner asymmetrisk vertikal padding baseret på font metrics
 // Bruges når tekst skal være visuelt centreret, ikke baseline-centreret
@@ -402,6 +412,7 @@
 	grid-template-columns: 1fr 1fr;
 	gap: $spacing-sm;
 	height: 52px;
+	padding-bottom: $spacing-sm;
 }
 
 // Individual selected slot

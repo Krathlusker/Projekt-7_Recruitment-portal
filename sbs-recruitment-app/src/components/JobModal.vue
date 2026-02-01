@@ -24,7 +24,7 @@
 								v-if="currentJob.video"
 								class="job-modal__video"
 								:src="currentJob.video"
-								:title="currentJob.title"
+								:title="currentJob.videoTitle"
 								:autoplay="false"
 								:loop="true"
 								:muted="false"
@@ -88,6 +88,7 @@ import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 interface JobData {
 	id: string
 	title: string
+	videoTitle?: string // Separat titel til video overlay
 	image?: string
 	baseName?: string
 	breakpoints?: string
@@ -118,6 +119,7 @@ const jobsData: JobData[] = [
 	{
 		id: 'pakkeri',
 		title: 'Pakkeriet',
+		videoTitle: 'Emma, 21',
 		image: 'https://picsum.photos/seed/pakkeriet/400/300',
 		video: '/videos/Emma.mp4',
 		quote: '"Her er der plads til alle, og man lærer hurtigt at kende sine kollegaer!" - Emma',
@@ -135,6 +137,7 @@ const jobsData: JobData[] = [
 	{
 		id: 'produktion',
 		title: 'Produktion',
+		videoTitle: 'Marco, 26',
 		image: 'https://picsum.photos/seed/produktion/400/300',
 		video: '/videos/Marco.mp4',
 		quote: '"Jeg elsker at arbejde med maskinerne og se vores produkter blive sendt ud i verden." - Marco',
