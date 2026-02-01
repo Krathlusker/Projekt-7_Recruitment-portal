@@ -23,10 +23,10 @@
 								<!-- Step 1: Personal Information -->
 								<div v-if="currentStep === 1" class="application-modal__step">
 									<h2 class="application-modal__title">Hvem er du?</h2>
-									<p class="application-modal__description">
+									<el-text class="application-modal__description">
 										Vi vil rigtig gerne vide hvem du er, derfor beder vi om at du udfylder de generelle info om dig, og
 										svarer på de følgende 5 spørgsmål. Så er det bare lidt lettere at lære hinanden at kende.
-									</p>
+									</el-text>
 
 									<el-form
 										ref="personalFormRef"
@@ -138,9 +138,9 @@
 									</div>
 
 									<!-- Question -->
-									<p class="application-modal__quiz-question">
+									<el-text size="large" class="application-modal__quiz-question">
 										{{ discQuestions[currentQuestion].question }}
-									</p>
+									</el-text>
 
 									<!-- Radio options -->
 									<el-radio-group
@@ -162,10 +162,10 @@
 								<!-- Step 3: Date Selection (Qualified) -->
 								<div v-else-if="currentStep === 3" class="application-modal__step">
 									<h2 class="application-modal__title">Din ønskede tid</h2>
-									<p class="application-modal__description">
+									<el-text class="application-modal__description">
 										Her kan du vælge 2 tidspunkter på de dage vi holder samtaler, og selv passe din aftale ind i din
 										hverdag.
-									</p>
+									</el-text>
 
 									<div class="application-modal__date-section" v-loading="slotsLoading">
 										<!-- Top section: Date header + slots -->
@@ -202,12 +202,12 @@
 
 											<!-- No date selected message -->
 											<div v-else-if="!selectedDate" class="application-modal__no-date">
-												<p>Tryk på "VÆLG DATO" for at vælge en samtaledag</p>
+												<el-text type="info">Tryk på "VÆLG DATO" for at vælge en samtaledag</el-text>
 											</div>
 
 											<!-- No slots available message -->
 											<div v-else-if="selectedDate && availableSlots.length === 0" class="application-modal__no-slots">
-												<p>Ingen ledige tider på denne dato</p>
+												<el-text type="warning">Ingen ledige tider på denne dato</el-text>
 											</div>
 										</div>
 
@@ -252,12 +252,12 @@
 										<Message />
 									</el-icon>
 									<h2 class="application-modal__title">Klar til at sende?</h2>
-									<p class="application-modal__description">
+									<el-text class="application-modal__description">
 										Du er nu klar til at sende din ansøgning. Tryk på "Send" for at indsende.
-									</p>
-									<p class="application-modal__description">
+									</el-text>
+									<el-text class="application-modal__description">
 										Du kan gå tilbage og ændre dine oplysninger inden du sender.
-									</p>
+									</el-text>
 									<ConsentModal v-model="consentAccepted" />
 								</div>
 
@@ -267,13 +267,13 @@
 										<WarningFilled />
 									</el-icon>
 									<h2 class="application-modal__title">Tak for din interesse</h2>
-									<p class="application-modal__description">
+									<el-text class="application-modal__description">
 										Desværre matcher din profil ikke det vi søger lige nu. Vi gemmer din ansøgning og kontakter dig,
 										hvis der åbner sig en passende mulighed.
-									</p>
-									<p class="application-modal__description">
+									</el-text>
+									<el-text class="application-modal__description">
 										Du er altid velkommen til at søge igen på et senere tidspunkt.
-									</p>
+									</el-text>
 								</div>
 
 								<!-- Step 6: Success -->
@@ -282,11 +282,11 @@
 										<SuccessFilled />
 									</el-icon>
 									<h2 class="application-modal__title">Tak for din ansøgning</h2>
-									<p class="application-modal__description">
+									<el-text class="application-modal__description">
 										Vi har modtaget din ansøgning og dine ønsker til samtaletider. Du vil modtage en bekræftelse på mail
 										med de endelige detaljer.
-									</p>
-									<p class="application-modal__description">Vi glæder os til at møde dig!</p>
+									</el-text>
+									<el-text class="application-modal__description">Vi glæder os til at møde dig!</el-text>
 								</div>
 							</div>
 						</Transition>
@@ -1423,7 +1423,7 @@ const handleClose = async () => {
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			border: $border-width-thin dashed $color-dark-gray;
+			border: $border-width-thin dashed $c-primary;
 			border-radius: $border-radius-sm;
 			background-color: transparent;
 			transition: all 0.2s ease;
@@ -1432,23 +1432,23 @@ const handleClose = async () => {
 			text-align: center;
 
 			&:hover {
-				background-color: $color-dark-gray;
-				border-color: $color-white;
+				background-color: $c-primary;
+				border-color: $c-bg;
 				border-style: solid;
 
 				.application-modal__cv-dropzone-text {
-					color: $color-white;
+					color: $c-bg;
 				}
 			}
 		}
 
 		// File selected state - no border, dark background
 		&.has-file :deep(.el-upload) {
-			background-color: $color-dark-gray;
+			background-color: $c-primary;
 			border: none;
 
 			.application-modal__cv-dropzone-text {
-				color: $color-white;
+				color: $c-bg;
 			}
 
 			&:hover {
@@ -1458,12 +1458,12 @@ const handleClose = async () => {
 
 		// Drag over state
 		&.is-dragover :deep(.el-upload) {
-			background-color: $color-dark-gray;
-			border-color: $color-yellow;
+			background-color: $c-primary;
+			border-color: $c-warning;
 			border-style: dashed;
 
 			.application-modal__cv-dropzone-text {
-				color: $color-yellow;
+				color: $c-warning;
 			}
 		}
 	}
@@ -1471,7 +1471,7 @@ const handleClose = async () => {
 	&__cv-dropzone-text {
 		@include body-font;
 		font-size: $font-size-small;
-		color: $color-dark-gray;
+		color: $c-primary;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
@@ -1512,12 +1512,12 @@ const handleClose = async () => {
 		width: 100%;
 
 		:deep(.el-progress-bar__outer) {
-			border: $border-width-thin solid $color-dark-gray;
-			background-color: $color-white;
+			border: $border-width-thin solid $c-primary;
+			background-color: $c-bg;
 		}
 
 		:deep(.el-progress-bar__inner) {
-			background-color: $color-dark-gray;
+			background-color: $c-primary;
 			transition: width $transition-duration-slow $transition-ease;
 		}
 	}
@@ -1555,7 +1555,7 @@ const handleClose = async () => {
 		&.is-checked {
 			:deep(.el-radio__label) {
 				font-weight: $font-weight-bold;
-				color: $color-dark-gray;
+				color: $c-primary;
 			}
 		}
 	}
@@ -1684,7 +1684,7 @@ const handleClose = async () => {
 			}
 
 			td {
-				border: $border-width-thin solid $color-light-gray;
+				border: $border-width-thin solid $c-fill-light;
 				padding: 0;
 			}
 		}
@@ -1699,32 +1699,32 @@ const handleClose = async () => {
 		padding: $spacing-sm;
 		cursor: pointer;
 		transition: all $transition-duration $transition-ease;
-		color: $color-dark-gray;
+		color: $c-primary;
 
 		&--has-slots {
-			background-color: $color-dark-gray;
-			color: $color-white;
+			background-color: $c-primary;
+			color: $c-bg;
 			font-weight: 600;
 
 			&:hover {
-				background-color: $color-light-gray;
-				color: $color-dark-gray;
+				background-color: $c-fill-light;
+				color: $c-primary;
 			}
 		}
 
 		&--selected {
-			background-color: $color-yellow;
-			color: $color-dark-gray;
+			background-color: $c-warning;
+			color: $c-primary;
 
 			&:hover {
-				background-color: $color-yellow;
-				color: $color-dark-gray;
+				background-color: $c-warning;
+				color: $c-primary;
 			}
 		}
 
 		&--disabled {
 			cursor: default;
-			color: $color-dark-gray;
+			color: $c-primary;
 			background-color: transparent;
 			pointer-events: none;
 		}
@@ -1774,8 +1774,8 @@ const handleClose = async () => {
 			opacity: 0.6;
 			cursor: not-allowed;
 			border-style: dashed;
-			border-color: $color-yellow;
-			background-color: rgba($color-yellow, 0.1);
+			border-color: $c-warning;
+			background-color: rgba(var(--el-color-warning-rgb), 0.1);
 		}
 	}
 
@@ -1791,8 +1791,8 @@ const handleClose = async () => {
 		position: absolute;
 		top: -$spacing-xs;
 		right: 0;
-		background-color: $color-yellow;
-		color: $color-dark-gray;
+		background-color: $c-warning;
+		color: $c-primary;
 		padding: $spacing-xs $spacing-xs;
 		border-radius: $border-radius-sm;
 		font-size: $font-size-small;
@@ -1850,11 +1850,11 @@ const handleClose = async () => {
 		margin-bottom: $spacing-md;
 
 		&--success {
-			color: $color-yellow;
+			color: $c-warning;
 		}
 
 		&--warning {
-			color: $color-yellow;
+			color: $c-warning;
 		}
 	}
 
@@ -1908,7 +1908,7 @@ const handleClose = async () => {
 	> .el-form-item__label-wrap > .el-form-item__label::after,
 	> .el-form-item__label::after {
 		content: ' *';
-		color: $color-red;
+		color: $c-danger;
 		font-weight: $font-weight-bold;
 	}
 }

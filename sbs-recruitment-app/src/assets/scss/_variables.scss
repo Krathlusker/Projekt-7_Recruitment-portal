@@ -56,11 +56,11 @@ $border-radius-sm: 6px;
 $border-radius-md: 6px;
 $border-radius-lg: 12px;
 
-// Shadows
-$shadow-modal: 0px 0px 18px 6px rgba($color-dark-gray, 0.25);
-$shadow-card: 0px 6px 6px rgba($color-dark-gray, 0.1);
-$shadow-button: 0px 3px 6px rgba($color-dark-gray, 0.15);
-$shadow-button-hover: 0px 6px 12px rgba($color-dark-gray, 0.25);
+// Shadows - bruger RGB komponent variable for runtime evaluering
+$shadow-modal: 0px 0px 18px 6px rgba(var(--el-color-primary-rgb), 0.25);
+$shadow-card: 0px 6px 6px rgba(var(--el-color-primary-rgb), 0.1);
+$shadow-button: 0px 3px 6px rgba(var(--el-color-primary-rgb), 0.15);
+$shadow-button-hover: 0px 6px 12px rgba(var(--el-color-primary-rgb), 0.25);
 
 // Transitions
 $transition-duration-fast: 0.1s;
@@ -108,3 +108,46 @@ $card-badge-offset: 72px;
 // Animation offsets
 $slide-offset: 30px;
 $floating-btn-offset: 42px;
+
+// ==============================================
+// CSS Custom Property Accessors
+// ==============================================
+// Disse gør det nemt at bruge CSS vars i SCSS
+// og giver autocomplete i editoren.
+// CSS vars defineres i _global.scss :root
+
+// Semantic colors
+$c-primary: var(--el-color-primary);
+$c-warning: var(--el-color-warning);
+$c-danger: var(--el-color-danger);
+$c-success: var(--el-color-success);
+
+// Commonly used
+$c-text: var(--el-text-color-primary);
+$c-bg: var(--el-bg-color);
+$c-border: var(--el-border-color);
+$c-fill-light: var(--el-fill-color-light);
+$c-focus: var(--el-color-focus);
+
+// Light variants (for hover states, backgrounds, etc.)
+$c-primary-light-3: var(--el-color-primary-light-3);
+$c-primary-light-5: var(--el-color-primary-light-5);
+$c-primary-light-7: var(--el-color-primary-light-7);
+$c-primary-light-9: var(--el-color-primary-light-9);
+
+$c-warning-light-3: var(--el-color-warning-light-3);
+$c-warning-light-5: var(--el-color-warning-light-5);
+$c-warning-light-9: var(--el-color-warning-light-9);
+
+$c-danger-light-3: var(--el-color-danger-light-3);
+$c-danger-light-9: var(--el-color-danger-light-9);
+
+$c-success-light-3: var(--el-color-success-light-3);
+$c-success-light-9: var(--el-color-success-light-9);
+
+// Dark variants
+$c-primary-dark-2: var(--el-color-primary-dark-2);
+$c-warning-dark-2: var(--el-color-warning-dark-2);
+
+// For rgba() - SKAL bruges direkte, kan ikke wrappes:
+// background: rgba(var(--el-color-primary-rgb), 0.5);

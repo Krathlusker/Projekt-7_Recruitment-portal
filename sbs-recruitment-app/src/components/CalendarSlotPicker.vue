@@ -32,12 +32,12 @@
 
 		<!-- No date selected message -->
 		<div v-else-if="!selectedDate" class="calendar-slot-picker__no-date">
-			<p>Tryk på "VÆLG DATO" for at vælge en samtaledag</p>
+			<el-text type="info">Tryk på "VÆLG DATO" for at vælge en samtaledag</el-text>
 		</div>
 
 		<!-- No slots available message -->
 		<div v-else-if="selectedDate && slotsForSelectedDate.length === 0" class="calendar-slot-picker__no-slots">
-			<p>Ingen ledige tider på denne dato</p>
+			<el-text type="warning">Ingen ledige tider på denne dato</el-text>
 		</div>
 
 		<!-- Selected slots section (multi-select mode only) -->

@@ -63,7 +63,7 @@
 			:class="{ 'video-player__title-wrapper--fade': hasInteracted && !controlsVisible }"
 		>
 			<h2 class="video-player__title">{{ title }}</h2>
-			<p v-if="subtitle" class="video-player__subtitle">{{ subtitle }}</p>
+			<el-text v-if="subtitle" class="video-player__subtitle">{{ subtitle }}</el-text>
 		</div>
 
 		<!-- Controls overlay -->
@@ -705,7 +705,7 @@ defineExpose({
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
-	background-color: $color-dark-gray;
+	background-color: $c-primary;
 	cursor: pointer;
 
 	// Contain mode: height follows video aspect ratio
@@ -717,7 +717,7 @@ defineExpose({
 	// Fullscreen always fills and centers
 	&--fullscreen {
 		height: 100%;
-		background-color: $color-dark-gray;
+		background-color: $c-primary;
 	}
 
 	// Hide cursor in fullscreen when controls are hidden
@@ -749,7 +749,7 @@ defineExpose({
 		left: 0;
 		right: 0;
 		height: 50%;
-		background: linear-gradient(to top, rgba($color-dark-gray, 0.8) 0%, transparent 100%);
+		background: linear-gradient(to top, rgba(var(--el-color-primary-rgb), 0.8) 0%, transparent 100%);
 		pointer-events: none;
 		opacity: 1;
 		transition: opacity $transition-duration $transition-ease;
@@ -778,17 +778,17 @@ defineExpose({
 
 	&__title {
 		@include title-font;
-		color: $color-white;
+		color: $c-bg;
 		margin: 0;
-		text-shadow: 0 2px 8px rgba($color-dark-gray, 0.5);
+		text-shadow: 0 2px 8px rgba(var(--el-color-primary-rgb), 0.5);
 	}
 
 	&__subtitle {
 		@include subtitle-font;
-		color: $color-white;
+		color: $c-bg;
 		margin: $spacing-xs 0 0;
 		opacity: 0.9;
-		text-shadow: 0 1px 4px rgba($color-dark-gray, 0.5);
+		text-shadow: 0 1px 4px rgba(var(--el-color-primary-rgb), 0.5);
 	}
 
 	// Controls container
@@ -801,7 +801,7 @@ defineExpose({
 		align-items: center;
 		gap: $spacing-xs;
 		padding: $spacing-sm $spacing-lg;
-		background: linear-gradient(to top, rgba($color-dark-gray, 0.6) 0%, transparent 100%);
+		background: linear-gradient(to top, rgba(var(--el-color-primary-rgb), 0.6) 0%, transparent 100%);
 		opacity: 1;
 		transition: opacity $transition-duration $transition-ease;
 		z-index: 3;
@@ -835,7 +835,7 @@ defineExpose({
 		}
 
 		&:hover {
-			border-color: $color-white !important;
+			border-color: $c-bg !important;
 		}
 
 		&:active {
@@ -843,7 +843,7 @@ defineExpose({
 		}
 
 		&:focus-visible {
-			outline: 2px solid $color-yellow;
+			outline: 2px solid $c-warning;
 			outline-offset: 2px;
 		}
 	}
@@ -878,7 +878,7 @@ defineExpose({
 		bottom: calc(100% + $spacing-sm);
 		left: 50%;
 		transform: translateX(-50%) translateY(10px);
-		background-color: $color-white;
+		background-color: $c-bg;
 		border-radius: $border-radius-sm;
 		width: 32px;
 		height: 90px;
@@ -914,7 +914,7 @@ defineExpose({
 			transform: translateX(-50%);
 			border-left: 6px solid transparent;
 			border-right: 6px solid transparent;
-			border-top: 6px solid $color-white;
+			border-top: 6px solid $c-bg;
 		}
 	}
 
@@ -924,7 +924,7 @@ defineExpose({
 		appearance: none;
 		width: 70px;
 		height: 4px;
-		background: $color-light-gray;
+		background: $c-fill-light;
 		border-radius: 2px;
 		outline: none;
 		cursor: pointer;
@@ -936,7 +936,7 @@ defineExpose({
 			appearance: none;
 			width: 12px;
 			height: 12px;
-			background: $color-dark-gray;
+			background: $c-primary;
 			border-radius: 50%;
 			cursor: pointer;
 			transition: transform $transition-duration $transition-ease;
@@ -950,20 +950,20 @@ defineExpose({
 		&::-moz-range-thumb {
 			width: 12px;
 			height: 12px;
-			background: $color-dark-gray;
+			background: $c-primary;
 			border: none;
 			border-radius: 50%;
 			cursor: pointer;
 		}
 
 		&::-moz-range-track {
-			background: $color-light-gray;
+			background: $c-fill-light;
 			border-radius: 2px;
 			height: 4px;
 		}
 
 		&:focus-visible {
-			outline: 2px solid $color-yellow;
+			outline: 2px solid $c-warning;
 			outline-offset: 4px;
 		}
 	}
@@ -973,7 +973,7 @@ defineExpose({
 		@include body-font;
 		font-size: $font-size-body;
 		font-variant-numeric: tabular-nums;
-		color: $color-white;
+		color: $c-bg;
 		min-width: 40px;
 		text-align: center;
 		user-select: none;
@@ -991,7 +991,7 @@ defineExpose({
 		border-radius: $border-radius-sm;
 
 		&:focus-visible {
-			outline: 2px solid $color-yellow;
+			outline: 2px solid $c-warning;
 			outline-offset: 2px;
 		}
 	}
@@ -1001,8 +1001,8 @@ defineExpose({
 		position: absolute;
 		bottom: calc(100% + $spacing-xs);
 		transform: translateX(-50%);
-		background-color: $color-white;
-		color: $color-dark-gray;
+		background-color: $c-bg;
+		color: $c-primary;
 		padding: $spacing-xs $spacing-sm;
 		border-radius: $border-radius-sm;
 		font-size: $font-size-body;
@@ -1021,7 +1021,7 @@ defineExpose({
 			transform: translateX(-50%);
 			border-left: 5px solid transparent;
 			border-right: 5px solid transparent;
-			border-top: 5px solid $color-white;
+			border-top: 5px solid $c-bg;
 		}
 	}
 
@@ -1029,7 +1029,7 @@ defineExpose({
 		position: relative;
 		width: 100%;
 		height: 6px;
-		background-color: rgba($color-white, 0.3);
+		background-color: rgba(var(--el-color-white-rgb), 0.3);
 		border-radius: 3px;
 		overflow: visible;
 	}
@@ -1039,7 +1039,7 @@ defineExpose({
 		top: 0;
 		left: 0;
 		height: 100%;
-		background-color: $color-white;
+		background-color: $c-bg;
 		border-radius: 3px;
 		transition: width 0.1s linear;
 	}
@@ -1049,10 +1049,10 @@ defineExpose({
 		top: 50%;
 		width: 14px;
 		height: 14px;
-		background-color: $color-white;
+		background-color: $c-bg;
 		border-radius: 50%;
 		transform: translate(-50%, -50%);
-		box-shadow: 0 2px 4px rgba($color-dark-gray, 0.3);
+		box-shadow: 0 2px 4px rgba(var(--el-color-primary-rgb), 0.3);
 		opacity: 0;
 		transition: opacity $transition-duration $transition-ease;
 	}

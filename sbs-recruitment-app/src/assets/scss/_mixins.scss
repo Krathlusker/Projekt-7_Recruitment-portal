@@ -2,7 +2,6 @@
 // SBS Recruitment App - Mixins
 // ==============================================
 
-@use 'sass:color';
 @use 'sass:math';
 @forward 'variables';
 @use 'variables' as *;
@@ -51,7 +50,7 @@
 	font-weight: $font-weight-medium;
 	font-size: $font-size-title;
 	line-height: 1;
-	color: $color-dark-gray;
+	color: $c-primary;
 }
 
 @mixin subtitle-font {
@@ -59,7 +58,7 @@
 	font-weight: $font-weight-regular;
 	font-size: $font-size-subtitle;
 	line-height: 1;
-	color: $color-dark-gray;
+	color: $c-primary;
 }
 
 @mixin body-font {
@@ -67,7 +66,7 @@
 	font-weight: $font-weight-regular;
 	font-size: $font-size-body;
 	line-height: 1.4;
-	color: $color-dark-gray;
+	color: $c-primary;
 }
 
 @mixin body-bold-font {
@@ -190,20 +189,20 @@
 // ===========================================
 
 @mixin button-colors-dark {
-	background-color: $color-dark-gray;
-	color: $color-white;
+	background-color: $c-primary;
+	color: $c-bg;
 	box-shadow: $shadow-button;
 
 	&:hover {
-		background-color: $color-light-gray;
-		color: $color-dark-gray;
+		background-color: $c-fill-light;
+		color: $c-primary;
 		box-shadow: $shadow-button-hover;
 	}
 }
 
 @mixin button-colors-yellow {
-	background-color: $color-yellow;
-	color: $color-dark-gray;
+	background-color: $c-warning;
+	color: $c-primary;
 	box-shadow: $shadow-button;
 
 	&:hover {
@@ -213,25 +212,25 @@
 }
 
 @mixin button-colors-red {
-	background-color: $color-red;
-	color: $color-white;
+	background-color: $c-danger;
+	color: $c-bg;
 	box-shadow: $shadow-button;
 
 	&:hover {
-		background-color: $color-white;
-		color: $color-red;
+		background-color: $c-bg;
+		color: $c-danger;
 		box-shadow: $shadow-button-hover;
 	}
 }
 
 @mixin button-colors-light {
-	background-color: $color-white;
-	color: $color-dark-gray;
+	background-color: $c-bg;
+	color: $c-primary;
 	box-shadow: $shadow-button;
 
 	&:hover {
-		background-color: $color-dark-gray;
-		color: $color-white;
+		background-color: $c-primary;
+		color: $c-bg;
 		box-shadow: $shadow-button-hover;
 	}
 }
@@ -265,14 +264,14 @@
 
 // Card style
 @mixin card {
-	background-color: $color-white;
+	background-color: $c-bg;
 	border-radius: $border-radius-lg;
 	box-shadow: $shadow-card;
 }
 
 // Modal style
 @mixin modal {
-	background-color: $color-white;
+	background-color: $c-bg;
 	border-radius: $border-radius-lg;
 	box-shadow: $shadow-modal;
 	padding: $spacing-md;
@@ -320,26 +319,26 @@
 	@include flex-center;
 	gap: $spacing-xs;
 	padding: $spacing-xs $spacing-sm;
-	border: $border-width-normal solid $color-dark-gray;
+	border: $border-width-normal solid $c-primary;
 	border-radius: $border-radius-md;
 	cursor: pointer;
 	transition: all $transition-duration $transition-ease;
 	position: relative;
-	background-color: $color-white;
+	background-color: $c-bg;
 
 	&:hover:not(&--disabled):not(&--selected):not(&--reserved) {
-		background-color: $color-light-gray;
+		background-color: $c-fill-light;
 	}
 }
 
 // Slot selected state
 @mixin slot-item-selected {
-	background-color: $color-dark-gray !important;
-	color: $color-white;
+	background-color: $c-primary !important;
+	color: $c-bg;
 
 	&:hover {
-		background-color: $color-light-gray !important;
-		color: $color-dark-gray;
+		background-color: $c-fill-light !important;
+		color: $c-primary;
 	}
 }
 
@@ -371,9 +370,9 @@
 	align-items: center;
 	justify-content: center;
 	flex: 1;
-	border: $border-width-normal dashed $color-light-gray;
+	border: $border-width-normal dashed $c-fill-light;
 	border-radius: $border-radius-md;
-	color: $color-dark-gray;
+	color: $c-primary;
 	text-align: center;
 	padding: $spacing-lg;
 
@@ -411,10 +410,10 @@
 	align-items: center;
 	justify-content: flex-start;
 	padding: $spacing-sm;
-	border: $border-width-normal solid $color-dark-gray;
+	border: $border-width-normal solid $c-primary;
 	border-radius: $border-radius-md;
-	background-color: $color-dark-gray;
-	color: $color-white;
+	background-color: $c-primary;
+	color: $c-bg;
 }
 
 // Empty selected slot
@@ -439,7 +438,7 @@
 @mixin selected-slot-time {
 	@include body-font;
 	font-weight: $font-weight-bold;
-	color: $color-white;
+	color: $c-bg;
 }
 
 // Selected slot date text
@@ -463,7 +462,7 @@
 	transition: all $transition-duration $transition-ease;
 
 	&:hover {
-		border-color: $color-white;
+		border-color: $c-bg;
 	}
 }
 
@@ -471,7 +470,7 @@
 @mixin selected-slot-empty-text {
 	@include body-font;
 	font-size: $font-size-body;
-	color: $color-dark-gray;
+	color: $c-primary;
 	opacity: 0.5;
 }
 

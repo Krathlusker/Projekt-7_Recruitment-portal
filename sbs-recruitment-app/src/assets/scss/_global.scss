@@ -3,64 +3,94 @@
 // ==============================================
 // This file contains:
 // - CSS output (Element Plus overrides, component styles)
-// - Color utility functions
 // It imports _variables.scss and _mixins.scss
 
-@use 'sass:color';
 @use 'sass:math';
 @use 'variables' as *;
 @use 'mixins' as *;
 
 // ==================== ELEMENT PLUS CSS VARIABLE OVERRIDES ====================
-// Override Element Plus button colors to match our design system
+// SBS Brand Colors - Pre-calculated (ingen SCSS color functions)
+// Disse 6 grundfarver styrer HELE projektet:
+// Primary=#2d2d2d, Warning=#f1db53, Danger=#ee3123, Success=#2ec700, White=#ffffff, LightGray=#ebebeb
+
 :root {
-	// Primary = Dark Gray (used for back/close buttons)
-	--el-color-primary: #{$color-dark-gray};
-	--el-color-primary-light-3: #{color.adjust($color-dark-gray, $lightness: 15%)};
-	--el-color-primary-light-5: #{color.adjust($color-dark-gray, $lightness: 25%)};
-	--el-color-primary-light-7: #{color.adjust($color-dark-gray, $lightness: 35%)};
-	--el-color-primary-light-8: #{color.adjust($color-dark-gray, $lightness: 40%)};
-	--el-color-primary-light-9: #{color.adjust($color-dark-gray, $lightness: 45%)};
-	--el-color-primary-dark-2: #{color.adjust($color-dark-gray, $lightness: -10%)};
+	// ========== PRIMARY (Dark Gray #2d2d2d) ==========
+	--el-color-primary: #2d2d2d;
+	--el-color-primary-light-3: #575757;
+	--el-color-primary-light-5: #6e6e6e;
+	--el-color-primary-light-7: #868686;
+	--el-color-primary-light-8: #919191;
+	--el-color-primary-light-9: #9d9d9d;
+	--el-color-primary-dark-2: #1a1a1a;
 
-	// Warning = Yellow (used for next/send buttons)
-	--el-color-warning: #{$color-yellow};
-	--el-color-warning-light-3: #{color.adjust($color-yellow, $lightness: 10%)};
-	--el-color-warning-light-5: #{color.adjust($color-yellow, $lightness: 15%)};
-	--el-color-warning-light-7: #{color.adjust($color-yellow, $lightness: 20%)};
-	--el-color-warning-light-8: #{color.adjust($color-yellow, $lightness: 25%)};
-	--el-color-warning-light-9: #{color.adjust($color-yellow, $lightness: 30%)};
-	--el-color-warning-dark-2: #{color.adjust($color-yellow, $lightness: -10%)};
+	// ========== WARNING (Yellow #f1db53) ==========
+	--el-color-warning: #f1db53;
+	--el-color-warning-light-3: #f5e57a;
+	--el-color-warning-light-5: #f7eb91;
+	--el-color-warning-light-7: #f9f0a9;
+	--el-color-warning-light-8: #faf3b5;
+	--el-color-warning-light-9: #fcf6c1;
+	--el-color-warning-dark-2: #d9c23a;
 
-	// Danger = Red
-	--el-color-danger: #{$color-red};
-	--el-color-danger-light-3: #{color.adjust($color-red, $lightness: 15%)};
-	--el-color-danger-light-5: #{color.adjust($color-red, $lightness: 25%)};
-	--el-color-danger-light-7: #{color.adjust($color-red, $lightness: 35%)};
-	--el-color-danger-light-8: #{color.adjust($color-red, $lightness: 40%)};
-	--el-color-danger-light-9: #{color.adjust($color-red, $lightness: 45%)};
-	--el-color-danger-dark-2: #{color.adjust($color-red, $lightness: -10%)};
+	// ========== DANGER (Red #ee3123) ==========
+	--el-color-danger: #ee3123;
+	--el-color-danger-light-3: #f26d63;
+	--el-color-danger-light-5: #f59089;
+	--el-color-danger-light-7: #f8b3af;
+	--el-color-danger-light-8: #f9c4c1;
+	--el-color-danger-light-9: #fbd6d3;
+	--el-color-danger-dark-2: #c91f13;
 
-	// Success = Green
-	--el-color-success: #{$color-green};
+	// ========== SUCCESS (Green #2ec700) ==========
+	--el-color-success: #2ec700;
+	--el-color-success-light-3: #5fd93d;
+	--el-color-success-light-5: #7ee35f;
+	--el-color-success-light-7: #9eec82;
+	--el-color-success-light-8: #aef094;
+	--el-color-success-light-9: #bef4a6;
+	--el-color-success-dark-2: #259e00;
 
-	// Focus styling - gul focus ring (flyttet fra duplikeret :root blok)
-	// Note: Focus-specifik styling defineres i input/button sektionerne nedenfor
+	// ========== RGB KOMPONENTER (for rgba() brug) ==========
+	--el-color-primary-rgb: 45, 45, 45;
+	--el-color-warning-rgb: 241, 219, 83;
+	--el-color-danger-rgb: 238, 49, 35;
+	--el-color-success-rgb: 46, 199, 0;
+	--el-color-white-rgb: 255, 255, 255;
+	--el-fill-color-light-rgb: 235, 235, 235;
+
+	// ========== TEXT ==========
+	--el-text-color-primary: #2d2d2d;
+	--el-text-color-regular: #2d2d2d;
+	--el-text-color-secondary: #606060;
+	--el-text-color-placeholder: #a0a0a0;
+	--el-text-color-disabled: #c0c0c0;
+
+	// ========== BORDER / FILL / BG ==========
+	--el-border-color: #ebebeb;
+	--el-border-color-light: #f5f5f5;
+	--el-border-color-dark: #d0d0d0;
+	--el-fill-color-light: #ebebeb;
+	--el-bg-color: #ffffff;
+	--el-bg-color-page: #ffffff;
+
+	// ========== FOCUS ==========
+	--el-color-focus: #f1db53;
 }
 
 // ==================== EL-MESSAGE WARNING STYLING ====================
 .el-message--warning {
-	background-color: $color-yellow !important;
-	border-color: $color-yellow !important;
+	background-color: $c-warning !important;
+	border-color: $c-warning !important;
 
 	.el-message__content {
-		color: $color-dark-gray !important;
+		color: $c-primary !important;
 		font-family: $font-body !important;
 		font-weight: $font-weight-bold !important;
 	}
 
 	.el-message__icon {
-		color: $color-dark-gray !important;
+		color: $c-primary !important;
 	}
 }
 
@@ -74,9 +104,9 @@
 	justify-content: center !important;
 	width: $font-size-title !important;
 	height: $font-size-title !important;
-	background-color: $color-white !important;
+	background-color: $c-bg !important;
 	border-radius: 50% !important;
-	color: $color-dark-gray !important;
+	color: $c-primary !important;
 	transition: transform $transition-duration $transition-ease !important;
 
 	// Ensure VueIcon SVGs inherit color
@@ -87,7 +117,7 @@
 
 	&:hover {
 		transform: scale(1.1);
-		color: $color-dark-gray !important;
+		color: $c-primary !important;
 	}
 }
 
@@ -96,11 +126,11 @@
 	font-family: $font-body !important;
 	font-weight: $font-weight-bold !important;
 	font-size: $font-size-button !important;
-	color: $color-white !important;
+	color: $c-bg !important;
 	justify-content: flex-start !important;
 
 	&:hover {
-		color: $color-white !important;
+		color: $c-bg !important;
 	}
 
 	// Smaller variant for legal links
@@ -178,8 +208,8 @@
 .el-button.is-disabled:hover,
 .el-button.is-disabled:focus,
 .el-button.is-disabled:active {
-	background-color: $color-light-gray !important;
-	color: $color-dark-gray !important;
+	background-color: $c-fill-light !important;
+	color: $c-primary !important;
 	opacity: 0.6;
 	cursor: not-allowed;
 	box-shadow: none !important;
@@ -236,8 +266,8 @@ $dropdown-offset: math.div((1.25 - $font-body-cap-height) - $font-body-descender
 .el-input__wrapper:focus-within,
 .el-select .el-input.is-focus .el-input__wrapper,
 .el-textarea__inner:focus {
-	box-shadow: inset 0 0 0 1px $color-yellow !important;
-	border-color: $color-yellow !important;
+	box-shadow: inset 0 0 0 1px $c-warning !important;
+	border-color: $c-warning !important;
 }
 
 // Button focus - only on keyboard navigation, not click/touch
@@ -246,17 +276,17 @@ $dropdown-offset: math.div((1.25 - $font-body-cap-height) - $font-body-descender
 }
 
 .el-button:focus-visible {
-	outline: 2px solid $color-yellow !important;
+	outline: 2px solid $c-warning !important;
 	outline-offset: 2px;
 }
 
 // Switch focus
 .el-switch.is-checked {
-	--el-switch-on-color: #{$color-yellow};
+	--el-switch-on-color: #f1db53;
 }
 
 .el-switch:focus .el-switch__core {
-	outline: 2px solid $color-yellow;
+	outline: 2px solid $c-warning;
 	outline-offset: 2px;
 }
 
@@ -276,14 +306,14 @@ body.modal-open {
 
 // Tooltip styling - overskriver Element Plus CSS custom properties
 .el-popper.is-light {
-	--el-popper-bg-color-light: #{$color-white};
-	color: $color-dark-gray;
+	--el-popper-bg-color-light: #ffffff;
+	color: $c-primary;
 	margin: 0 $spacing-xs;
 }
 
 .el-select-dropdown__item.is-selected {
-	color: $color-dark-gray;
-	background-color: $color-yellow;
+	color: $c-primary;
+	background-color: $c-warning;
 }
 
 // ==================== ELEMENT PLUS CARD STYLING ====================
@@ -333,7 +363,7 @@ body.modal-open {
 	&__image {
 		position: absolute;
 		inset: 0;
-		background-color: $color-dark-gray;
+		background-color: $c-primary;
 
 		img {
 			width: 100%;
@@ -350,9 +380,9 @@ body.modal-open {
 	&__title {
 		@include subtitle-font;
 		font-weight: $font-weight-medium;
-		color: $color-white;
+		color: $c-bg;
 		margin: 0;
-		text-shadow: 0 2px 4px rgba($color-dark-gray, 0.5);
+		text-shadow: 0 2px 4px rgba(var(--el-color-primary-rgb), 0.5);
 	}
 
 	&__button {
@@ -390,7 +420,7 @@ body.modal-open {
 
 		.el-statistic__head {
 			@include body-font;
-			color: $color-gray;
+			color: $c-primary;
 			margin-bottom: $spacing-xs;
 		}
 
@@ -398,7 +428,7 @@ body.modal-open {
 			.el-statistic__number {
 				font-size: $spacing-xl;
 				font-weight: $font-weight-bold;
-				color: $color-dark-gray;
+				color: $c-primary;
 			}
 		}
 	}
@@ -426,7 +456,7 @@ body.modal-open {
 		@include flex-center;
 		min-width: 100px;
 		padding: $spacing-md;
-		background-color: $color-light-gray;
+		background-color: $c-fill-light;
 		border-radius: $border-radius-md;
 	}
 
@@ -491,21 +521,21 @@ body.modal-open {
 	}
 
 	.el-step__icon {
-		border-color: $color-dark-gray;
-		color: $color-dark-gray;
+		border-color: $c-primary;
+		color: $c-primary;
 	}
 }
 
 // All steps - dark-grey icon and text by default
 .el-step.is-simple .el-step__icon {
-	border-color: $color-dark-gray !important;
-	color: $color-dark-gray !important;
+	border-color: $c-primary !important;
+	color: $c-primary !important;
 	transition: all $transition-duration $transition-ease;
 	cursor: pointer;
 }
 
 .el-step.is-simple .el-step__title {
-	color: $color-dark-gray !important;
+	color: $c-primary !important;
 	transition: all $transition-duration $transition-ease;
 	cursor: pointer;
 }
@@ -575,18 +605,18 @@ body.modal-open {
 
 	// Custom color variants for calendar
 	&--available {
-		background-color: $color-yellow !important;
-		color: $color-dark-gray !important;
+		background-color: $c-warning !important;
+		color: $c-primary !important;
 	}
 
 	&--reserved {
-		background-color: $color-red !important;
-		color: $color-white !important;
+		background-color: $c-danger !important;
+		color: $c-bg !important;
 	}
 
 	&--booked {
-		background-color: $color-dark-gray !important;
-		color: $color-white !important;
+		background-color: $c-primary !important;
+		color: $c-bg !important;
 	}
 }
 
@@ -602,7 +632,7 @@ body.modal-open {
 
 		.el-divider__text {
 			@include body-font;
-			color: $color-gray;
+			color: $c-primary;
 			font-size: 11px;
 			background-color: transparent;
 			padding: 0 $spacing-sm;
@@ -611,7 +641,7 @@ body.modal-open {
 
 	&::before,
 	&::after {
-		border-color: $color-light-gray !important;
+		border-color: $c-fill-light !important;
 	}
 }
 
@@ -621,7 +651,7 @@ body.modal-open {
 // Brug: v-loading="isLoading" på container elementer
 
 .el-loading-mask {
-	background-color: rgba($color-white, 0.9);
+	background-color: rgba(var(--el-color-white-rgb), 0.9);
 	border-radius: inherit;
 
 	.el-loading-spinner {
@@ -630,7 +660,7 @@ body.modal-open {
 		}
 
 		.path {
-			stroke: $color-yellow;
+			stroke: $c-warning;
 		}
 	}
 }
@@ -658,23 +688,23 @@ body.modal-open {
 		@include flex-center;
 		width: $benefit-icon-size;
 		height: $benefit-icon-size;
-		background-color: $color-light-gray;
+		background-color: $c-fill-light;
 		border-radius: 50%;
-		color: $color-dark-gray;
+		color: $c-primary;
 		margin-bottom: $spacing-sm;
 	}
 
 	&__title {
 		@include body-bold-font;
 		font-size: 14px;
-		color: $color-dark-gray;
+		color: $c-primary;
 		margin: 0;
 	}
 
 	&__text {
 		@include body-font;
 		font-size: $font-size-body;
-		color: $color-dark-gray;
+		color: $c-primary;
 		line-height: 1.5;
 		margin: 0;
 	}
@@ -697,7 +727,7 @@ body.modal-open {
 	&__backdrop {
 		position: absolute;
 		inset: 0;
-		background-color: rgba($color-dark-gray, 0.5);
+		background-color: rgba(var(--el-color-primary-rgb), 0.5);
 	}
 
 	&__container {
@@ -736,7 +766,7 @@ body.modal-open {
 	}
 
 	&__modal {
-		background-color: $color-white;
+		background-color: $c-bg;
 		border-radius: $border-radius-lg;
 		box-shadow: $shadow-modal;
 		overflow: hidden;
@@ -753,9 +783,9 @@ body.modal-open {
 			right: -20px;
 			width: calc(#{$close-btn-size-mobile} + 20px);
 			height: calc(#{$close-btn-size-mobile} + 20px);
-			background-color: $color-light-gray;
+			background-color: $c-fill-light;
 			border-radius: 0 0 0 20px;
-			box-shadow: -6px 6px 12px rgba($color-dark-gray, 0.2);
+			box-shadow: -6px 6px 12px rgba(var(--el-color-primary-rgb), 0.2);
 			z-index: 5;
 			pointer-events: none;
 		}
@@ -801,12 +831,12 @@ body.modal-open {
 
 	// Fix warning button text color (should be dark on yellow background)
 	&.el-button--warning {
-		color: $color-dark-gray;
+		color: $c-primary;
 
 		&:hover,
 		&:focus,
 		&:active {
-			color: $color-dark-gray;
+			color: $c-primary;
 		}
 	}
 
@@ -978,11 +1008,11 @@ body.modal-open {
 // ==================== OVERLAYSCROLLBARS STYLING ====================
 // Custom styling for OverlayScrollbars in modals
 .os-theme-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
-	background: rgba($color-dark-gray, 0.3);
+	background: rgba(var(--el-color-primary-rgb), 0.3);
 	border-radius: 4px;
 
 	&:hover {
-		background: rgba($color-dark-gray, 0.5);
+		background: rgba(var(--el-color-primary-rgb), 0.5);
 	}
 }
 
@@ -1034,8 +1064,8 @@ body.modal-open {
 }
 
 .calendar-modal {
-	background-color: $color-white;
-	border: $border-width-thin solid $color-dark-gray;
+	background-color: $c-bg;
+	border: $border-width-thin solid $c-primary;
 	border-radius: $border-radius-lg;
 	box-shadow: $shadow-modal;
 	padding: $spacing-md;
@@ -1219,29 +1249,29 @@ body.modal-open {
 		background-color: transparent;
 
 		&--today {
-			border: $border-width-normal solid $color-dark-gray;
+			border: $border-width-normal solid $c-primary;
 		}
 
 		&--has-slots {
-			background-color: $color-yellow;
-			color: $color-dark-gray;
+			background-color: $c-warning;
+			color: $c-primary;
 			cursor: pointer;
 
 			&:hover {
-				background-color: $color-light-gray;
-				color: $color-dark-gray;
+				background-color: $c-fill-light;
+				color: $c-primary;
 			}
 		}
 
 		// Available dates (for manual date picker - all future dates are selectable)
 		&--available {
-			background-color: $color-yellow;
-			color: $color-dark-gray;
+			background-color: $c-warning;
+			color: $c-primary;
 			cursor: pointer;
 
 			&:hover {
-				background-color: $color-light-gray;
-				color: $color-dark-gray;
+				background-color: $c-fill-light;
+				color: $c-primary;
 			}
 		}
 
@@ -1254,12 +1284,12 @@ body.modal-open {
 
 		&--selected#{&}--has-slots,
 		&--selected#{&}--available {
-			background-color: $color-dark-gray;
-			color: $color-white;
+			background-color: $c-primary;
+			color: $c-bg;
 
 			&:hover {
-				background-color: $color-dark-gray;
-				color: $color-white;
+				background-color: $c-primary;
+				color: $c-bg;
 			}
 		}
 
@@ -1304,15 +1334,15 @@ body.modal-open {
 
 		&--today {
 			background-color: transparent;
-			border: $border-width-normal solid $color-dark-gray;
+			border: $border-width-normal solid $c-primary;
 		}
 
 		&--available {
-			background-color: $color-yellow;
+			background-color: $c-warning;
 		}
 
 		&--selected {
-			background-color: $color-dark-gray;
+			background-color: $c-primary;
 		}
 	}
 

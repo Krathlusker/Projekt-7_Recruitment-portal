@@ -31,10 +31,10 @@
 								<h2 class="consent-modal__title">Samtykke til behandling af persondata</h2>
 
 								<div class="consent-modal__body">
-									<p>
+									<el-text>
 										Ved at indsende denne ansøgning giver du samtykke til, at SBS A/S indsamler og behandler dine
 										personoplysninger i forbindelse med rekrutteringsprocessen.
-									</p>
+									</el-text>
 
 									<h3>Hvilke oplysninger behandler vi?</h3>
 									<ul>
@@ -46,22 +46,22 @@
 									</ul>
 
 									<h3>Formål med behandlingen</h3>
-									<p>
+									<el-text>
 										Dine oplysninger bruges udelukkende til at vurdere din ansøgning og koordinere eventuelle samtaler.
 										Vi deler ikke dine oplysninger med tredjeparter uden dit samtykke.
-									</p>
+									</el-text>
 
 									<h3>Opbevaring</h3>
-									<p>
+									<el-text>
 										Dine oplysninger opbevares i op til 6 måneder efter afsluttet rekrutteringsproces, medmindre du
 										giver samtykke til længere opbevaring.
-									</p>
+									</el-text>
 
 									<h3>Dine rettigheder</h3>
-									<p>
+									<el-text>
 										Du har ret til at få indsigt i, rette eller slette dine personoplysninger. Kontakt os på hr@sbs.dk
 										for spørgsmål vedrørende dine data.
-									</p>
+									</el-text>
 								</div>
 							</div>
 						</OverlayScrollbarsComponent>
@@ -124,7 +124,7 @@ const handleDecline = () => {
 	}
 
 	&__link {
-		color: $color-dark-gray;
+		color: $c-primary;
 		text-decoration: underline;
 		font-weight: $font-weight-bold;
 

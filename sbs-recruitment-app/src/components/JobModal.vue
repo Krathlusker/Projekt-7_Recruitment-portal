@@ -48,10 +48,10 @@
 							<h2 class="job-modal__title">{{ currentJob.title }}</h2>
 
 							<!-- Quote -->
-							<p v-if="currentJob.quote" class="job-modal__quote">{{ currentJob.quote }}</p>
+							<el-text v-if="currentJob.quote" class="job-modal__quote">{{ currentJob.quote }}</el-text>
 
 							<!-- Description -->
-							<p class="job-modal__description">{{ currentJob.description }}</p>
+							<el-text class="job-modal__description">{{ currentJob.description }}</el-text>
 
 							<!-- Tasks List -->
 							<ul class="job-modal__tasks">
@@ -62,7 +62,7 @@
 							</ul>
 
 							<!-- Requirements -->
-							<p class="job-modal__requirements">{{ currentJob.requirements }}</p>
+							<el-text class="job-modal__requirements">{{ currentJob.requirements }}</el-text>
 						</div>
 					</div>
 				</OverlayScrollbarsComponent>
@@ -218,7 +218,7 @@ const handleApply = () => {
 	&__media {
 		width: 100%;
 		overflow: hidden;
-		background-color: $color-dark-gray;
+		background-color: $c-primary;
 		border-radius: 0 0 $border-radius-lg $border-radius-lg;
 
 		// Only apply fixed height for images, not videos
@@ -281,7 +281,7 @@ const handleApply = () => {
 	}
 
 	&__task-icon {
-		color: $color-dark-gray;
+		color: $c-primary;
 		flex-shrink: 0;
 	}
 

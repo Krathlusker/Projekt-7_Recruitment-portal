@@ -28,8 +28,8 @@ body {
 	font-weight: $font-weight-regular;
 	font-size: $font-size-body;
 	line-height: 1.4;
-	color: $color-dark-gray;
-	background-color: $color-white;
+	color: $c-primary;
+	background-color: $c-bg;
 	min-height: 100vh;
 }
 
@@ -42,7 +42,7 @@ h5,
 h6 {
 	font-family: $font-title;
 	line-height: 1;
-	color: $color-dark-gray;
+	color: $c-primary;
 	text-transform: uppercase;
 }
 
@@ -59,7 +59,7 @@ h2 {
 // p arver fra body - ingen override nødvendig
 
 a {
-	color: $color-dark-gray;
+	color: $c-primary;
 	text-decoration: none;
 
 	&:hover {
@@ -92,7 +92,7 @@ a {
 	}
 
 	&--white {
-		color: $color-white;
+		color: $c-bg;
 	}
 }
 

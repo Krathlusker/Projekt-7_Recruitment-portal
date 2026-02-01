@@ -5,7 +5,7 @@
 			<div class="hr-dashboard__login-card">
 				<img src="/logo.svg" alt="SBS Friction A/S" class="hr-dashboard__login-logo" />
 				<h1 class="hr-dashboard__login-title">HR Dashboard</h1>
-				<p class="hr-dashboard__login-text">Indtast adgangskode for at fortsætte</p>
+				<el-text class="hr-dashboard__login-text">Indtast adgangskode for at fortsætte</el-text>
 
 				<el-form @submit.prevent="handleLogin">
 					<el-form-item>
@@ -37,13 +37,13 @@
 			<header class="hr-dashboard__header">
 				<div class="hr-dashboard__header-left">
 					<h1 class="hr-dashboard__title">HR Dashboard</h1>
-					<p class="hr-dashboard__subtitle">
+					<el-text class="hr-dashboard__subtitle">
 						<span
 							class="hr-dashboard__status-dot"
 							:class="{ 'hr-dashboard__status-dot--breathing': isBreathing }"
 						></span>
 						Sidst opdateret: {{ lastUpdated }}
-					</p>
+					</el-text>
 				</div>
 				<div class="hr-dashboard__header-right">
 					<el-button @click="loadApplications" class="btn-dark">Opdater</el-button>
@@ -90,10 +90,10 @@
 								</div>
 								<div class="el-interview-card__info">
 									<h3 class="el-interview-card__name">{{ interview.fullName }}</h3>
-									<p class="el-interview-card__detail">Job: {{ formatJobPosition(interview.jobPosition) }}</p>
-									<p class="el-interview-card__detail">Email: {{ interview.email }}</p>
-									<p class="el-interview-card__detail">Telefon: {{ interview.phone }}</p>
-									<p class="el-interview-card__detail">Tid: {{ interview.confirmedSlot?.time }}</p>
+									<el-text size="small" class="el-interview-card__detail">Job: {{ formatJobPosition(interview.jobPosition) }}</el-text>
+									<el-text size="small" class="el-interview-card__detail">Email: {{ interview.email }}</el-text>
+									<el-text size="small" class="el-interview-card__detail">Telefon: {{ interview.phone }}</el-text>
+									<el-text size="small" class="el-interview-card__detail">Tid: {{ interview.confirmedSlot?.time }}</el-text>
 								</div>
 								<div class="el-interview-card__actions">
 									<el-button @click="viewApplication(interview)" class="btn-dark"> Se ansøgning </el-button>
@@ -245,18 +245,18 @@
 							<h2 class="application-detail__title">Ansøgning detaljer</h2>
 							<div class="application-detail__section">
 								<h3>Personlige oplysninger</h3>
-								<p><strong>Navn:</strong> {{ selectedApplication.fullName }}</p>
-								<p><strong>Email:</strong> {{ selectedApplication.email }}</p>
-								<p><strong>Telefon:</strong> {{ selectedApplication.phone }}</p>
-								<p><strong>Alder:</strong> {{ selectedApplication.age }}</p>
-								<p><strong>Stilling:</strong> {{ formatJobPosition(selectedApplication.jobPosition) }}</p>
+								<el-text><strong>Navn:</strong> {{ selectedApplication.fullName }}</el-text>
+								<el-text><strong>Email:</strong> {{ selectedApplication.email }}</el-text>
+								<el-text><strong>Telefon:</strong> {{ selectedApplication.phone }}</el-text>
+								<el-text><strong>Alder:</strong> {{ selectedApplication.age }}</el-text>
+								<el-text><strong>Stilling:</strong> {{ formatJobPosition(selectedApplication.jobPosition) }}</el-text>
 							</div>
 
 							<div class="application-detail__section">
 								<h3>DISC Resultat</h3>
-								<p><strong>Total point:</strong> {{ selectedApplication.discResult?.totalPoints }} / 15</p>
-								<p><strong>Kvalificeret:</strong> {{ selectedApplication.discResult?.isQualified ? 'Ja' : 'Nej' }}</p>
-								<p><strong>Dominant profil:</strong> {{ selectedApplication.discResult?.dominantProfile }}</p>
+								<el-text><strong>Total point:</strong> {{ selectedApplication.discResult?.totalPoints }} / 15</el-text>
+								<el-text><strong>Kvalificeret:</strong> {{ selectedApplication.discResult?.isQualified ? 'Ja' : 'Nej' }}</el-text>
+								<el-text><strong>Dominant profil:</strong> {{ selectedApplication.discResult?.dominantProfile }}</el-text>
 							</div>
 
 							<div v-if="selectedApplication.cvFileName" class="application-detail__section">
@@ -342,10 +342,9 @@
 								</div>
 
 								<!-- No slots at all -->
-								<p v-else class="application-detail__no-slots">
-									Ansøgeren har ikke valgt tidspunkter (ikke kvalificeret til DISC-test)
-								</p>
-
+										<el-text v-else type="info" class="application-detail__no-slots">
+											Ansøgeren har ikke valgt tidspunkter (ikke kvalificeret til DISC-test)
+										</el-text>
 								<!-- Calendar slot picker for existing slots -->
 								<div class="application-detail__custom-time-section">
 									<h4>
@@ -420,10 +419,10 @@
 					>
 						<div class="time-slots-manager">
 							<h2 class="time-slots-manager__title">Administrer tilgængelige tider</h2>
-							<p class="time-slots-manager__description">
+							<el-text class="time-slots-manager__description">
 								Klik på en dag i kalenderen for at tilføje eller se tilgængelige tider. Ansøgere kan vælge 1. og 2.
 								prioritet.
-							</p>
+							</el-text>
 
 							<!-- Calendar Overview -->
 							<div class="time-slots-manager__calendar">
@@ -543,9 +542,9 @@
 		<!-- Cleanup Modal -->
 		<el-dialog v-model="showCleanupModal" title="Ryd op i gamle ansøgninger" transition="dialog-scale">
 			<div class="cleanup-manager">
-				<p class="cleanup-manager__description">
+				<el-text class="cleanup-manager__description">
 					Slet alle ansøgninger som er ældre end det valgte antal måneder fra modtagelsesdato.
-				</p>
+				</el-text>
 
 				<div class="cleanup-manager__form">
 					<div class="cleanup-manager__field">
@@ -559,16 +558,16 @@
 					</div>
 
 					<div v-if="cleanupMonths" class="cleanup-manager__preview">
-						<p><strong>Antal ansøgninger som vil blive slettet:</strong> {{ oldApplicationsCount }}</p>
+						<el-text><strong>Antal ansøgninger som vil blive slettet:</strong> {{ oldApplicationsCount }}</el-text>
 					</div>
 				</div>
 
 				<!-- Clear all data section for testing -->
 				<div class="cleanup-manager__danger-zone">
 					<h4>Test Zone</h4>
-					<p class="cleanup-manager__warning">
+					<el-text type="danger" class="cleanup-manager__warning">
 						Slet ALLE ansøgninger og samtaletider. Denne handling kan ikke fortrydes!
-					</p>
+					</el-text>
 					<el-button class="btn-red" @click="clearAllData"> Ryd al data </el-button>
 				</div>
 			</div>
@@ -1488,18 +1487,17 @@ watch(showDetailDialog, (newVal) => {
 </script>
 
 <style lang="scss" scoped>
-@use 'sass:color';
 @use 'sass:math';
 
 .hr-dashboard {
 	min-height: 100vh;
-	background-color: $color-light-gray;
+	background-color: $c-fill-light;
 
 	// Login
 	&__login {
 		@include flex-center;
 		min-height: 100vh;
-		background-color: $color-white;
+		background-color: $c-bg;
 	}
 
 	&__login-card {
@@ -1555,7 +1553,7 @@ watch(showDetailDialog, (newVal) => {
 
 	&__login-error {
 		@include body-font;
-		color: $color-red;
+		color: $c-danger;
 	}
 
 	// Content
@@ -1563,7 +1561,7 @@ watch(showDetailDialog, (newVal) => {
 		display: flex;
 		flex-direction: column;
 		height: 100vh;
-		background-color: $color-light-gray;
+		background-color: $c-fill-light;
 	}
 
 	// Header
@@ -1601,7 +1599,7 @@ watch(showDetailDialog, (newVal) => {
 
 	&__subtitle {
 		@include body-font;
-		color: $color-gray;
+		color: $c-primary;
 		display: flex;
 		align-items: center;
 		gap: $spacing-xs;
@@ -1610,7 +1608,7 @@ watch(showDetailDialog, (newVal) => {
 	&__status-dot {
 		width: 8px;
 		height: 8px;
-		background-color: $color-green;
+		background-color: $c-success;
 		border-radius: 50%;
 		transition:
 			transform $transition-duration-slow $transition-ease,
@@ -1734,7 +1732,7 @@ watch(showDetailDialog, (newVal) => {
 		display: flex;
 		gap: $spacing-lg;
 		@include body-font;
-		color: $color-gray;
+		color: $c-primary;
 	}
 
 	&__applications-grid-wrapper {
@@ -1756,7 +1754,7 @@ watch(showDetailDialog, (newVal) => {
 		@include body-font;
 		text-align: center;
 		padding: $spacing-xl;
-		color: $color-gray;
+		color: $c-primary;
 	}
 }
 
@@ -1779,8 +1777,8 @@ watch(showDetailDialog, (newVal) => {
 	&__header {
 		@include flex-between;
 		padding: $spacing-md;
-		background-color: $color-white;
-		border-bottom: 1px solid $color-light-gray;
+		background-color: $c-bg;
+		border-bottom: 1px solid $c-fill-light;
 	}
 
 	&__name {
@@ -1791,7 +1789,7 @@ watch(showDetailDialog, (newVal) => {
 	&__age {
 		@include subtitle-font;
 		font-size: $font-size-button;
-		color: $color-gray;
+		color: $c-primary;
 	}
 
 	&__body {
@@ -1814,7 +1812,7 @@ watch(showDetailDialog, (newVal) => {
 
 		&--confirmed {
 			padding-top: $spacing-sm;
-			border-top: 1px solid $color-light-gray;
+			border-top: 1px solid $c-fill-light;
 			margin-top: $spacing-xs;
 		}
 
@@ -1827,7 +1825,7 @@ watch(showDetailDialog, (newVal) => {
 	&__label {
 		flex-shrink: 0;
 		font-weight: $font-weight-regular;
-		color: $color-dark-gray;
+		color: $c-primary;
 		min-width: 80px;
 	}
 
@@ -1835,7 +1833,7 @@ watch(showDetailDialog, (newVal) => {
 		flex: 1;
 		text-align: right;
 		font-weight: $font-weight-regular;
-		color: $color-dark-gray;
+		color: $c-primary;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -1879,7 +1877,7 @@ watch(showDetailDialog, (newVal) => {
 		gap: $spacing-md;
 		margin-top: $spacing-lg;
 		padding-top: $spacing-lg;
-		border-top: 1px solid $color-light-gray;
+		border-top: 1px solid $c-fill-light;
 	}
 
 	&__section {
@@ -1901,7 +1899,7 @@ watch(showDetailDialog, (newVal) => {
 		@include flex-column;
 		gap: $spacing-sm;
 		padding: $spacing-md;
-		background-color: $color-light-gray;
+		background-color: $c-fill-light;
 		border-radius: $border-radius-md;
 
 		h4 {
@@ -1915,9 +1913,9 @@ watch(showDetailDialog, (newVal) => {
 		align-items: center;
 		justify-content: space-between;
 		padding: $spacing-md;
-		background-color: $color-white;
+		background-color: $c-bg;
 		border-radius: $border-radius-md;
-		border: $border-width-normal solid $color-dark-gray;
+		border: $border-width-normal solid $c-primary;
 	}
 
 	&__slot-actions {
@@ -1953,16 +1951,16 @@ watch(showDetailDialog, (newVal) => {
 		@include body-font;
 		font-size: 11px;
 		padding: 2px 8px;
-		background-color: $color-white;
+		background-color: $c-bg;
 		border-radius: $border-radius-sm;
 	}
 
 	&__change-time {
 		margin-top: $spacing-lg;
 		padding: $spacing-md;
-		background-color: $color-yellow;
+		background-color: $c-warning;
 		border-radius: $border-radius-md;
-		border: $border-width-thin dashed $color-yellow;
+		border: $border-width-thin dashed $c-warning;
 
 		h4 {
 			@include body-bold-font;
@@ -1980,15 +1978,15 @@ watch(showDetailDialog, (newVal) => {
 		@include body-bold-font;
 		@include text-center-fix($spacing-xs, $spacing-sm);
 		font-size: 11px;
-		background-color: $color-green;
-		color: $color-white;
+		background-color: $c-success;
+		color: $c-bg;
 		border-radius: $border-radius-sm;
 		white-space: nowrap;
 	}
 
 	&__no-slots {
 		@include body-font;
-		color: $color-gray;
+		color: $c-primary;
 		font-style: italic;
 		margin: 0;
 	}
@@ -1996,7 +1994,7 @@ watch(showDetailDialog, (newVal) => {
 	&__custom-time-section {
 		margin-top: $spacing-lg;
 		padding: $spacing-md;
-		background-color: $color-light-gray;
+		background-color: $c-fill-light;
 		border-radius: $border-radius-md;
 	}
 }
@@ -2014,12 +2012,12 @@ watch(showDetailDialog, (newVal) => {
 
 	&__description {
 		@include body-font;
-		color: $color-dark-gray;
+		color: $c-primary;
 	}
 
 	&__calendar {
 		width: 100%;
-		border: $border-width-thin solid $color-light-gray;
+		border: $border-width-thin solid $c-fill-light;
 		border-radius: $border-radius-md;
 		overflow: hidden;
 
@@ -2027,7 +2025,7 @@ watch(showDetailDialog, (newVal) => {
 		:deep(.el-calendar-table) {
 			td {
 				padding: 0;
-				border: $border-width-thin solid $color-light-gray;
+				border: $border-width-thin solid $c-fill-light;
 			}
 
 			// Override Element Plus is-selected styling
@@ -2050,7 +2048,7 @@ watch(showDetailDialog, (newVal) => {
 		@include flex-column;
 		gap: $spacing-md;
 		padding: $spacing-lg;
-		background-color: $color-light-gray;
+		background-color: $c-fill-light;
 		border-radius: $border-radius-md;
 	}
 
@@ -2099,12 +2097,12 @@ watch(showDetailDialog, (newVal) => {
 
 	&__empty {
 		@include body-font;
-		color: $color-dark-gray;
+		color: $c-primary;
 		padding: $spacing-lg;
 		text-align: center;
-		background-color: $color-white;
+		background-color: $c-bg;
 		border-radius: $border-radius-md;
-		border: $border-width-thin dashed $color-light-gray;
+		border: $border-width-thin dashed $c-fill-light;
 	}
 
 	&__items {
@@ -2124,19 +2122,19 @@ watch(showDetailDialog, (newVal) => {
 	gap: $spacing-xs;
 	width: 100%;
 	height: 100%;
-	background-color: $color-white;
+	background-color: $c-bg;
 
 	&:hover:not(&--past):not(&--selected) {
-		background-color: $color-light-gray;
+		background-color: $c-fill-light;
 	}
 
 	&--has-slots {
-		background-color: $color-dark-gray;
-		color: $color-white;
+		background-color: $c-primary;
+		color: $c-bg;
 
 		&:hover:not(.calendar-day--selected) {
-			background-color: $color-light-gray;
-			color: $color-dark-gray;
+			background-color: $c-fill-light;
+			color: $c-primary;
 		}
 
 		.calendar-day__date {
@@ -2151,11 +2149,11 @@ watch(showDetailDialog, (newVal) => {
 	}
 
 	&--selected {
-		background-color: $color-yellow !important;
-		color: $color-dark-gray !important;
+		background-color: $c-warning !important;
+		color: $c-primary !important;
 
 		.calendar-day__date {
-			color: $color-dark-gray;
+			color: $c-primary;
 		}
 	}
 
@@ -2178,9 +2176,9 @@ watch(showDetailDialog, (newVal) => {
 	align-items: center;
 	gap: $spacing-md;
 	padding: $spacing-md;
-	background-color: $color-white;
+	background-color: $c-bg;
 	border-radius: $border-radius-md;
-	border: $border-width-thin solid $color-light-gray;
+	border: $border-width-thin solid $c-fill-light;
 
 	&__date {
 		flex: 1;
@@ -2190,15 +2188,15 @@ watch(showDetailDialog, (newVal) => {
 
 	&__time {
 		@include body-font;
-		color: $color-dark-gray;
+		color: $c-primary;
 	}
 
 	&__type {
 		@include body-font;
 		font-size: $font-size-body;
-		color: $color-dark-gray;
+		color: $c-primary;
 		padding: math.div($spacing-xs, 2) $spacing-sm;
-		background-color: $color-light-gray;
+		background-color: $c-fill-light;
 		border-radius: $border-radius-sm;
 	}
 
@@ -2212,29 +2210,29 @@ watch(showDetailDialog, (newVal) => {
 	}
 
 	&--available {
-		border-color: $color-yellow;
-		background-color: color.adjust($color-yellow, $lightness: 35%);
+		border-color: $c-warning;
+		background-color: $c-warning-light-9;
 
 		.time-slot-item__status {
-			color: $color-dark-gray;
-			background-color: $color-yellow;
+			color: $c-primary;
+			background-color: $c-warning;
 		}
 	}
 
 	&--reserved {
-		border-color: $color-red;
-		background-color: color.adjust($color-red, $lightness: 35%);
+		border-color: $c-danger;
+		background-color: $c-danger-light-9;
 
 		.time-slot-item__status {
-			color: $color-white;
-			background-color: $color-red;
+			color: $c-bg;
+			background-color: $c-danger;
 		}
 	}
 
 	&--booked {
 		.time-slot-item__status {
-			color: $color-white;
-			background-color: $color-dark-gray;
+			color: $c-bg;
+			background-color: $c-primary;
 		}
 	}
 }
@@ -2259,22 +2257,22 @@ watch(showDetailDialog, (newVal) => {
 		border-radius: $border-radius-sm;
 
 		&--available {
-			background-color: $color-yellow;
+			background-color: $c-warning;
 		}
 
 		&--reserved {
-			background-color: $color-red;
+			background-color: $c-danger;
 		}
 
 		&--booked {
-			background-color: $color-dark-gray;
+			background-color: $c-primary;
 		}
 	}
 
 	&__label {
 		@include body-font;
 		font-size: 13px;
-		color: $color-dark-gray;
+		color: $c-primary;
 	}
 }
 
@@ -2361,7 +2359,7 @@ watch(showDetailDialog, (newVal) => {
 
 	&__description {
 		@include body-font;
-		color: $color-dark-gray;
+		color: $c-primary;
 	}
 
 	&__form {
@@ -2381,7 +2379,7 @@ watch(showDetailDialog, (newVal) => {
 
 	&__preview {
 		padding: $spacing-md;
-		background-color: $color-light-gray;
+		background-color: $c-fill-light;
 		border-radius: $border-radius-md;
 
 		p {
@@ -2393,21 +2391,21 @@ watch(showDetailDialog, (newVal) => {
 	&__danger-zone {
 		margin-top: $spacing-lg;
 		padding: $spacing-md;
-		border: $border-width-normal solid $color-red;
+		border: $border-width-normal solid $c-danger;
 		border-radius: $border-radius-md;
-		background-color: rgba($color-red, 0.05);
+		background-color: rgba(var(--el-color-danger-rgb), 0.05);
 
 		h4 {
 			@include body-font;
 			font-weight: $font-weight-bold;
-			color: $color-red;
+			color: $c-danger;
 			margin: 0 0 $spacing-sm 0;
 		}
 	}
 
 	&__warning {
 		@include body-font;
-		color: $color-dark-gray;
+		color: $c-primary;
 		margin-bottom: $spacing-md;
 	}
 }
@@ -2428,7 +2426,7 @@ watch(showDetailDialog, (newVal) => {
 
 .cv-viewer-modal {
 	position: relative;
-	background-color: $color-white;
+	background-color: $c-bg;
 	border-radius: $border-radius-lg;
 	width: 90%;
 	max-width: 900px;
@@ -2442,7 +2440,7 @@ watch(showDetailDialog, (newVal) => {
 		align-items: center;
 		justify-content: space-between;
 		padding: $spacing-md $spacing-lg;
-		border-bottom: 1px solid $color-light-gray;
+		border-bottom: 1px solid $c-fill-light;
 	}
 
 	&__zoom {
@@ -2477,7 +2475,7 @@ watch(showDetailDialog, (newVal) => {
 	&__content {
 		flex: 1;
 		overflow: hidden;
-		background-color: $color-light-gray;
+		background-color: $c-fill-light;
 	}
 
 	&__pdf-wrapper {

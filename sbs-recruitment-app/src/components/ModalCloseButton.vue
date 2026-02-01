@@ -53,7 +53,7 @@ defineEmits<{
 		align-items: center;
 		justify-content: center;
 		transform: rotate(45deg);
-		color: $color-dark-gray;
+		color: $c-primary;
 		z-index: 2;
 	}
 
@@ -63,7 +63,7 @@ defineEmits<{
 		right: $spacing-lg;
 		width: $close-btn-size-mobile;
 		height: $close-btn-size-mobile;
-		background-color: $color-white;
+		background-color: $c-bg;
 		border-radius: 0 $border-radius-lg 0 20px; // top-right: standard, bottom-left: større
 		z-index: 1;
 		transition: background-color $transition-duration $transition-ease;
@@ -72,11 +72,11 @@ defineEmits<{
 
 	&:hover {
 		.modal-close-button__background {
-			background-color: $color-dark-gray;
+			background-color: $c-primary;
 		}
 
 		:deep(svg) {
-			color: $color-white;
+			color: $c-bg;
 		}
 	}
 
@@ -86,7 +86,7 @@ defineEmits<{
 
 	&:focus-visible {
 		.modal-close-button__background {
-			outline: 2px solid $color-yellow;
+			outline: 2px solid $c-warning;
 			outline-offset: 2px;
 		}
 	}

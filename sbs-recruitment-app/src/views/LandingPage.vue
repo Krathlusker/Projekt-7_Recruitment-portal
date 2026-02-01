@@ -41,12 +41,12 @@
 			<section class="landing-page__intro">
 				<div class="landing-page__intro-container">
 					<h1 class="landing-page__intro-title">Hvad er SBS jobportal?</h1>
-					<p class="landing-page__intro-text">
+					<el-text class="landing-page__intro-text">
 						Her kan du lære om vores arbejdsplads, hvad vi laver på vores fabrik, og om vores medarbejderes job. Du kan altid sende os en ansøgning - vi venter på dig!
-					</p>
-					<p class="landing-page__intro-text">
+					</el-text>
+					<el-text class="landing-page__intro-text">
 						Siden 1964 har Scandinavian Brake Systems (SBS) arbejdet på at udvikle og producere bremseteknologi til både 2-og 4 hjulede køretøjer. Vi producerer lokalt, men vores løsninger og produkter bliver brugt over hele verden.
-					</p>
+					</el-text>
 				</div>
 			</section>
 
@@ -54,15 +54,15 @@
 			<section class="landing-page__jobs">
 				<div class="landing-page__jobs-container">
 					<h2 class="landing-page__jobs-title">Hvad kan du blive hos os?</h2>
-					<p class="landing-page__jobs-intro">
+					<el-text class="landing-page__jobs-intro">
 						SBS er en virksomhed med mange forskellige muligheder. Hvis du er ungarbejder og mangler et job i dit
 						sabbatår så er vores pakkeri det perfekte job.
-					</p>
-					<p class="landing-page__jobs-intro">
+					</el-text>
+					<el-text class="landing-page__jobs-intro">
 						Hvis du er i gang med eller færdig med din uddannelse indenfor maskiner, industri eller teknik. Så er du
 						måske mere interesseret i at arbejde i vores produktion, hvor du får dybdegående forståelser for vores
 						proces og de værktøjer vi bruger til at skabe førende bremseklods løsninger verden over.
-					</p>
+					</el-text>
 					<div class="landing-page__jobs-grid">
 						<el-card
 							v-for="job in jobs"
@@ -92,9 +92,9 @@
 			<section class="landing-page__benefits">
 				<div class="landing-page__benefits-container">
 					<h2 class="landing-page__benefits-title">Fordele hos SBS</h2>
-					<p class="landing-page__benefits-intro">
+					<el-text class="landing-page__benefits-intro">
 						Hos SBS er der en række medarbejder fordele som alle vores ansatte nyder godt af!
-					</p>
+					</el-text>
 					<div class="landing-page__benefits-grid">
 						<div v-for="benefit in benefits.slice(0, 6)" :key="benefit.id" class="el-info-card">
 							<div class="el-info-card__icon">
@@ -103,7 +103,7 @@
 								</el-icon>
 							</div>
 							<h3 class="el-info-card__title">{{ benefit.title }}</h3>
-							<p class="el-info-card__text">{{ benefit.text }}</p>
+							<el-text class="el-info-card__text">{{ benefit.text }}</el-text>
 						</div>
 						<div class="landing-page__benefits-last-row">
 							<div v-for="benefit in benefits.slice(6)" :key="benefit.id" class="el-info-card">
@@ -113,7 +113,7 @@
 									</el-icon>
 								</div>
 								<h3 class="el-info-card__title">{{ benefit.title }}</h3>
-								<p class="el-info-card__text">{{ benefit.text }}</p>
+								<el-text class="el-info-card__text">{{ benefit.text }}</el-text>
 							</div>
 						</div>
 					</div>
@@ -416,7 +416,7 @@ const closeApplicationModal = () => {
 .landing-page {
 	min-height: 100vh;
 	height: 100vh;
-	background-color: $color-white;
+	background-color: $c-bg;
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
@@ -428,8 +428,8 @@ const closeApplicationModal = () => {
 
 	// Header
 	&__header {
-		background-color: $color-white;
-		border-bottom: $border-width-thin solid $color-light-gray;
+		background-color: $c-bg;
+		border-bottom: $border-width-thin solid $c-fill-light;
 		z-index: $z-index-header;
 		transition: all $transition-duration-slow $transition-ease-smooth;
 		flex-shrink: 0;
@@ -474,7 +474,7 @@ const closeApplicationModal = () => {
 
 	// Hero
 	&__hero {
-		background-color: $color-dark-gray;
+		background-color: $c-primary;
 	}
 
 	&__hero-content {
@@ -492,7 +492,7 @@ const closeApplicationModal = () => {
 		@include flex-column;
 		gap: $spacing-md;
 		height: 100%;
-		color: $color-white;
+		color: $c-bg;
 	}
 
 	// Introduction
@@ -519,7 +519,7 @@ const closeApplicationModal = () => {
 	// Jobs
 	&__jobs {
 		@include section-padding;
-		background-color: $color-light-gray;
+		background-color: $c-fill-light;
 	}
 
 	&__jobs-container {
@@ -603,8 +603,8 @@ const closeApplicationModal = () => {
 
 	// Footer
 	&__footer {
-		background-color: $color-dark-gray;
-		color: $color-white;
+		background-color: $c-primary;
+		color: $c-bg;
 		padding: $spacing-lg $spacing-md $spacing-xl;
 	}
 
@@ -630,7 +630,7 @@ const closeApplicationModal = () => {
 
 	&__footer-title {
 		@include title-font;
-		color: $color-white;
+		color: $c-bg;
 		margin: 0 0 $spacing-sm 0;
 	}
 
@@ -639,7 +639,7 @@ const closeApplicationModal = () => {
 		align-items: center;
 		gap: $spacing-xs;
 		// font arves fra body
-		color: $color-white;
+		color: $c-bg;
 	}
 
 	&__legal {
@@ -651,7 +651,7 @@ const closeApplicationModal = () => {
 	&__legal-separator {
 		width: $spacing-xs;
 		height: $spacing-xs;
-		background-color: $color-white;
+		background-color: $c-bg;
 		border-radius: 50%;
 	}
 }
