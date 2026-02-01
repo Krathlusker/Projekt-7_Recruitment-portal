@@ -1,0 +1,96 @@
+// =============================================================================
+// EL-STEPS SYSTEM
+// =============================================================================
+// Multi-step wizard styling til step-by-step flows.
+// Bruges i: ApplicationModal
+
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Base steps container
+.el-steps {
+	padding: $spacing-sm;
+}
+
+// Simple steps - bruges til multi-step flows
+// Bruges i: ApplicationModal
+.el-steps.is-simple {
+	width: 100%;
+	padding: $spacing-xs 0;
+
+	.el-step__head {
+		cursor: pointer;
+	}
+
+	.el-steps.is-simple .el-step__main {
+		width: 100%;
+	}
+
+	.el-step__title {
+		cursor: pointer;
+		@include body-font;
+		padding-top: $spacing-xs;
+	}
+
+	.el-step__icon {
+		border-color: $c-primary;
+		color: $c-primary;
+	}
+}
+
+// All steps - dark-grey icon and text by default
+.el-step.is-simple .el-step__icon {
+	border-color: $c-primary !important;
+	color: $c-primary !important;
+	transition: all $transition-duration $transition-ease;
+	cursor: pointer;
+}
+
+.el-step.is-simple .el-step__title {
+	color: $c-primary !important;
+	transition: all $transition-duration $transition-ease;
+	cursor: pointer;
+}
+
+// Hover effect - lift up like cards
+.el-step.is-simple:hover .el-step__icon {
+	transform: translateY(-4px);
+}
+
+.el-step.is-simple:hover .el-step__title {
+	transform: translateY(-4px);
+}
+
+// Completed state - disable hover and pointer cursor
+.el-steps.is-completed .el-step.is-simple .el-step__icon,
+.el-steps.is-completed .el-step.is-simple .el-step__title {
+	cursor: default;
+}
+
+.el-steps.is-completed .el-step.is-simple:hover .el-step__icon,
+.el-steps.is-completed .el-step.is-simple:hover .el-step__title {
+	transform: none;
+}
+
+// Arrow connectors - outside nesting for correct specificity
+.el-step.is-simple .el-step__arrow {
+	padding-top: calc($spacing-xs / 2) !important;
+}
+
+.el-step.is-simple .el-step__arrow::before,
+.el-step.is-simple .el-step__arrow::after {
+	height: 10px !important;
+}
+
+.el-step.is-simple .el-step__arrow::before {
+	transform: rotate(-45deg) translateY(-3px) !important;
+}
+
+.el-step.is-simple .el-step__arrow::after {
+	transform: rotate(45deg) translateY(3px) !important;
+}
+
+// Step title - remove break-word
+.el-step.is-simple:not(:last-of-type) .el-step__title {
+	overflow-wrap: normal !important;
+}

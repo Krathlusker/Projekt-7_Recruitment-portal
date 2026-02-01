@@ -1,0 +1,363 @@
+// =============================================================================
+// CALENDAR MODAL
+// =============================================================================
+// Dato-vælger modal til samtalebooking.
+// Bruges i: ApplicationModal, CalendarSlotPicker
+
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.calendar-modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: $spacing-md;
+	z-index: 3000;
+}
+
+.calendar-modal {
+	background-color: $c-bg;
+	border: $border-width-thin solid $c-primary;
+	border-radius: $border-radius-lg;
+	box-shadow: $shadow-modal;
+	padding: $spacing-md;
+	width: 100%;
+	min-width: 350px;
+	max-width: 390px;
+	min-height: $calendar-min-height;
+
+	&__content {
+		width: 100%;
+		height: 100%;
+		overflow: visible;
+	}
+
+	&__header {
+		display: grid;
+		grid-template-columns: 1fr auto 1fr;
+		align-items: center;
+		padding-bottom: calc($spacing-md + 10px); // Ekstra plads til knap-skygge
+		gap: $spacing-sm;
+		width: 100%;
+	}
+
+	&__title {
+		@include body-font;
+		font-size: 14px;
+		font-weight: 500;
+		text-transform: capitalize;
+		white-space: nowrap;
+		justify-self: start;
+		min-width: 110px; // Fast bredde så layout ikke hopper
+	}
+
+	&__today-btn {
+		@include button-dark;
+		// Lokale størrelses-tilpasninger - samme højde som nav-knapper
+		height: 28px;
+		padding: 0 $spacing-sm;
+		font-size: $font-size-body;
+		justify-self: center;
+		min-width: 50px;
+	}
+
+	&__today-placeholder {
+		justify-self: center;
+		// Samme størrelse som today-btn så layout ikke hopper
+		min-width: 50px;
+		height: 28px;
+	}
+
+	&__controls {
+		display: flex;
+		gap: 4px;
+		justify-self: end;
+	}
+
+	&__nav {
+		@include button-dark;
+		// Lokale størrelses-tilpasninger
+		width: 28px;
+		height: 28px;
+		padding: 0;
+
+		.el-icon {
+			color: inherit;
+			font-size: 14px;
+		}
+	}
+
+	&__nav-placeholder {
+		width: 28px;
+		height: 28px;
+	}
+
+	&__calendar-wrapper {
+		position: relative;
+		overflow: hidden;
+		// Fast højde så kalenderen ikke hopper når man skifter måned (6 rækker max)
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		flex: 1;
+		min-height: 368px; // Plads til 6 rækker + legend
+		width: 100%;
+	}
+
+	&__calendar {
+		// Override Element Plus calendar cell width/height variable
+		--el-calendar-cell-width: 40px;
+
+		width: 100%;
+		border: none;
+		overflow: hidden;
+
+		.el-calendar__header {
+			display: none !important;
+		}
+
+		.el-calendar__body {
+			padding: 0 !important;
+			width: 100%;
+		}
+
+		.el-calendar-table {
+			table-layout: fixed;
+			width: 100%;
+			border-collapse: separate;
+			border-spacing: 4px;
+			border: none !important;
+			height: 100%;
+
+			thead {
+				border: none !important;
+
+				th {
+					@include body-font;
+					font-size: $font-size-body;
+					padding: $spacing-xs 0;
+					text-align: center;
+					height: auto;
+					border: none !important;
+					height: 100%;
+				}
+			}
+
+			tbody {
+				display: table-row-group;
+				border: none !important;
+				height: 100%;
+			}
+
+			tr {
+				border: none !important;
+				height: 100%;
+			}
+
+			td {
+				border: none !important;
+				padding: 0;
+				height: 100%;
+			}
+		}
+
+		// Override ALL Element Plus is-selected and is-today styling
+		.el-calendar-table td.is-today,
+		.el-calendar-table td.is-selected,
+		.el-calendar-table td.is-today.is-selected {
+			background-color: transparent !important;
+
+			.el-calendar-day {
+				background-color: transparent !important;
+				height: 100%;
+			}
+		}
+
+		.el-calendar-day {
+			padding: 0 !important;
+			background-color: transparent !important;
+			height: 100%;
+
+			&:hover {
+				background-color: transparent !important;
+			}
+		}
+	}
+
+	&__day {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		aspect-ratio: 1; // Ensure square days
+		// font arves fra body
+		cursor: default;
+		border-radius: $border-radius-sm;
+		transition:
+			background-color 0.15s ease,
+			color 0.15s ease;
+		background-color: transparent;
+
+		&--today {
+			border: $border-width-normal solid $c-primary;
+		}
+
+		&--has-slots {
+			background-color: $c-warning;
+			color: $c-primary;
+			cursor: pointer;
+
+			&:hover {
+				background-color: $c-fill-light;
+				color: $c-primary;
+			}
+		}
+
+		// Available dates (for manual date picker - all future dates are selectable)
+		&--available {
+			background-color: $c-warning;
+			color: $c-primary;
+			cursor: pointer;
+
+			&:hover {
+				background-color: $c-fill-light;
+				color: $c-primary;
+			}
+		}
+
+		// Today with available slots (not selected) - show border with padding
+		&--today#{&}--has-slots:not(#{&}--selected),
+		&--today#{&}--available:not(#{&}--selected) {
+			background-clip: content-box;
+			padding: 2px;
+		}
+
+		&--selected#{&}--has-slots,
+		&--selected#{&}--available {
+			background-color: $c-primary;
+			color: $c-bg;
+
+			&:hover {
+				background-color: $c-primary;
+				color: $c-bg;
+			}
+		}
+
+		// Today + selected - show border with padding on yellow background
+		&--today#{&}--selected#{&}--has-slots,
+		&--today#{&}--selected#{&}--available {
+			background-clip: content-box;
+			padding: 2px;
+		}
+
+		&--disabled {
+			cursor: default;
+			pointer-events: none;
+			background-color: transparent !important;
+		}
+
+		&--other-month {
+			opacity: 0.3;
+			pointer-events: none;
+			background-color: transparent !important;
+		}
+	}
+
+	&__legend {
+		display: flex;
+		gap: $spacing-sm;
+		justify-content: center;
+		margin-top: auto; // Skub legend til bunden
+		flex-shrink: 0; // Forhindrer legend i at krympe
+	}
+
+	&__legend-item {
+		display: flex;
+		align-items: center;
+		gap: $spacing-sm;
+	}
+
+	&__legend-color {
+		width: 44px;
+		aspect-ratio: 1;
+		border-radius: $border-radius-sm;
+
+		&--today {
+			background-color: transparent;
+			border: $border-width-normal solid $c-primary;
+		}
+
+		&--available {
+			background-color: $c-warning;
+		}
+
+		&--selected {
+			background-color: $c-primary;
+		}
+	}
+
+	&__legend-label {
+		// font arves fra body - ingen override nødvendig
+		display: inline;
+	}
+}
+
+// =============================================================================
+// CALENDAR TRANSITIONS
+// =============================================================================
+
+// Calendar modal transitions
+.calendar-modal-enter-active,
+.calendar-modal-leave-active {
+	transition: opacity $transition-duration $transition-ease;
+}
+
+.calendar-modal-enter-from,
+.calendar-modal-leave-to {
+	opacity: 0;
+}
+
+// Fade transition for "I dag" button and prev nav button
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity $transition-duration $transition-ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
+}
+
+// Calendar slide transitions for month navigation
+.calendar-slide-left-enter-active,
+.calendar-slide-left-leave-active,
+.calendar-slide-right-enter-active,
+.calendar-slide-right-leave-active {
+	transition: all 0.25s ease;
+}
+
+.calendar-slide-left-enter-from {
+	opacity: 0;
+	transform: translateX(20px);
+}
+
+.calendar-slide-left-leave-to {
+	opacity: 0;
+	transform: translateX(-20px);
+}
+
+.calendar-slide-right-enter-from {
+	opacity: 0;
+	transform: translateX(-20px);
+}
+
+.calendar-slide-right-leave-to {
+	opacity: 0;
+	transform: translateX(20px);
+}

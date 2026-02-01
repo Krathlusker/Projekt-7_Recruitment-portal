@@ -1,0 +1,229 @@
+// =============================================================================
+// EL-CARD VARIANTS
+// =============================================================================
+// Card styling til job listings og HR dashboard.
+// Inkluderer responsive varianter og hover-effekter.
+
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Base el-card styling - bruges på alle cards
+.el-card {
+	@include card;
+	border: none;
+	overflow: hidden;
+	border-radius: $border-radius-lg !important;
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
+
+	// Reset el-card body padding
+	.el-card__body {
+		padding: 0;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-end;
+		gap: $spacing-sm;
+	}
+
+	// Hover effekt for interaktive cards - løfter card opad
+	&--hover:hover,
+	&[shadow='hover']:hover {
+		transform: translateY(-4px);
+		box-shadow: $shadow-modal;
+	}
+}
+
+// Image Card - card med baggrundsbillede
+// Bruges til: job cards, hero cards, etc.
+.el-image-card {
+	position: relative;
+	cursor: pointer;
+	height: $image-card-height;
+	transition:
+		transform $transition-duration $transition-ease,
+		box-shadow $transition-duration $transition-ease;
+
+	&:hover {
+		transform: translateY(-4px);
+		box-shadow: $shadow-modal;
+	}
+
+	&__image {
+		position: absolute;
+		inset: 0;
+		background-color: $c-primary;
+
+		img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+		}
+	}
+
+	&__content {
+		position: relative;
+		padding-left: $spacing-sm;
+	}
+
+	&__title {
+		@include subtitle-font;
+		font-weight: $font-weight-medium;
+		color: $c-bg;
+		margin: 0;
+		text-shadow: 0 2px 4px rgba(var(--el-color-primary-rgb), 0.5);
+	}
+
+	&__button {
+		position: relative;
+		padding-left: $spacing-sm;
+	}
+}
+
+// Stat Card - wrapper for el-statistic
+// Bruges i: HR Dashboard
+.el-stat-card {
+	@include card;
+	@include flex-column;
+	@include flex-center;
+	gap: $spacing-sm;
+	padding: $spacing-xl;
+	transition: all $transition-duration $transition-ease;
+
+	&--clickable {
+		cursor: pointer;
+
+		&:hover {
+			transform: translateY(-4px);
+			box-shadow: $shadow-modal;
+		}
+
+		&:active {
+			transform: translateY(0);
+		}
+	}
+
+	// el-statistic styling inside card
+	.el-statistic {
+		text-align: center;
+
+		.el-statistic__head {
+			@include body-font;
+			color: $c-primary;
+			margin-bottom: $spacing-xs;
+		}
+
+		.el-statistic__content {
+			.el-statistic__number {
+				font-size: $spacing-xl;
+				font-weight: $font-weight-bold;
+				color: $c-primary;
+			}
+		}
+	}
+}
+
+// Interview Card - bruges til kommende samtaler
+// Bruges i: HR Dashboard
+.el-interview-card {
+	@include card;
+	display: flex;
+	gap: $spacing-lg;
+	align-items: stretch;
+	padding: $spacing-md;
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
+
+	&:hover {
+		transform: translateY(-4px);
+		box-shadow: $shadow-modal;
+	}
+
+	&__date {
+		@include flex-column;
+		@include flex-center;
+		min-width: 100px;
+		padding: $spacing-md;
+		background-color: $c-fill-light;
+		border-radius: $border-radius-md;
+	}
+
+	&__day {
+		font-size: $spacing-xl;
+		font-weight: $font-weight-bold;
+		line-height: 1;
+	}
+
+	&__month {
+		@include subtitle-font;
+		text-transform: capitalize;
+	}
+
+	&__info {
+		flex: 1;
+		@include flex-column;
+		gap: $spacing-xs;
+	}
+
+	&__name {
+		@include subtitle-font;
+		margin-bottom: $spacing-sm;
+	}
+
+	&__detail {
+		@include body-font;
+	}
+
+	&__actions {
+		@include flex-column;
+		gap: $spacing-sm;
+		justify-content: center;
+	}
+}
+
+// Info Card - card med ikon, titel og tekst
+// Bruges til: benefit cards, feature cards
+.el-info-card {
+	@include flex-center;
+	@include flex-column;
+	justify-content: flex-start;
+	gap: $spacing-sm;
+	padding: $spacing-lg;
+	text-align: center;
+	transition:
+		transform $transition-duration $transition-ease,
+		box-shadow $transition-duration $transition-ease;
+	border-radius: $border-radius-md;
+
+	&:hover {
+		transform: translateY(-4px);
+		box-shadow: $shadow-modal;
+	}
+
+	&__icon {
+		@include flex-center;
+		width: $benefit-icon-size;
+		height: $benefit-icon-size;
+		background-color: $c-fill-light;
+		border-radius: 50%;
+		color: $c-primary;
+		margin-bottom: $spacing-sm;
+	}
+
+	&__title {
+		@include body-bold-font;
+		font-size: 14px;
+		color: $c-primary;
+		margin: 0;
+	}
+
+	&__text {
+		@include body-font;
+		font-size: $font-size-body;
+		color: $c-primary;
+		line-height: 1.5;
+		margin: 0;
+	}
+}

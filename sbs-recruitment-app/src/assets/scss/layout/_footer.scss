@@ -1,0 +1,59 @@
+// =============================================================================
+// FOOTER LAYOUT
+// =============================================================================
+// Footer links og social media ikon styling.
+// Bruges i: LandingPage footer section
+
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Social media icon links (circular white background)
+.social-link {
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	width: $font-size-title !important;
+	height: $font-size-title !important;
+	background-color: $c-bg !important;
+	border-radius: 50% !important;
+	color: $c-primary !important;
+	transition: transform $transition-duration $transition-ease !important;
+
+	// Ensure VueIcon SVGs inherit color
+	svg {
+		fill: currentColor !important;
+		color: inherit !important;
+	}
+
+	&:hover {
+		transform: scale(1.1);
+		color: $c-primary !important;
+	}
+}
+
+// Footer link styling (white text, uses el-link default underline on hover)
+.footer-link {
+	font-family: $font-body !important;
+	font-weight: $font-weight-bold !important;
+	font-size: $font-size-button !important;
+	color: $c-bg !important;
+	justify-content: flex-start !important;
+
+	&:hover {
+		color: $c-bg !important;
+	}
+
+	// Smaller variant for legal links
+	&--small {
+		font-size: $font-size-body !important;
+	}
+
+	// With icon variant
+	&--icon {
+		.el-link__inner {
+			display: flex;
+			align-items: center;
+			gap: $spacing-xs;
+		}
+	}
+}

@@ -1,177 +1,29 @@
 // ==============================================
-// SBS Recruitment App - Main Styles
+// SBS Recruitment App - Main Stylesheet
 // ==============================================
-// Variables and mixins are injected globally via Vite config
-// Global styles (Element Plus overrides) imported below
+// Entry point for all SCSS files.
+// Variables and mixins are injected globally via Vite config.
+//
+// Architecture: 7-1 Pattern
+// https://sass-guidelin.es/#architecture
+// ==============================================
 
-// Import global styles (CSS output - loaded once here)
-@use 'global';
+// -----------------------------------------------------------------------------
+// VENDORS - Third-party CSS and overrides
+// -----------------------------------------------------------------------------
+@use 'vendors';
 
-// Reset
-*,
-*::before,
-*::after {
-	box-sizing: border-box;
-	margin: 0;
-	padding: 0;
-}
+// -----------------------------------------------------------------------------
+// BASE - Reset, typography, and base element styles
+// -----------------------------------------------------------------------------
+@use 'base';
 
-// Base styles
-html {
-	font-size: 16px;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
+// -----------------------------------------------------------------------------
+// LAYOUT - Major layout patterns (header, footer, grid, etc.)
+// -----------------------------------------------------------------------------
+@use 'layout';
 
-body {
-	font-family: $font-body;
-	font-weight: $font-weight-regular;
-	font-size: $font-size-body;
-	line-height: 1.4;
-	color: $c-primary;
-	background-color: $c-bg;
-	min-height: 100vh;
-}
-
-// Typography - headings bruger title font
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	font-family: $font-title;
-	line-height: 1;
-	color: $c-primary;
-	text-transform: uppercase;
-}
-
-h1 {
-	font-weight: $font-weight-medium;
-	font-size: $font-size-title;
-}
-
-h2 {
-	font-weight: $font-weight-regular;
-	font-size: $font-size-subtitle;
-}
-
-// p arver fra body - ingen override nødvendig
-
-a {
-	color: $c-primary;
-	text-decoration: none;
-
-	&:hover {
-		text-decoration: underline;
-	}
-}
-
-// Utility classes following BEM-like approach
-.text {
-	&--title {
-		@include title-font;
-	}
-
-	&--subtitle {
-		@include subtitle-font;
-	}
-
-	&--body {
-		// Reset til body font (når parent har anden font)
-		font-family: $font-body;
-		font-weight: $font-weight-regular;
-	}
-
-	&--bold {
-		@include body-bold-font;
-	}
-
-	&--center {
-		text-align: center;
-	}
-
-	&--white {
-		color: $c-bg;
-	}
-}
-
-// Button utilities
-.btn {
-	&--primary {
-		@include button-red;
-	}
-
-	&--secondary {
-		@include button-dark;
-	}
-
-	&--outline {
-		@include button-yellow;
-	}
-
-	&--full-width {
-		width: 100%;
-	}
-}
-
-// Layout utilities
-.container {
-	max-width: $max-page-width;
-	margin: 0 auto;
-	padding: 0 $spacing-lg;
-}
-
-.flex {
-	display: flex;
-
-	&--center {
-		@include flex-center;
-	}
-
-	&--between {
-		@include flex-between;
-	}
-
-	&--column {
-		@include flex-column;
-	}
-}
-
-// Element Plus overrides for consistent styling
-.el-text {
-	align-self: normal
-}
-
-.el-button {
-	@include button-font;
-	font-size: $font-size-body !important;
-}
-
-.el-input__wrapper {
-	border-radius: $border-radius-sm !important;
-}
-
-// Prevent iOS Safari auto-zoom on input focus (requires 16px minimum)
-.el-input__inner,
-.el-textarea__inner {
-	font-size: 16px !important;
-}
-
-.el-select__wrapper {
-	border-radius: $border-radius-sm !important;
-}
-
-.el-select__input,
-.el-select__placeholder {
-	font-size: 16px !important;
-}
-
-.el-dialog {
-	border-radius: $border-radius-lg !important;
-	box-shadow: $shadow-modal !important;
-}
-
-.el-card {
-	border-radius: $border-radius-lg !important;
-}
+// -----------------------------------------------------------------------------
+// COMPONENTS - Reusable UI components
+// -----------------------------------------------------------------------------
+@use 'components';

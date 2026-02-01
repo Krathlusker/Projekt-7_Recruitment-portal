@@ -582,64 +582,67 @@
 
 		<!-- CV Viewer Modal -->
 		<Transition name="modal">
-			<div v-if="showCVViewer" class="cv-viewer-overlay" @click.self="closeCVViewer">
-				<div class="cv-viewer-modal">
+			<div v-if="showCVViewer" class="modal-wrapper">
+				<div class="modal-wrapper__backdrop" @click="closeCVViewer"></div>
+				<div class="modal-wrapper__container modal-wrapper__container--fullscreen">
 					<ModalCloseButton @click="closeCVViewer" />
-					<div class="cv-viewer-modal__header">
-						<div class="cv-viewer-modal__zoom">
-							<el-button
-								:disabled="cvScale <= 0.5"
-								@click="cvScale = Math.max(0.5, cvScale - 0.25)"
-								class="btn-dark"
-								size="small"
-							>
-								−
-							</el-button>
-							<span>{{ Math.round(cvScale * 100) }}%</span>
-							<el-button
-								:disabled="cvScale >= 2"
-								@click="cvScale = Math.min(2, cvScale + 0.25)"
-								class="btn-dark"
-								size="small"
-							>
-								+
-							</el-button>
+					<div class="modal-wrapper__modal cv-viewer">
+						<div class="cv-viewer__header">
+							<div class="cv-viewer__zoom">
+								<el-button
+									:disabled="cvScale <= 0.5"
+									@click="cvScale = Math.max(0.5, cvScale - 0.25)"
+									class="btn-dark"
+									size="small"
+								>
+									−
+								</el-button>
+								<span>{{ Math.round(cvScale * 100) }}%</span>
+								<el-button
+									:disabled="cvScale >= 2"
+									@click="cvScale = Math.min(2, cvScale + 0.25)"
+									class="btn-dark"
+									size="small"
+								>
+									+
+								</el-button>
+							</div>
+							<div class="cv-viewer__pagination">
+								<el-button
+									:disabled="cvCurrentPage <= 1"
+									@click="cvCurrentPage--"
+									class="btn-dark"
+									size="small"
+								>
+									Forrige
+								</el-button>
+								<span>Side {{ cvCurrentPage }} af {{ cvTotalPages }}</span>
+								<el-button
+									:disabled="cvCurrentPage >= cvTotalPages"
+									@click="cvCurrentPage++"
+									class="btn-dark"
+									size="small"
+								>
+									Næste
+								</el-button>
+							</div>
+							<div class="cv-viewer__spacer"></div>
 						</div>
-						<div class="cv-viewer-modal__pagination">
-							<el-button
-								:disabled="cvCurrentPage <= 1"
-								@click="cvCurrentPage--"
-								class="btn-dark"
-								size="small"
-							>
-								Forrige
-							</el-button>
-							<span>Side {{ cvCurrentPage }} af {{ cvTotalPages }}</span>
-							<el-button
-								:disabled="cvCurrentPage >= cvTotalPages"
-								@click="cvCurrentPage++"
-								class="btn-dark"
-								size="small"
-							>
-								Næste
-							</el-button>
-						</div>
-						<div class="cv-viewer-modal__spacer"></div>
+						<OverlayScrollbarsComponent
+							class="cv-viewer__content"
+							:options="{ scrollbars: { autoHide: 'leave' } }"
+						>
+							<div class="cv-viewer__pdf-wrapper">
+								<VuePDF
+									v-if="cvPdf"
+									:pdf="cvPdf"
+									:page="cvCurrentPage"
+									:scale="cvScale"
+									text-layer
+								/>
+							</div>
+						</OverlayScrollbarsComponent>
 					</div>
-					<OverlayScrollbarsComponent
-						class="cv-viewer-modal__content"
-						:options="{ scrollbars: { autoHide: 'leave' } }"
-					>
-						<div class="cv-viewer-modal__pdf-wrapper">
-							<VuePDF
-								v-if="cvPdf"
-								:pdf="cvPdf"
-								:page="cvCurrentPage"
-								:scale="cvScale"
-								text-layer
-							/>
-						</div>
-					</OverlayScrollbarsComponent>
 				</div>
 			</div>
 		</Transition>
@@ -1017,7 +1020,7 @@ const formatDateTime = (slot: InterviewSlot): string => {
 
 const formatJobPosition = (position: JobPosition): string => {
 	const positions: Record<JobPosition, string> = {
-		pakkeriet: 'Pakkeriet',
+		pakkeri: 'Pakkeri',
 		produktion: 'Produktion',
 		andre: 'Andre stillinger'
 	}
@@ -2410,31 +2413,8 @@ watch(showDetailDialog, (newVal) => {
 	}
 }
 
-// CV Viewer Modal
-.cv-viewer-overlay {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: rgba(0, 0, 0, 0.7);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	z-index: 3000;
-}
-
-.cv-viewer-modal {
-	position: relative;
-	background-color: $c-bg;
-	border-radius: $border-radius-lg;
-	width: 90%;
-	max-width: 900px;
-	max-height: 90vh;
-	display: flex;
-	flex-direction: column;
-	box-shadow: $shadow-card;
-
+// CV Viewer - bruger modal-wrapper fra global SCSS for DRY
+.cv-viewer {
 	&__header {
 		display: flex;
 		align-items: center;

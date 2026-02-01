@@ -1,0 +1,24 @@
+// =============================================================================
+// EL-MESSAGE SYSTEM
+// =============================================================================
+// Toast notifications styling.
+// Bruges i: ApplicationModal (validation errors, success messages)
+
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// EL-MESSAGE WARNING - gul baggrund med mørk tekst
+.el-message--warning {
+	background-color: $c-warning !important;
+	border-color: $c-warning !important;
+
+	.el-message__content {
+		color: $c-primary !important;
+		font-family: $font-body !important;
+		font-weight: $font-weight-bold !important;
+	}
+
+	.el-message__icon {
+		color: $c-primary !important;
+	}
+}

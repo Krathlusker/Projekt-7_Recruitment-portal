@@ -118,9 +118,8 @@ const currentJobIndex = ref(0)
 const jobsData: JobData[] = [
 	{
 		id: 'pakkeri',
-		title: 'Pakkeriet',
+		title: 'Pakkeri',
 		videoTitle: 'Emma, 21',
-		image: 'https://picsum.photos/seed/pakkeriet/400/300',
 		video: '/videos/Emma.mp4',
 		quote: '"Her er der plads til alle, og man lærer hurtigt at kende sine kollegaer!" - Emma',
 		description:
@@ -138,7 +137,6 @@ const jobsData: JobData[] = [
 		id: 'produktion',
 		title: 'Produktion',
 		videoTitle: 'Marco, 26',
-		image: 'https://picsum.photos/seed/produktion/400/300',
 		video: '/videos/Marco.mp4',
 		quote: '"Jeg elsker at arbejde med maskinerne og se vores produkter blive sendt ud i verden." - Marco',
 		description:

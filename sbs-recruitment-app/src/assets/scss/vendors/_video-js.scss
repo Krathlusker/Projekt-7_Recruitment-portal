@@ -1,0 +1,24 @@
+// =============================================================================
+// VIDEO.JS OVERRIDES
+// =============================================================================
+// Override video.js dynamic dimensions class (injected by video.js)
+
+@use '../abstracts/variables' as *;
+
+// Age hint tooltip - simple styling, positioning handled by parent container
+.age-hint-tooltip {
+	font-size: $font-size-small;
+	line-height: 1.4;
+	font-style: italic;
+	font-weight: 600;
+	box-shadow: $shadow-card;
+	z-index: 10;
+}
+
+// VIDEO.JS OVERRIDES
+// Override video.js dynamic dimensions class (injected by video.js)
+[class*="vjs_video_"][class*="-dimensions"] {
+	width: 100% !important;
+	height: auto !important;
+	max-height: 600px !important;
+}

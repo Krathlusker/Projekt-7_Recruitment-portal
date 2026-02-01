@@ -1,0 +1,77 @@
+// =============================================================================
+// ELEMENT PLUS CSS VARIABLE OVERRIDES
+// =============================================================================
+// SBS Brand Colors - Pre-calculated (ingen SCSS color functions)
+// Disse 6 grundfarver styrer HELE projektet:
+// - Primary: #2d2d2d (mørk grå)
+// - Warning: #f1db53 (gul)
+// - Danger: #ee3123 (rød)
+// - Success: #2ec700 (grøn)
+// - White: #ffffff
+// - LightGray: #ebebeb
+
+@use '../abstracts/variables' as *;
+
+:root {
+	// ========== PRIMARY (Dark Gray #2d2d2d) ==========
+	--el-color-primary: #2d2d2d;
+	--el-color-primary-light-3: #575757;
+	--el-color-primary-light-5: #6e6e6e;
+	--el-color-primary-light-7: #868686;
+	--el-color-primary-light-8: #919191;
+	--el-color-primary-light-9: #9d9d9d;
+	--el-color-primary-dark-2: #1a1a1a;
+
+	// ========== WARNING (Yellow #f1db53) ==========
+	--el-color-warning: #f1db53;
+	--el-color-warning-light-3: #f5e57a;
+	--el-color-warning-light-5: #f7eb91;
+	--el-color-warning-light-7: #f9f0a9;
+	--el-color-warning-light-8: #faf3b5;
+	--el-color-warning-light-9: #fcf6c1;
+	--el-color-warning-dark-2: #d9c23a;
+
+	// ========== DANGER (Red #ee3123) ==========
+	--el-color-danger: #ee3123;
+	--el-color-danger-light-3: #f26d63;
+	--el-color-danger-light-5: #f59089;
+	--el-color-danger-light-7: #f8b3af;
+	--el-color-danger-light-8: #f9c4c1;
+	--el-color-danger-light-9: #fbd6d3;
+	--el-color-danger-dark-2: #c91f13;
+
+	// ========== SUCCESS (Green #2ec700) ==========
+	--el-color-success: #2ec700;
+	--el-color-success-light-3: #5fd93d;
+	--el-color-success-light-5: #7ee35f;
+	--el-color-success-light-7: #9eec82;
+	--el-color-success-light-8: #aef094;
+	--el-color-success-light-9: #bef4a6;
+	--el-color-success-dark-2: #259e00;
+
+	// ========== RGB KOMPONENTER (for rgba() brug) ==========
+	--el-color-primary-rgb: 45, 45, 45;
+	--el-color-warning-rgb: 241, 219, 83;
+	--el-color-danger-rgb: 238, 49, 35;
+	--el-color-success-rgb: 46, 199, 0;
+	--el-color-white-rgb: 255, 255, 255;
+	--el-fill-color-light-rgb: 235, 235, 235;
+
+	// ========== TEXT ==========
+	--el-text-color-primary: #2d2d2d;
+	--el-text-color-regular: #2d2d2d;
+	--el-text-color-secondary: #606060;
+	--el-text-color-placeholder: #a0a0a0;
+	--el-text-color-disabled: #c0c0c0;
+
+	// ========== BORDER / FILL / BG ==========
+	--el-border-color: #ebebeb;
+	--el-border-color-light: #f5f5f5;
+	--el-border-color-dark: #d0d0d0;
+	--el-fill-color-light: #ebebeb;
+	--el-bg-color: #ffffff;
+	--el-bg-color-page: #ffffff;
+
+	// ========== FOCUS ==========
+	--el-color-focus: #f1db53;
+}

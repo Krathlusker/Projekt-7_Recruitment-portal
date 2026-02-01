@@ -1,0 +1,41 @@
+// =============================================================================
+// EL-TAG SYSTEM
+// =============================================================================
+// Status badges, chips og category tags.
+// Bruges i: Calendar, HRDashboard
+
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Base el-tag styling
+.el-tag {
+	transition: all $transition-duration $transition-ease;
+
+	// Calendar status chips - mini size
+	&.el-tag--mini {
+		font-size: 10px;
+		font-weight: $font-weight-medium;
+		padding: 2px 5px;
+		height: auto;
+		line-height: 1.4;
+		border: none;
+		min-width: 16px;
+		text-align: center;
+	}
+
+	// Custom color variants for calendar
+	&--available {
+		background-color: $c-warning !important;
+		color: $c-primary !important;
+	}
+
+	&--reserved {
+		background-color: $c-danger !important;
+		color: $c-bg !important;
+	}
+
+	&--booked {
+		background-color: $c-primary !important;
+		color: $c-bg !important;
+	}
+}

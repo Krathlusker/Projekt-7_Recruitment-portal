@@ -1,0 +1,114 @@
+// =============================================================================
+// EL-BUTTON SYSTEM
+// =============================================================================
+// Button styling med base + farve-varianter.
+// Base styles sættes ÉN gang på .el-button.
+// Farve-varianter bruger kun button-colors-* mixins.
+
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Base styling for ALLE el-buttons (kun én gang!)
+.el-button {
+	@include button-base;
+	@include button-colors-dark; // Default = dark
+	@include button-font;
+	font-size: $font-size-body !important;
+}
+
+// Farve-varianter - kun farver, base er allerede sat
+.el-button.btn-light,
+.btn-light {
+	@include button-colors-light;
+}
+
+.el-button.btn-yellow,
+.btn-yellow {
+	@include button-colors-yellow;
+}
+
+.el-button.btn-red,
+.btn-red {
+	@include button-colors-red;
+}
+
+.el-button.btn-dark,
+.btn-dark {
+	@include button-colors-dark;
+}
+
+// Element Plus type overrides - kun farver
+.el-button--default,
+.el-button--primary,
+.el-button--info {
+	@include button-colors-dark;
+}
+
+.el-button--danger {
+	@include button-colors-red;
+}
+
+.el-button--success,
+.el-button--warning {
+	@include button-colors-yellow;
+}
+
+.el-button.is-plain,
+.el-button.is-text {
+	@include button-colors-dark;
+}
+
+// Disabled button styling - greyed out instead of transparent
+.el-button.is-disabled,
+.el-button.is-disabled:hover,
+.el-button.is-disabled:focus,
+.el-button.is-disabled:active {
+	background-color: $c-fill-light !important;
+	color: $c-primary !important;
+	opacity: 0.6;
+	cursor: not-allowed;
+	box-shadow: none !important;
+	border-color: transparent !important;
+	pointer-events: none;
+
+	// Prevent arrow animation on disabled state
+	.modal-nav-btn__arrow {
+		transform: none !important;
+		opacity: 1 !important;
+		transition: none !important;
+
+		&--2,
+		&--3 {
+			opacity: 0 !important;
+		}
+	}
+}
+
+// Button focus - only on keyboard navigation, not click/touch
+.el-button:focus {
+	outline: none !important;
+}
+
+.el-button:focus-visible {
+	outline: 2px solid $c-warning !important;
+	outline-offset: 2px;
+}
+
+// Button utilities
+.btn {
+	&--primary {
+		@include button-red;
+	}
+
+	&--secondary {
+		@include button-dark;
+	}
+
+	&--outline {
+		@include button-yellow;
+	}
+
+	&--full-width {
+		width: 100%;
+	}
+}

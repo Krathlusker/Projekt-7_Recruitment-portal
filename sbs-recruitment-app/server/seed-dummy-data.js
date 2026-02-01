@@ -21,7 +21,7 @@ const PROFILE_POINTS = {
 // Dummy data
 const firstNames = ['Anders', 'Mette', 'Lars', 'Sofie', 'Mikkel', 'Emma', 'Rasmus', 'Ida', 'Christian', 'Julie', 'Thomas', 'Anna', 'Martin', 'Maria', 'Nikolaj', 'Camilla', 'Jonas', 'Louise', 'Frederik', 'Katrine']
 const lastNames = ['Nielsen', 'Jensen', 'Hansen', 'Pedersen', 'Andersen', 'Christensen', 'Larsen', 'Sørensen', 'Rasmussen', 'Jørgensen', 'Petersen', 'Madsen', 'Kristensen', 'Olsen', 'Thomsen']
-const jobPositions = ['Pakkeriet', 'Produktion', 'Andre stillinger']
+const jobPositions = ['Pakkeri', 'Produktion', 'Andre stillinger']
 const discTypes = ['D', 'I', 'S', 'C']
 const interviewTimes = ['08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30']
 const interviewTypes = ['fysisk', 'virtuel']

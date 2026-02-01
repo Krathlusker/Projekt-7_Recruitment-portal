@@ -1,0 +1,806 @@
+// ==============================================
+// SBS Recruitment App - Mixins
+// ==============================================
+// Dette er projektets centrale mixin-bibliotek.
+// Mixins injiceres globalt via Vite config og er
+// tilgængelige i alle .vue komponenter.
+//
+// @author SBS Recruitment Team
+// @see vite.config.ts - additionalData
+// ==============================================
+
+@use 'sass:math';
+@forward 'variables';
+@use 'variables' as *;
+
+// =============================================================================
+// CONTENT & LAYOUT MIXINS
+// =============================================================================
+// Mixins til sidelayout og indholds-containere.
+
+/// Content container med centreret max-width.
+/// Bruges til at begrænse indholdsbredde på store skærme.
+/// @example scss
+///   .page-content {
+///     @include content-container;
+///   }
+@mixin content-container {
+	max-width: $max-content-width;
+	margin: 0 auto;
+	padding: 0 $spacing-md;
+	width: 100%;
+}
+
+/// Standard vertikal padding til sektioner.
+/// @example scss
+///   .hero-section {
+///     @include section-padding;
+///   }
+@mixin section-padding {
+	padding: $spacing-xl 0;
+}
+
+/// Sektion titel styling med title font.
+/// @example scss
+///   .section__title {
+///     @include section-title;
+///   }
+@mixin section-title {
+	@include title-font;
+	margin-bottom: $spacing-md;
+}
+
+/// Sektion intro-tekst styling.
+/// @example scss
+///   .section__intro {
+///     @include section-intro;
+///   }
+@mixin section-intro {
+	@include body-font;
+	display: block; // el-text er span - margin virker kun på block
+	font-size: 14px;
+	line-height: 1.6;
+	margin-bottom: $spacing-md;
+}
+
+/// Bred container til full-width sektioner.
+/// @example scss
+///   .wide-section {
+///     @include container;
+///   }
+@mixin container {
+	width: 100%;
+	max-width: $breakpoint-xl;
+	margin: 0 auto;
+	padding: 0 $spacing-lg;
+}
+
+// =============================================================================
+// TYPOGRAPHY MIXINS
+// =============================================================================
+// Font-styling mixins baseret på projektets design system.
+// Bruger variabler fra _variables.scss.
+
+/// Titel font styling (Neo Sans).
+/// Bruges til h1, hero titler og primære overskrifter.
+/// @example scss
+///   .hero__title {
+///     @include title-font;
+///   }
+@mixin title-font {
+	font-family: $font-title;
+	font-weight: $font-weight-medium;
+	font-size: $font-size-title;
+	line-height: 1;
+	color: $c-primary;
+}
+
+/// Undertitel font styling.
+/// Bruges til h2 og sekundære overskrifter.
+/// @example scss
+///   .card__title {
+///     @include subtitle-font;
+///   }
+@mixin subtitle-font {
+	font-family: $font-title;
+	font-weight: $font-weight-regular;
+	font-size: $font-size-subtitle;
+	line-height: 1;
+	color: $c-primary;
+}
+
+/// Brødtekst font styling (Helvetica Neue).
+/// Standard font til al body tekst.
+/// @example scss
+///   .description {
+///     @include body-font;
+///   }
+@mixin body-font {
+	font-family: $font-body;
+	font-weight: $font-weight-regular;
+	font-size: $font-size-body;
+	line-height: 1.4;
+	color: $c-primary;
+}
+
+/// Fed brødtekst - kun weight modifier.
+/// Font-family, size og line-height arves fra parent.
+/// @example scss
+///   .highlight {
+///     @include body-bold-font;
+///   }
+@mixin body-bold-font {
+	font-weight: $font-weight-bold;
+}
+
+/// Knap font styling.
+/// Bruges til alle knapper (uppercase, bold).
+/// @example scss
+///   .custom-btn {
+///     @include button-font;
+///   }
+@mixin button-font {
+	font-family: $font-title;
+	font-weight: $font-weight-bold;
+	font-size: $font-size-button;
+	line-height: 1;
+	text-transform: uppercase;
+}
+
+// =============================================================================
+// FLEX MIXINS
+// =============================================================================
+// Utility mixins til flexbox layouts.
+
+/// Centrerer indhold horisontalt og vertikalt med flexbox.
+/// @example scss
+///   .icon-wrapper {
+///     @include flex-center;
+///   }
+@mixin flex-center {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/// Fordeler indhold med space-between og vertikal centrering.
+/// @example scss
+///   .header {
+///     @include flex-between;
+///   }
+@mixin flex-between {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+/// Sætter flex-direction til column.
+/// @example scss
+///   .card__content {
+///     @include flex-column;
+///   }
+@mixin flex-column {
+	display: flex;
+	flex-direction: column;
+}
+
+// =============================================================================
+// FOCUS & ACCESSIBILITY MIXINS
+// =============================================================================
+// Mixins til keyboard navigation og accessibility.
+
+/// Standard focus-visible styling til keyboard navigation.
+/// Gul outline der kun vises ved keyboard focus (ikke klik/touch).
+/// @example scss
+///   .interactive-element {
+///     @include focus-visible;
+///   }
+@mixin focus-visible {
+	&:focus-visible {
+		outline: $border-width-normal solid $c-warning;
+		outline-offset: 2px;
+	}
+}
+
+/// Optisk centrering af tekst i badges/labels.
+/// Beregner asymmetrisk vertikal padding baseret på font metrics
+/// for at opnå visuelt (ikke baseline) centreret tekst.
+/// @param {Length} $padding-y - Ønsket visuel vertikal padding
+/// @param {Length} $padding-x [0] - Horisontal padding
+/// @param {Number} $cap-height [$font-body-cap-height] - Font cap height ratio (0-1)
+/// @param {Number} $descender [$font-body-descender] - Font descender ratio (0-1)
+/// @example scss
+///   .badge {
+///     @include text-center-fix(8px, 16px);
+///   }
+@mixin text-center-fix(
+	$padding-y,
+	$padding-x: 0,
+	$cap-height: $font-body-cap-height,
+	$descender: $font-body-descender
+) {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 1;
+
+	// Beregn optisk korrektion (i em, skalerer med font-size)
+	$offset: math.div((1.2 - $cap-height) - $descender, 2);
+
+	// Anvend asymmetrisk padding: mere i top, mindre i bund
+	padding: calc(#{$padding-y} + #{$offset}em) #{$padding-x} calc(#{$padding-y} - #{$offset}em) #{$padding-x};
+}
+
+// =============================================================================
+// BUTTON MIXINS
+// =============================================================================
+// Button styling system med reset, base og farve-varianter.
+// Designet til at arbejde med Element Plus el-button.
+
+/// Nulstiller alle browser- og Element Plus button defaults.
+/// Brug som første step i custom button styling.
+/// @access private
+/// @example scss
+///   .custom-btn {
+///     @include button-reset;
+///   }
+@mixin button-reset {
+	// Reset all browser defaults
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background: none;
+	border: none;
+	margin: 0;
+	padding: 0;
+	font: inherit;
+	color: inherit;
+	cursor: pointer;
+	outline: none;
+	box-shadow: none;
+	text-decoration: none;
+	// Reset Element Plus variables
+	--el-button-bg-color: transparent;
+	--el-button-text-color: inherit;
+	--el-button-border-color: transparent;
+	--el-button-hover-bg-color: transparent;
+	--el-button-hover-text-color: inherit;
+	--el-button-hover-border-color: transparent;
+	--el-button-active-bg-color: transparent;
+	--el-button-active-text-color: inherit;
+	--el-button-active-border-color: transparent;
+	--el-button-disabled-bg-color: transparent;
+	--el-button-disabled-text-color: inherit;
+	--el-button-disabled-border-color: transparent;
+}
+
+/// Button base styling - reset + font + layout.
+/// Brug KUN én gang på .el-button selector.
+/// Farver tilføjes separat med button-colors-* mixins.
+/// @example scss
+///   .el-button {
+///     @include button-base;
+///     @include button-colors-dark;
+///   }
+@mixin button-base {
+	@include button-reset;
+	@include button-font;
+	@include flex-center;
+	border: none;
+	border-radius: $border-radius-md;
+	padding: $spacing-md $spacing-lg;
+	cursor: pointer;
+	transition:
+		background-color $transition-duration $transition-ease,
+		color $transition-duration $transition-ease,
+		box-shadow $transition-duration $transition-ease,
+		filter $transition-duration $transition-ease !important;
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+}
+
+// =============================================================================
+// BUTTON COLOR VARIANTS
+// =============================================================================
+// Kun farver, ingen base styling. Bruges på .btn-dark, .btn-light, etc.
+// Hover er wrapped i media query for at undgå sticky hover på touch devices.
+
+/// Mørk knap: mørk baggrund, hvid tekst.
+/// Hover: lys grå baggrund, mørk tekst.
+/// @example scss
+///   .btn-dark {
+///     @include button-colors-dark;
+///   }
+@mixin button-colors-dark {
+	background-color: $c-primary !important;
+	color: $c-bg !important;
+	box-shadow: $shadow-button;
+
+	// Kun hover på enheder der understøtter det (ikke touch)
+	@media (hover: hover) and (pointer: fine) {
+		&:hover {
+			background-color: $c-fill-light !important;
+			color: $c-primary !important;
+			box-shadow: $shadow-button-hover;
+		}
+	}
+}
+
+/// Gul knap: gul baggrund, mørk tekst.
+/// Hover: brightness filter for subtil effekt.
+/// @example scss
+///   .btn-yellow {
+///     @include button-colors-yellow;
+///   }
+@mixin button-colors-yellow {
+	background-color: $c-warning !important;
+	color: $c-primary !important;
+	box-shadow: $shadow-button;
+
+	// Kun hover på enheder der understøtter det (ikke touch)
+	@media (hover: hover) and (pointer: fine) {
+		&:hover {
+			filter: brightness(0.95);
+			box-shadow: $shadow-button-hover;
+		}
+	}
+}
+
+/// Rød knap: rød baggrund, hvid tekst.
+/// Hover: hvid baggrund, rød tekst (inverteret).
+/// @example scss
+///   .btn-red {
+///     @include button-colors-red;
+///   }
+@mixin button-colors-red {
+	background-color: $c-danger !important;
+	color: $c-bg !important;
+	box-shadow: $shadow-button;
+
+	// Kun hover på enheder der understøtter det (ikke touch)
+	@media (hover: hover) and (pointer: fine) {
+		&:hover {
+			background-color: $c-bg !important;
+			color: $c-danger !important;
+			box-shadow: $shadow-button-hover;
+		}
+	}
+}
+
+/// Lys knap: hvid baggrund, mørk tekst.
+/// Hover: mørk baggrund, hvid tekst (inverteret).
+/// @example scss
+///   .btn-light {
+///     @include button-colors-light;
+///   }
+@mixin button-colors-light {
+	background-color: $c-bg !important;
+	color: $c-primary !important;
+	box-shadow: $shadow-button;
+
+	// Kun hover på enheder der understøtter det (ikke touch)
+	@media (hover: hover) and (pointer: fine) {
+		&:hover {
+			background-color: $c-primary !important;
+			color: $c-bg !important;
+			box-shadow: $shadow-button-hover;
+		}
+	}
+}
+
+// =============================================================================
+// LEGACY BUTTON MIXINS
+// =============================================================================
+// Inkluderer base + farver. Brug kun i komponenter der IKKE bruger el-button.
+// @deprecated Foretræk button-base + button-colors-* separat.
+
+/// @deprecated Brug button-base + button-colors-dark
+@mixin button-dark {
+	@include button-base;
+	@include button-colors-dark;
+}
+
+/// @deprecated Brug button-base + button-colors-yellow
+@mixin button-yellow {
+	@include button-base;
+	@include button-colors-yellow;
+}
+
+/// @deprecated Brug button-base + button-colors-red
+@mixin button-red {
+	@include button-base;
+	@include button-colors-red;
+}
+
+/// @deprecated Brug button-base + button-colors-light
+@mixin button-light {
+	@include button-base;
+	@include button-colors-light;
+}
+
+// =============================================================================
+// COMPONENT MIXINS
+// =============================================================================
+// Genbrugelige styles til UI komponenter (cards, modals).
+
+/// Standard card styling med baggrund, border-radius og skygge.
+/// @example scss
+///   .my-card {
+///     @include card;
+///   }
+@mixin card {
+	background-color: $c-bg;
+	border-radius: $border-radius-lg;
+	box-shadow: $shadow-card;
+}
+
+/// Modal/dialog styling med større skygge.
+/// @example scss
+///   .my-modal {
+///     @include modal;
+///   }
+@mixin modal {
+	background-color: $c-bg;
+	border-radius: $border-radius-lg;
+	box-shadow: $shadow-modal;
+	padding: $spacing-md;
+}
+
+// =============================================================================
+// SLOT PICKER MIXINS
+// =============================================================================
+// Styles til dato/tids-vælger i ansøgningsflow.
+// Bruges i: ApplicationModal.vue, CalendarSlotPicker.vue
+// @group Slot Picker
+
+/// Header container med dato-display og VÆLG DATO knap.
+/// @example scss
+///   .slot-picker__header {
+///     @include slot-picker-header;
+///   }
+@mixin slot-picker-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: $spacing-md;
+}
+
+/// Dato-display tekst styling.
+/// @example scss
+///   .slot-picker__date {
+///     @include slot-picker-date-display;
+///   }
+@mixin slot-picker-date-display {
+	@include subtitle-font;
+	font-size: $font-size-subtitle;
+}
+
+/// VÆLG DATO knap styling.
+/// Bruger button-dark med lokale størrelsestilpasninger.
+/// @example scss
+///   .slot-picker__btn {
+///     @include slot-picker-date-btn;
+///   }
+@mixin slot-picker-date-btn {
+	@include button-dark;
+	padding: $spacing-sm $spacing-md;
+	font-size: $font-size-body;
+
+	.el-icon {
+		color: inherit;
+	}
+}
+
+/// Grid container til time slots (3 kolonner).
+/// @example scss
+///   .slots-grid {
+///     @include slot-grid;
+///   }
+@mixin slot-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: $spacing-sm;
+}
+
+/// Individuel time slot styling.
+/// Inkluderer hover-håndtering for touch devices.
+/// @example scss
+///   .slot {
+///     @include slot-item;
+///   }
+@mixin slot-item {
+	@include flex-column;
+	@include flex-center;
+	gap: $spacing-xs;
+	padding: $spacing-xs $spacing-sm;
+	border: $border-width-normal solid $c-primary;
+	border-radius: $border-radius-md;
+	cursor: pointer;
+	transition: all $transition-duration $transition-ease;
+	position: relative;
+	background-color: $c-bg;
+	-webkit-tap-highlight-color: transparent;
+
+	// Only apply hover on devices that support hover (not touch)
+	@media (hover: hover) and (pointer: fine) {
+		&:hover:not(&--disabled):not(&--selected):not(&--reserved) {
+			background-color: $c-fill-light;
+		}
+	}
+
+	// On touch devices, remove sticky hover by resetting on touchend
+	@media (hover: none) {
+		&:hover {
+			background-color: $c-bg;
+		}
+	}
+}
+
+/// Valgt slot state (mørk baggrund, lys tekst).
+/// @example scss
+///   .slot--selected {
+///     @include slot-item-selected;
+///   }
+@mixin slot-item-selected {
+	background-color: $c-primary !important;
+	color: $c-bg;
+
+	// Only apply hover effect on non-touch devices
+	@media (hover: hover) and (pointer: fine) {
+		&:hover {
+			background-color: $c-fill-light !important;
+			color: $c-primary;
+		}
+	}
+}
+
+/// Disabled slot state.
+/// @example scss
+///   .slot--disabled {
+///     @include slot-item-disabled;
+///   }
+@mixin slot-item-disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/// Slot klokkeslæt tekst.
+/// @example scss
+///   .slot__time {
+///     @include slot-time;
+///   }
+@mixin slot-time {
+	@include body-bold-font;
+	font-size: $font-size-button;
+	color: inherit;
+}
+
+/// Slot type badge (f.eks. "Online", "Fysisk").
+/// @example scss
+///   .slot__type {
+///     @include slot-type-badge;
+///   }
+@mixin slot-type-badge {
+	@include body-font;
+	padding: math.div($spacing-xs, 2) $spacing-sm;
+	border: $border-width-thin solid currentColor;
+	border-radius: $border-radius-sm;
+	color: inherit;
+}
+
+/// Tom tilstand placeholder (ingen dato valgt, ingen slots).
+/// @example scss
+///   .slot-picker__empty {
+///     @include slot-empty-state;
+///   }
+@mixin slot-empty-state {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 1;
+	border: $border-width-normal dashed $c-fill-light;
+	border-radius: $border-radius-md;
+	color: $c-primary;
+	text-align: center;
+	padding: $spacing-lg;
+
+	p {
+		@include body-font;
+		margin: 0;
+	}
+}
+
+// =============================================================================
+// SELECTED SLOTS MIXINS
+// =============================================================================
+// Styles til visning af valgte tidsslots.
+// @group Slot Picker
+
+/// Container til valgte slots sektion.
+/// @example scss
+///   .selected-slots {
+///     @include selected-slots-section;
+///   }
+@mixin selected-slots-section {
+	display: flex;
+	flex-direction: column;
+}
+
+/// Tæller-tekst for valgte slots.
+/// @example scss
+///   .selected-slots__count {
+///     @include selected-slots-count;
+///   }
+@mixin selected-slots-count {
+	@include body-bold-font;
+	font-size: 14px;
+	text-align: center;
+	padding-top: $spacing-xs;
+}
+
+/// Grid til valgte slots (2 kolonner).
+/// @example scss
+///   .selected-slots__grid {
+///     @include selected-slots-grid;
+///   }
+@mixin selected-slots-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: $spacing-sm;
+	height: 74px;
+	padding-bottom: $spacing-sm;
+}
+
+/// Individuel valgt slot styling.
+/// @example scss
+///   .selected-slot {
+///     @include selected-slot;
+///   }
+@mixin selected-slot {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	padding: $spacing-xs;
+	border: $border-width-normal solid $c-primary;
+	border-radius: $border-radius-md;
+	background-color: $c-primary;
+	color: $c-bg;
+	min-height: 52px; // Ensure consistent height for empty and filled slots
+}
+
+/// Tom valgt slot (dashed border, transparent baggrund).
+/// @example scss
+///   .selected-slot--empty {
+///     @include selected-slot-empty;
+///   }
+@mixin selected-slot-empty {
+	background-color: transparent;
+	border-style: dashed;
+	justify-content: center;
+}
+
+/// Info container i valgt slot.
+/// @example scss
+///   .selected-slot__info {
+///     @include selected-slot-info;
+///   }
+@mixin selected-slot-info {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: $spacing-sm;
+	flex: 1;
+	padding-top: math.div($spacing-xs, 2);
+}
+
+/// Tidstekst i valgt slot.
+/// @example scss
+///   .selected-slot__time {
+///     @include selected-slot-time;
+///   }
+@mixin selected-slot-time {
+	@include body-font;
+	font-weight: $font-weight-bold;
+	color: $c-bg;
+}
+
+/// Dato-tekst i valgt slot.
+/// @example scss
+///   .selected-slot__date {
+///     @include selected-slot-date;
+///   }
+@mixin selected-slot-date {
+	font-size: $font-size-body;
+	opacity: 0.7;
+}
+
+/// Fjern-knap i valgt slot (på mørk baggrund).
+/// @example scss
+///   .selected-slot__remove {
+///     @include selected-slot-remove-btn;
+///   }
+@mixin selected-slot-remove-btn {
+	@include button-colors-dark;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: $spacing-lg;
+	height: $spacing-lg;
+	padding: 0;
+	border: $border-width-thin solid transparent;
+	border-radius: $border-radius-sm;
+	cursor: pointer;
+	transition: all $transition-duration $transition-ease;
+
+	&:hover {
+		border-color: $c-bg;
+	}
+}
+
+/// Placeholder tekst i tom slot.
+/// @example scss
+///   .selected-slot__placeholder {
+///     @include selected-slot-empty-text;
+///   }
+@mixin selected-slot-empty-text {
+	@include body-font;
+	font-size: $font-size-body;
+	color: $c-primary;
+	opacity: 0.5;
+}
+
+// =============================================================================
+// RESPONSIVE MIXINS
+// =============================================================================
+// Breakpoint-baserede media queries til responsive design.
+// Bruger breakpoints fra _variables.scss:
+// - $breakpoint-sm: 768px (tablet start)
+// - $breakpoint-lg: 1024px (desktop start)
+// @group Responsive
+
+/// Mobile-only styles (< 768px).
+/// @content Styles der kun anvendes på mobile enheder.
+/// @example scss
+///   .component {
+///     width: 100%;
+///     @include mobile {
+///       padding: 8px;
+///     }
+///   }
+@mixin mobile {
+	@media (max-width: #{$breakpoint-sm - 1}) {
+		@content;
+	}
+}
+
+/// Tablet styles (768px - 1023px).
+/// @content Styles der kun anvendes på tablet enheder.
+/// @example scss
+///   .component {
+///     @include tablet {
+///       flex-direction: row;
+///     }
+///   }
+@mixin tablet {
+	@media (min-width: $breakpoint-sm) and (max-width: #{$breakpoint-lg - 1}) {
+		@content;
+	}
+}
+
+/// Desktop styles (>= 1024px).
+/// @content Styles der kun anvendes på desktop enheder.
+/// @example scss
+///   .component {
+///     @include desktop {
+///       max-width: 1200px;
+///       margin: 0 auto;
+///     }
+///   }
+@mixin desktop {
+	@media (min-width: $breakpoint-lg) {
+		@content;
+	}
+}

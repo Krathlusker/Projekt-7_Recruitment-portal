@@ -1,0 +1,21 @@
+// =============================================================================
+// OVERLAYSCROLLBARS STYLING
+// =============================================================================
+// Custom styling for OverlayScrollbars in modals
+
+.os-theme-dark > .os-scrollbar > .os-scrollbar-track > .os-scrollbar-handle {
+	background: rgba(var(--el-color-primary-rgb), 0.3);
+	border-radius: 4px;
+
+	&:hover {
+		background: rgba(var(--el-color-primary-rgb), 0.5);
+	}
+}
+
+.os-theme-dark > .os-scrollbar-vertical {
+	width: 8px;
+}
+
+.os-theme-dark > .os-scrollbar > .os-scrollbar-track {
+	background: transparent;
+}

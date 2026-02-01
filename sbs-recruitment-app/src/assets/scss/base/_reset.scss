@@ -1,0 +1,12 @@
+// =============================================================================
+// BASE RESET
+// =============================================================================
+// Box-sizing, margin reset og grundlæggende normalisering.
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}

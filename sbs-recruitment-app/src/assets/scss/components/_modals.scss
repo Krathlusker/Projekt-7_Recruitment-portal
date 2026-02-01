@@ -1,0 +1,339 @@
+// =============================================================================
+// MODAL SYSTEM
+// =============================================================================
+// Modal wrapper, navigation buttons og animations.
+// Bruges i: JobModal, ApplicationModal, ConsentModal
+
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Modal Wrapper - custom modal container
+// Højde: 660px (eller viewport - 24px padding hvis for lille)
+// Max bredde PC: 950px, Altid 12px padding i siderne
+.modal-wrapper {
+	position: fixed;
+	inset: 0;
+	z-index: $z-index-modal;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: $spacing-md; // 12px padding på alle sider
+
+	&__backdrop {
+		position: absolute;
+		inset: 0;
+		background-color: rgba(var(--el-color-primary-rgb), 0.5);
+	}
+
+	&__container {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: $spacing-sm;
+		max-width: 950px; // Max bredde på PC
+		width: 100%;
+		z-index: 1;
+		height: $modal-height-standard; // Total højde inklusiv knapper
+		max-height: calc(100vh - #{$spacing-md * 2}); // Viewport minus padding
+		transition: height $transition-duration $transition-ease;
+
+		// Større højde på bredere skærme (ikke for application modal)
+		@media (min-width: 990px) {
+			height: 850px;
+		}
+
+		// Application modal skal forblive 660px og 570px bred
+		&--fixed-height {
+			height: $modal-height-standard;
+			max-width: 570px;
+
+			@media (min-width: 990px) {
+				height: $modal-height-standard;
+				max-width: 570px;
+			}
+		}
+
+		&--fullscreen {
+			max-width: min($modal-max-width-wide, calc(100vw - $spacing-xl));
+			height: calc(100vh - $spacing-xl);
+			max-height: calc(100vh - $spacing-xl);
+		}
+	}
+
+	&__modal {
+		background-color: $c-bg;
+		border-radius: $border-radius-lg;
+		box-shadow: $shadow-modal;
+		overflow: hidden;
+		flex: 1; // Fyld resten af container (660px - knaphøjde - gap)
+		display: flex;
+		flex-direction: column;
+		position: relative; // For close button positioning
+
+		// Skygge under lukkeknappen - klippet af overflow: hidden
+		&::before {
+			content: '';
+			position: absolute;
+			top: -20px;
+			right: -20px;
+			width: calc(#{$close-btn-size-mobile} + 20px);
+			height: calc(#{$close-btn-size-mobile} + 20px);
+			background-color: $c-fill-light;
+			border-radius: 0 0 0 20px;
+			box-shadow: -6px 6px 12px rgba(var(--el-color-primary-rgb), 0.2);
+			z-index: 5;
+			pointer-events: none;
+		}
+	}
+
+	&__scroll-area {
+		flex: 1;
+		overflow: hidden; // OverlayScrollbars handles overflow
+	}
+
+	&__actions {
+		display: flex;
+		gap: $spacing-sm;
+		width: 100%;
+	}
+}
+
+// Modal Navigation Buttons (outside modal) - Kun størrelses-styling, farver via Element Plus type prop
+.modal-nav-btn {
+	// Kun størrelses-tilpasninger - alt andet kommer fra button-dark/yellow/red
+	flex: 1;
+	height: $spacing-xl;
+	padding: 0 $spacing-md;
+	font-size: $font-size-subtitle;
+	// Centrér indhold (ikoner og tekst)
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+
+	// Element Plus wrapper span - skal fylde knappen
+	> span {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+	}
+
+	// Override el-button icon size
+	.el-icon {
+		font-size: $font-size-subtitle;
+	}
+
+	// Close button with rotated X icon (45 degrees)
+	&--close {
+		.el-icon {
+			transform: rotate(45deg);
+		}
+	}
+
+	// Full width modifier
+	&--full {
+		flex: none;
+		width: 100%;
+	}
+
+	// Fix warning button text color (should be dark on yellow background)
+	&.el-button--warning {
+		color: $c-primary;
+
+		&:hover,
+		&:focus,
+		&:active {
+			color: $c-primary;
+		}
+	}
+
+	// Next button with animated arrows (racer style)
+	&--next {
+		overflow: hidden;
+
+		.modal-nav-btn__arrows {
+			display: inline-flex;
+			align-items: center;
+			position: relative;
+		}
+
+		.modal-nav-btn__arrow {
+			font-size: $font-size-subtitle;
+			transition: all $transition-duration $transition-ease;
+
+			// Pil 1 er synlig og rykker sig på hover
+			&--1 {
+				position: relative;
+				z-index: 1;
+			}
+
+			// Pile 2 og 3 ligger bag pil 1 og fader ind
+			&--2,
+			&--3 {
+				position: absolute;
+				opacity: 0;
+				left: 0;
+			}
+
+			&--2 {
+				left: 0em;
+			}
+
+			&--3 {
+				left: -0.5em;
+			}
+		}
+
+		// Kun hover på enheder der understøtter det (ikke touch)
+		@media (hover: hover) and (pointer: fine) {
+			&:hover {
+				.modal-nav-btn__arrow--1 {
+					transform: translateX(0.5em);
+				}
+
+				.modal-nav-btn__arrow--2 {
+					opacity: 1;
+					transition-delay: 0.05s;
+				}
+
+				.modal-nav-btn__arrow--3 {
+					opacity: 1;
+					transition-delay: 0.1s;
+				}
+			}
+		}
+	}
+
+	// Prev button with animated arrows (mirrored racer style)
+	&--prev {
+		overflow: hidden;
+
+		.modal-nav-btn__arrows {
+			display: inline-flex;
+			align-items: center;
+			position: relative;
+		}
+
+		.modal-nav-btn__arrow {
+			font-size: $font-size-subtitle;
+			transition: all $transition-duration $transition-ease;
+
+			// Pil 1 er synlig og rykker sig på hover
+			&--1 {
+				position: relative;
+				z-index: 1;
+			}
+
+			// Pile 2 og 3 ligger bag pil 1 og fader ind
+			&--2,
+			&--3 {
+				position: absolute;
+				opacity: 0;
+				right: 0;
+			}
+
+			&--2 {
+				right: 0em;
+			}
+
+			&--3 {
+				right: -0.5em;
+			}
+		}
+
+		// Kun hover på enheder der understøtter det (ikke touch)
+		@media (hover: hover) and (pointer: fine) {
+			&:hover {
+				.modal-nav-btn__arrow--1 {
+					transform: translateX(-0.5em);
+				}
+
+				.modal-nav-btn__arrow--2 {
+					opacity: 1;
+					transition-delay: 0.05s;
+				}
+
+				.modal-nav-btn__arrow--3 {
+					opacity: 1;
+					transition-delay: 0.1s;
+				}
+			}
+		}
+	}
+}
+
+// =============================================================================
+// MODAL ANIMATIONS
+// =============================================================================
+
+// Combined modal animation (fade backdrop + scale container)
+.modal-enter-active,
+.modal-leave-active {
+	transition: opacity $transition-duration-slow $transition-ease;
+
+	.modal-wrapper__container {
+		transition: all $transition-duration-slow $transition-ease;
+	}
+}
+
+.modal-enter-from,
+.modal-leave-to {
+	opacity: 0;
+
+	.modal-wrapper__container {
+		opacity: 0;
+		transform: scale(0.9);
+	}
+}
+
+// Slide left animation (forward navigation)
+.slide-left-enter-active,
+.slide-left-leave-active {
+	transition: all $transition-duration-slow $transition-ease;
+}
+
+.slide-left-enter-from {
+	opacity: 0;
+	transform: translateX($slide-offset);
+}
+
+.slide-left-leave-to {
+	opacity: 0;
+	transform: translateX(-$slide-offset);
+}
+
+// Slide right animation (backward navigation)
+.slide-right-enter-active,
+.slide-right-leave-active {
+	transition: all $transition-duration-slow $transition-ease;
+}
+
+.slide-right-enter-from {
+	opacity: 0;
+	transform: translateX(-$slide-offset);
+}
+
+.slide-right-leave-to {
+	opacity: 0;
+	transform: translateX($slide-offset);
+}
+
+// Custom scale transition for el-dialog (matches frontend modal)
+.dialog-scale-enter-active,
+.dialog-scale-leave-active {
+	transition: opacity $transition-duration-slow $transition-ease;
+
+	.el-dialog {
+		transition: all $transition-duration-slow $transition-ease;
+	}
+}
+
+.dialog-scale-enter-from,
+.dialog-scale-leave-to {
+	opacity: 0;
+
+	.el-dialog {
+		opacity: 0;
+		transform: scale(0.9);
+	}
+}

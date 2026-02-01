@@ -141,9 +141,9 @@
 					<!-- Nyttige links -->
 					<div class="landing-page__footer-section">
 						<h4 class="landing-page__footer-title">Nyttige links</h4>
-						<el-link href="https://sfriction.dk" target="_blank" class="footer-link">SBS</el-link>
-						<el-link href="https://sfriction.dk/karriere" target="_blank" class="footer-link">SBS - Career</el-link>
-						<el-link href="https://www.brembo.com" target="_blank" class="footer-link">Brembo</el-link>
+						<el-link href="https://sfriction.dk" target="_blank" class="footer-link">SBS | https://sfriction.dk</el-link>
+						<el-link href="https://sfriction.dk/karriere" target="_blank" class="footer-link">SBS Career | https://sfriction.dk/karriere</el-link>
+						<el-link href="https://www.brembo.com" target="_blank" class="footer-link">Brembo.com | https://www.brembo.com</el-link>
 					</div>
 
 					<!-- SBS A/S Info -->
@@ -309,7 +309,7 @@ watch(isAnyModalOpen, (isOpen) => {
 const jobs = ref([
 	{
 		id: 'pakkeri',
-		title: 'Pakkeriet',
+		title: 'Pakkeri',
 		baseName: 'pakkeri_emma_compressed',
 		breakpoints: '400,0;800,400;1200,800;400,990',
 		focusPosition: '80% 10%'
@@ -445,7 +445,6 @@ const closeApplicationModal = () => {
 	}
 
 .el-image-card__button {
-    // Din styling her, f.eks.:
     margin: $spacing-sm;
     width: calc($spacing-md * 8);
 }
@@ -562,7 +561,7 @@ const closeApplicationModal = () => {
 
 	&__benefits-intro {
 		@include section-intro;
-		margin-bottom: $spacing-xl;
+		margin-bottom: $spacing-sm;
 	}
 
 	&__benefits-grid {

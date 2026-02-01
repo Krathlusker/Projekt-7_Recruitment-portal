@@ -1,0 +1,45 @@
+// =============================================================================
+// UTILITY COMPONENTS
+// =============================================================================
+// Dividers, loading states og andre generelle utility-komponenter.
+
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// EL-DIVIDER - Horizontal/vertical dividers
+.el-divider {
+	// Text divider - "eller opret manuelt"
+	&--horizontal.el-divider--with-text {
+		margin: $spacing-sm 0;
+
+		.el-divider__text {
+			@include body-font;
+			color: $c-primary;
+			font-size: 11px;
+			background-color: transparent;
+			padding: 0 $spacing-sm;
+		}
+	}
+
+	&::before,
+	&::after {
+		border-color: $c-fill-light !important;
+	}
+}
+
+// V-LOADING - Loading states
+// Brug: v-loading="isLoading" på container elementer
+.el-loading-mask {
+	background-color: rgba(var(--el-color-white-rgb), 0.9);
+	border-radius: inherit;
+
+	.el-loading-spinner {
+		.circular {
+			animation: loading-rotate 2s linear infinite;
+		}
+
+		.path {
+			stroke: $c-warning;
+		}
+	}
+}

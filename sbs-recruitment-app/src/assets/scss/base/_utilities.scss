@@ -1,0 +1,30 @@
+// =============================================================================
+// LAYOUT UTILITIES
+// =============================================================================
+// Container, flex og layout utility classes.
+
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Layout utilities
+.container {
+	max-width: $max-page-width;
+	margin: 0 auto;
+	padding: 0 $spacing-lg;
+}
+
+.flex {
+	display: flex;
+
+	&--center {
+		@include flex-center;
+	}
+
+	&--between {
+		@include flex-between;
+	}
+
+	&--column {
+		@include flex-column;
+	}
+}

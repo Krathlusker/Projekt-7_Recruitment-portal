@@ -3,7 +3,8 @@
 		ref="containerRef"
 		class="video-player-v2"
 		:class="{
-			'video-player-v2--contain': objectFit === 'contain'
+			'video-player-v2--contain': objectFit === 'contain',
+			'video-player-v2--rounded': rounded
 		}"
 	>
 		<!-- Title overlay (above video) -->
@@ -69,6 +70,7 @@ interface Props {
 	fluid?: boolean
 	objectFit?: 'cover' | 'contain'
 	initialVolume?: number
+	rounded?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -78,9 +80,10 @@ const props = withDefaults(defineProps<Props>(), {
 	autoplay: true,
 	loop: true,
 	muted: true,
-	fluid: true,
+	fluid: false,
 	objectFit: 'cover',
-	initialVolume: 0.6
+	initialVolume: 0.6,
+	rounded: false
 })
 
 // Emits
@@ -185,6 +188,7 @@ defineExpose({
 
 <style lang="scss" scoped>
 // Local variables for video player
+$video-max-height: 600px;
 $control-bar-total-height: calc($video-control-bar-height + $spacing-sm);
 $title-offset-above-controls: calc($control-bar-total-height + $spacing-md);
 $progress-bar-height: $spacing-xs;
@@ -194,15 +198,20 @@ $handle-size: $spacing-sm + 2px;
 .video-player-v2 {
 	position: relative;
 	width: 100%;
-	height: 100%;
+	height: auto;
+	max-height: $video-max-height;
 	overflow: hidden;
 	background-color: $c-primary;
-	border-radius: $border-radius-lg;
 
 	// Contain mode: height follows video aspect ratio
 	&--contain {
 		height: auto;
 		background-color: transparent;
+	}
+
+	// Rounded corners only in modals
+	&--rounded {
+		border-radius: $border-radius-lg;
 	}
 
 	// Title wrapper (positioned at bottom like v1)
@@ -246,22 +255,19 @@ $handle-size: $spacing-sm + 2px;
 	// Video.js player
 	&__player {
 		width: 100%;
-		height: 100%;
 
 		// Override video.js default styles with SBS branding
 		:deep(.video-js) {
-			// Font
 			font-family: $font-body;
+			max-height: $video-max-height;
+		}
 
-			// Video element
-			video {
-				object-fit: cover;
-			}
-
-			// When in contain mode
-			.video-player-v2--contain & video {
-				object-fit: contain;
-			}
+		// Video element
+		:deep(.vjs-tech) {
+			position: relative !important;
+			display: block;
+			max-height: $video-max-height;
+			background-color: $c-primary;
 		}
 
 		// Dark gradient overlay (like v1)

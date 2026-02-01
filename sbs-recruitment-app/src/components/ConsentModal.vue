@@ -32,35 +32,39 @@
 
 								<div class="consent-modal__body">
 									<el-text>
-										Ved at indsende denne ansøgning giver du samtykke til, at SBS A/S indsamler og behandler dine
-										personoplysninger i forbindelse med rekrutteringsprocessen.
+										Ved udfyldning af denne ansøgning vil din data kun blive brugt til vurdering af din ansøgning og
+										opbevares sikkert hos SBS. Vi deler ikke dine oplysninger med tredjeparter uden dit samtykke.
 									</el-text>
 
 									<h3>Hvilke oplysninger behandler vi?</h3>
 									<ul>
-										<li>Kontaktoplysninger (navn, telefon, e-mail)</li>
-										<li>Eventuel alder, hvis oplyst</li>
+										<li>Navn</li>
+										<li>Alder (hvis oplyst)</li>
+										<li>Telefonnummer</li>
+										<li>E-mail</li>
+										<li>Jobpræference</li>
 										<li>Svar på personlighedsquiz</li>
 										<li>Ønskede samtaletider</li>
-										<li>CV, hvis vedhæftet</li>
+										<li>CV (hvis vedhæftet)</li>
 									</ul>
 
 									<h3>Formål med behandlingen</h3>
 									<el-text>
 										Dine oplysninger bruges udelukkende til at vurdere din ansøgning og koordinere eventuelle samtaler.
-										Vi deler ikke dine oplysninger med tredjeparter uden dit samtykke.
+										Det gør det muligt at kontakte dig efter du har sendt din ansøgning.
 									</el-text>
 
 									<h3>Opbevaring</h3>
 									<el-text>
-										Dine oplysninger opbevares i op til 6 måneder efter afsluttet rekrutteringsproces, medmindre du
-										giver samtykke til længere opbevaring.
+										I tilfælde af at du ikke bliver ansat eller kaldt til samtale, vil dine data blive slettet
+										automatisk efter 12 måneder. Skulle du ikke få et job, har vi derfor 12 måneder til at kontakte
+										dig, i tilfælde af at en stilling skulle åbne sig.
 									</el-text>
 
 									<h3>Dine rettigheder</h3>
 									<el-text>
-										Du har ret til at få indsigt i, rette eller slette dine personoplysninger. Kontakt os på hr@sbs.dk
-										for spørgsmål vedrørende dine data.
+										Du har ret til at få indsigt i, rette eller slette dine personoplysninger. Du kan til enhver tid
+										få slettet din data ved at kontakte os på data@sbs.dk.
 									</el-text>
 								</div>
 							</div>
@@ -117,13 +121,26 @@ const handleDecline = () => {
 
 .consent-checkbox {
 	margin: $spacing-md 0;
-	align-items: flex-start; // Align checkbox to top of text
-	width: 100%; // Fill available width
+	align-items: center; // Center checkbox and text vertically
 
 	// Override Element Plus checkbox alignment
 	:deep(.el-checkbox__input) {
-		margin-top: 3px; // Fine-tune vertical alignment with first line
 		flex-shrink: 0; // Prevent checkbox from shrinking
+	}
+
+	// Make checkbox larger
+	:deep(.el-checkbox__inner) {
+		width: 20px;
+		height: 20px;
+
+		&::after {
+			// Adjust checkmark for larger checkbox
+			height: 10px;
+			width: 6px;
+			left: 9px;
+			top: 7px;
+			border-width: 2px;
+		}
 	}
 
 	:deep(.el-checkbox__label) {

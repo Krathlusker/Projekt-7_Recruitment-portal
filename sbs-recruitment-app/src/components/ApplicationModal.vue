@@ -80,7 +80,7 @@
 												placeholder="Select option"
 												class="application-modal__select"
 											>
-												<el-option label="Pakkeriet" value="pakkeriet" />
+												<el-option label="Pakkeri" value="pakkeri" />
 												<el-option label="Produktion" value="produktion" />
 												<el-option label="Andre stillinger" value="andre" />
 											</el-select>
@@ -158,6 +158,9 @@
 											{{ option.text }}
 										</el-radio>
 									</el-radio-group>
+
+									<!-- Quiz hint text -->
+									<el-text class="application-modal__quiz-hint">Vælg en - den som passer bedst på dig</el-text>
 								</div>
 
 								<!-- Step 3: Date Selection (Qualified) -->
@@ -826,6 +829,8 @@ const selectOption = (questionId: number, option: DiscOption) => {
 		profile: option.profile,
 		points: option.points
 	}
+	// Save draft when answer is selected
+	saveDraft()
 }
 
 // Calculate DISC result
@@ -1262,6 +1267,8 @@ const nextStep = async () => {
 		currentStep.value = 4
 		highestStepReached.value = Math.max(highestStepReached.value, 4)
 	}
+	// Save draft after navigation
+	saveDraft()
 }
 
 // Get step status for el-steps
@@ -1311,6 +1318,8 @@ const previousStep = () => {
 	} else if (currentStep.value > 1) {
 		currentStep.value--
 	}
+	// Save draft after navigation
+	saveDraft()
 }
 
 // Go to specific step
@@ -1596,6 +1605,15 @@ const handleClose = async () => {
 				color: $c-primary;
 			}
 		}
+	}
+
+	&__quiz-hint {
+		@include body-font;
+		font-weight: 600;
+		margin-top: auto;
+		text-align: center;
+		width: 100%;
+		padding-bottom: $spacing-sm;
 	}
 
 	// Date selection

@@ -15,7 +15,7 @@ export type ApplicationStatus =
 	| 'rejected'
 
 // Job positions
-export type JobPosition = 'pakkeriet' | 'produktion' | 'andre'
+export type JobPosition = 'pakkeri' | 'produktion' | 'andre'
 
 // Age range
 export type AgeRange = '18-25' | '26-35' | '36-45' | '46-55' | '56+'

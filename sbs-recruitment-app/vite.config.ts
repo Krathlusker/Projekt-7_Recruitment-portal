@@ -12,9 +12,9 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        // Inject only variables and mixins (no CSS output) for use in Vue components
+        // Inject abstracts (variables + mixins, no CSS output) for use in Vue components
         // _global.scss (with CSS output) is imported once in main.scss
-        additionalData: `@use "@/assets/scss/_mixins.scss" as *;`,
+        additionalData: `@use "@/assets/scss/abstracts" as *;`,
         api: 'modern-compiler'
       }
     }
