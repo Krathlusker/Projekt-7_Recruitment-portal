@@ -1116,7 +1116,7 @@ const isSlotAvailableForApplication = (slotId: string, applicationId: string): b
 	if (!slot) return false
 
 	// SQLite returns 0/1 for booleans, so check both
-	const isBooked = slot.isBooked === true || slot.isBooked === 1
+	const isBooked = slot.isBooked === true || (slot.isBooked as unknown) === 1
 
 	// If booked - only available if booked by this application
 	if (isBooked) {
