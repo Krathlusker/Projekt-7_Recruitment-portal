@@ -4,9 +4,14 @@ import { resolve } from 'path'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import criticalMediaPreload from './plugins/vite-plugin-critical-media'
 
 export default defineConfig({
   plugins: [
+    // Inject critical media preloads into HTML (runs at build time)
+    criticalMediaPreload({
+      priorityPatterns: ['HERO'], // Hero poster gets fetchpriority="high"
+    }),
     vue(),
     // Auto-import Element Plus components on-demand (tree-shaking)
     AutoImport({

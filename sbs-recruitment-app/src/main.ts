@@ -7,6 +7,9 @@ import router from './router'
 import './assets/scss/main.scss'
 import 'overlayscrollbars/overlayscrollbars.css'
 
+// Note: Critical media preloading is handled by vite-plugin-critical-media
+// which injects preload links directly into index.html at build time
+
 // Passive event listener polyfill for third-party libraries
 // Fixes Chrome warnings about non-passive touch/wheel events
 ;(function () {

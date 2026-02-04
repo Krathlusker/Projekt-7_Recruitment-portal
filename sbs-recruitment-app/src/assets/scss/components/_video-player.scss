@@ -13,7 +13,7 @@
 // Local video player variables
 $video-max-height: 600px;
 $video-control-bar-total-height: calc($video-control-bar-height + $spacing-sm);
-$video-title-offset: calc($video-control-bar-total-height + $spacing-md);
+$video-title-bottom: calc($video-control-bar-total-height + $spacing-sm); // 12px above controls
 $video-progress-bar-height: $spacing-xs;
 $video-progress-bar-radius: calc($video-progress-bar-height / 2);
 $video-handle-size: $spacing-sm + 2px;
@@ -25,21 +25,18 @@ $video-handle-size: $spacing-sm + 2px;
 .video-player-v2 {
 	position: relative;
 	width: 100%;
-	height: auto;
-	max-height: $video-max-height;
+	max-height: var(--video-max-height);
+	background-color: #2d2d2d;
 	overflow: hidden;
-	background-color: $c-primary;
-	// aspect-ratio is set dynamically via inline style from video metadata
 
-	// Loading state - show background while metadata loads
-	&--loading {
-		min-height: 200px; // Minimum height while loading
-	}
-
-	// Contain mode: height follows video aspect ratio
+	// Contain mode: show full video with letterboxing
 	&--contain {
-		height: auto;
-		background-color: transparent;
+		.vjs-tech,
+		.vjs-poster {
+			object-fit: contain !important;
+			background-size: contain !important;
+			background-position: center !important;
+		}
 	}
 
 	// Rounded corners only in modals
@@ -54,25 +51,38 @@ $video-handle-size: $spacing-sm + 2px;
 
 .video-player-v2__title-wrapper {
 	position: absolute;
-	bottom: $spacing-md;
-	left: $spacing-lg;
-	right: $spacing-lg;
+	bottom: $video-title-bottom;
+	left: $spacing-md; // Same as control bar padding
+	right: $spacing-md;
 	pointer-events: none;
-	z-index: 1;
+	z-index: 2;
 	opacity: 1;
 	transition:
-		bottom $transition-duration $transition-ease,
 		opacity $transition-duration $transition-ease;
 
-	// After video has started: move up and fade out
+	// After video has started: fade out
 	.video-player-v2--has-started & {
-		bottom: $video-title-offset;
 		opacity: 0;
 	}
 
 	// When controls are visible: fade in
 	.video-player-v2--controls-visible & {
 		opacity: 1;
+	}
+
+	// Fullscreen variant (inside video.js player)
+	&--fullscreen {
+		display: none; // Hidden in normal mode (we show the outer one)
+
+		// Show only in fullscreen mode
+		.vjs-fullscreen & {
+			display: block;
+			position: absolute;
+			bottom: $video-title-bottom;
+			left: $spacing-md;
+			right: $spacing-md;
+			z-index: 10;
+		}
 	}
 }
 
@@ -96,39 +106,34 @@ $video-handle-size: $spacing-sm + 2px;
 // =============================================================================
 // Note: These need :deep() in Vue component or be applied globally
 
-.video-player-v2__player {
-	width: 100%;
 
-	// Base video.js styling
-	.video-js {
-		font-family: $font-body;
-		max-height: $video-max-height;
+.video-player-v2__player {
+	// Fluid mode - Video.js handles aspect ratio
+	width: 100% !important;
+	height: 100% !important;
+	max-height: var(--video-max-height);
+
+	// Video element - apply max-height
+	.vjs-tech {
+		max-height: var(--video-max-height);
+	}
+
+
+	// Poster - same as video
+	.vjs-poster {
+		background-size: cover;
+		background-position: center;
+		background-color: #2d2d2d;
 	}
 
 	// Big play button - ensure centered from start, no animation
 	.vjs-big-play-button {
-		// Remove default positioning and use flexbox centering
 		position: absolute !important;
 		top: 50% !important;
 		left: 50% !important;
 		transform: translate(-50%, -50%) !important;
-		// Disable any transitions to prevent flying animation
 		transition: none !important;
-		// Ensure it's always at the right position
 		margin: 0 !important;
-	}
-
-	// Video element
-	.vjs-tech {
-		position: relative !important;
-		display: block;
-		max-height: $video-max-height;
-		background-color: $c-primary;
-	}
-
-	// Poster
-	.vjs-poster {
-		background-size: cover;
 	}
 
 	// Control bar

@@ -9,16 +9,18 @@
 		</header>
 
 		<main class="landing-page__main">
-			<OverlayScrollbarsComponent
+			<!-- Scrollbar component with deferred initialization to avoid forced reflow -->
+			<component
+				:is="scrollbarReady ? OverlayScrollbarsComponent : 'div'"
 				class="landing-page__scrollable"
-				:options="{
+				:options="scrollbarReady ? {
 					scrollbars: {
 						theme: 'os-theme-dark',
 						autoHide: 'scroll',
 						autoHideDelay: 1000
 					}
-				}"
-				defer
+				} : undefined"
+				:defer="scrollbarReady ? true : undefined"
 				@osScroll="handleScroll"
 			>
 			<!-- Hero Section -->
@@ -33,7 +35,7 @@
 						:loop="true"
 						:muted="true"
 						object-fit="contain"
-						fetchpriority="high"
+						:max-height="600"
 					/>
 				</div>
 			</section>
@@ -191,7 +193,7 @@
 					</div>
 				</div>
 			</footer>
-		</OverlayScrollbarsComponent>
+		</component>
 		</main>
 
 		<!-- Floating Apply Button -->
@@ -244,6 +246,9 @@ import type { JobPosition } from '@/types'
 // Video player ref
 const heroVideoRef = ref<InstanceType<typeof VideoPlayerV2> | null>(null)
 
+// Defer scrollbar initialization to avoid forced reflow during initial paint
+const scrollbarReady = ref(false)
+
 // Scroll state
 const isScrolled = ref(false)
 let lastScrollY = 0
@@ -290,6 +295,18 @@ const handleWheel = (e: WheelEvent) => {
 onMounted(() => {
 	// Window scroll listeners not needed when using OverlayScrollbars
 	window.addEventListener('wheel', handleWheel, { passive: false })
+
+	// Defer scrollbar initialization to avoid forced reflow during initial paint
+	// Use requestIdleCallback if available, otherwise requestAnimationFrame
+	const initScrollbar = () => {
+		scrollbarReady.value = true
+	}
+
+	if ('requestIdleCallback' in window) {
+		requestIdleCallback(initScrollbar, { timeout: 100 })
+	} else {
+		requestAnimationFrame(initScrollbar)
+	}
 })
 
 onUnmounted(() => {
@@ -297,6 +314,8 @@ onUnmounted(() => {
 	if (scrollTimeout) {
 		clearTimeout(scrollTimeout)
 	}
+	// Ensure body scroll is restored on unmount
+	document.body.style.overflow = ''
 })
 
 // Modal states
@@ -308,10 +327,15 @@ const selectedJob = ref<JobPosition | ''>('')
 // Computed to check if any modal is open
 const isAnyModalOpen = computed(() => showJobModal.value || showApplicationModal.value)
 
-// Pause hero video when any modal opens (don't resume on close)
+// Lock background scroll when modal is open
 watch(isAnyModalOpen, (isOpen) => {
 	if (isOpen) {
 		heroVideoRef.value?.pause()
+		// Lock scroll on body to prevent background scrolling
+		document.body.style.overflow = 'hidden'
+	} else {
+		// Restore scroll when modal closes
+		document.body.style.overflow = ''
 	}
 })
 
@@ -430,9 +454,29 @@ const closeApplicationModal = () => {
 	flex-direction: column;
 	overflow: hidden;
 
+	// Main content wrapper
+	&__main {
+		flex: 1;
+		overflow: hidden;
+		display: flex;
+		flex-direction: column;
+	}
+
 	&__scrollable {
 		flex: 1;
 		overflow: hidden;
+		overflow-y: scroll; // Fallback before OverlayScrollbars loads
+
+		// Hide native scrollbar - OverlayScrollbars will replace it
+		scrollbar-width: none; // Firefox
+		-ms-overflow-style: none; // IE/Edge
+		&::-webkit-scrollbar {
+			display: none; // Chrome/Safari
+		}
+
+		// Optimize paint performance
+		contain: strict;
+		content-visibility: auto;
 	}
 
 	// Header
@@ -479,9 +523,11 @@ const closeApplicationModal = () => {
 		cursor: default;
 	}
 
-	// Hero
+	// Hero - video handles its own sizing
 	&__hero {
 		background-color: $c-primary;
+		position: relative;
+		z-index: 1; // Above scrollable content below
 	}
 
 	&__hero-content {
@@ -492,6 +538,7 @@ const closeApplicationModal = () => {
 
 	&__hero-video {
 		width: 100%;
+		display: block;
 	}
 
 	&__hero-video-placeholder {
@@ -505,6 +552,9 @@ const closeApplicationModal = () => {
 	// Introduction
 	&__intro {
 		@include section-padding;
+		position: relative;
+		z-index: 0; // Below hero video controls
+		background-color: $c-bg; // Ensure solid background
 	}
 
 	&__intro-container {

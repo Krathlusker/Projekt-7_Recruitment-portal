@@ -15,7 +15,6 @@
 							autoHideDelay: 1000
 						}
 					}"
-					defer
 				>
 					<div class="job-modal__content">
 						<!-- Media (Video or Image) -->
@@ -29,6 +28,7 @@
 								:loop="true"
 								:muted="false"
 								object-fit="contain"
+								:max-height="450"
 							/>
 							<ResponsiveImage
 								v-else-if="currentJob.baseName"
@@ -217,12 +217,13 @@ const handleApply = () => {
 
 	&__media {
 		width: 100%;
-		overflow: hidden;
+		// VideoPlayerV2 handles its own max-height via CSS custom property
 		background-color: $c-primary;
 		border-radius: 0 0 $border-radius-lg $border-radius-lg;
+		overflow: hidden;
 
 		// Only apply fixed height for images, not videos
-		&:has(img):not(:has(.video-player)) {
+		&:has(img):not(:has(.video-player-v2)) {
 			height: $job-image-height;
 			min-height: $job-image-height;
 			flex-shrink: 0;
@@ -237,7 +238,8 @@ const handleApply = () => {
 
 	&__video {
 		width: 100%;
-		border-radius: 0 0 $border-radius-lg $border-radius-lg;
+		display: block; // Match hero styling
+		// Video player handles its own max-height via $video-max-height
 	}
 
 	&__section {
