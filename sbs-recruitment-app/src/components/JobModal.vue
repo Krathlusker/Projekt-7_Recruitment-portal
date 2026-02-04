@@ -120,7 +120,7 @@ const jobsData: JobData[] = [
 		id: 'pakkeri',
 		title: 'Pakkeri',
 		videoTitle: 'Emma, 21',
-		video: '/videos/Emma.mp4',
+		video: '/videos/EMMA_V2_NoGrafik_compressed.mp4',
 		quote: '"Her er der plads til alle, og man lærer hurtigt at kende sine kollegaer!" - Emma',
 		description:
 			'Med job i vores pakkeri får du muligheden for et ufaglært job, hvor du kan blive så længe det passer dig. Oplæringen er kort og simpel hvorefter du kommer til at stå i vores pakkeri, sammen med en masse andre vikarer, studerende og ufaglærte. Der er fokus på det sociale, med rig mulighed for at danne venskaber mens man arbejder og kvalitetssikre.',
@@ -137,7 +137,7 @@ const jobsData: JobData[] = [
 		id: 'produktion',
 		title: 'Produktion',
 		videoTitle: 'Marco, 26',
-		video: '/videos/Marco.mp4',
+		video: '/videos/MARCO_V2_Nografik_compressed.mp4',
 		quote: '"Jeg elsker at arbejde med maskinerne og se vores produkter blive sendt ud i verden." - Marco',
 		description:
 			'Som produktionsmedarbejder er du ude på gulvet og er med til at producere de bremseklodser vi sender ud til hele verden. Du vil få indgående kendskab til vores specifikke maskiner og processer og blive en del af et socialt team med en masse erfaring at dele ud af. Arbejdet består af følgende opgaver:',

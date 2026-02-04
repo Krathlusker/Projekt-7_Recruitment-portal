@@ -2,4 +2,4 @@
 * text=auto
 
 # Exclude EXAMPLE APP from GitHub language statistics
-EXAMPLE\ APP/** linguist-vendored
+example_app/** linguist-vendored

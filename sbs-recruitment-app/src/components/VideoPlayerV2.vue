@@ -47,9 +47,10 @@
 import { ref, computed } from 'vue'
 import { VideoPlayer } from '@videojs-player/vue'
 import 'video.js/dist/video-js.css'
+import type videojs from 'video.js'
 
 // Types
-import type Player from 'video.js/dist/types/player'
+type Player = ReturnType<typeof videojs>
 
 // Video.js player state (from @videojs-player/vue)
 interface VideoPlayerState {

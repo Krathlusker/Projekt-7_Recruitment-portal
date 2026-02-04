@@ -26,7 +26,7 @@
 					<VideoPlayerV2
 						ref="heroVideoRef"
 						class="landing-page__hero-video"
-						src="/videos/Hero.mp4"
+						src="/videos/HERO_V2_compressed.mp4"
 						title="ARBEJDSPLADSEN SBS"
 						:autoplay="true"
 						:loop="true"
