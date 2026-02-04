@@ -722,7 +722,7 @@ app.get('/api/download-cv/:filename', authenticateHR, (req, res) => {
 const isProduction = process.env.NODE_ENV === 'production'
 if (isProduction) {
 	const distPath = path.join(__dirname, '..', 'dist')
-
+	
 	// Serve static files with correct MIME types
 	app.use(express.static(distPath, {
 		setHeaders: (res, filePath) => {

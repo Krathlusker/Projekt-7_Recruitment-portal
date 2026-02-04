@@ -23,6 +23,23 @@ body {
 	min-height: 100vh;
 }
 
+// =============================================================================
+// FONT LOADING TRANSITION
+// =============================================================================
+// Smooth transition when TypeKit fonts load (uses .wf-* classes from TypeKit)
+
+// While fonts are loading - hide text to prevent FOUT
+.wf-loading body {
+	opacity: 0;
+}
+
+// When fonts are ready - fade in smoothly
+.wf-active body,
+.wf-inactive body {
+	opacity: 1;
+	transition: opacity 0.3s ease-in-out;
+}
+
 // Typography - headings bruger title font
 h1,
 h2,

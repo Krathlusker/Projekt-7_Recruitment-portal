@@ -257,6 +257,16 @@ defineExpose({
 		max-height: 600px;
 	}
 
+	// Big play button - prevent flying animation on load
+	:deep(.vjs-big-play-button) {
+		position: absolute !important;
+		top: 50% !important;
+		left: 50% !important;
+		transform: translate(-50%, -50%) !important;
+		transition: none !important;
+		margin: 0 !important;
+	}
+
 	:deep(.vjs-tech) {
 		position: relative !important;
 		display: block;

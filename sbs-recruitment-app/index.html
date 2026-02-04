@@ -5,11 +5,14 @@
     <link rel="icon" type="image/svg+xml" href="/logo.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SBS Friction A/S - Karriere</title>
+    <!-- Preload hero video for LCP -->
+    <link rel="preload" href="/videos/HERO_V2_compressed.mp4" as="video" type="video/mp4" fetchpriority="high">
     <!-- Preconnect to Adobe Fonts for faster loading -->
     <link rel="preconnect" href="https://use.typekit.net" crossorigin>
     <link rel="preconnect" href="https://p.typekit.net" crossorigin>
-    <!-- Adobe Fonts -->
-    <link rel="stylesheet" href="https://use.typekit.net/ohs7rqk.css">
+    <!-- Adobe Fonts - loaded async to prevent render blocking -->
+    <link rel="preload" href="https://use.typekit.net/ohs7rqk.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://use.typekit.net/ohs7rqk.css"></noscript>
   </head>
   <body>
     <div id="app"></div>

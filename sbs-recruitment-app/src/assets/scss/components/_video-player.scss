@@ -105,6 +105,19 @@ $video-handle-size: $spacing-sm + 2px;
 		max-height: $video-max-height;
 	}
 
+	// Big play button - ensure centered from start, no animation
+	.vjs-big-play-button {
+		// Remove default positioning and use flexbox centering
+		position: absolute !important;
+		top: 50% !important;
+		left: 50% !important;
+		transform: translate(-50%, -50%) !important;
+		// Disable any transitions to prevent flying animation
+		transition: none !important;
+		// Ensure it's always at the right position
+		margin: 0 !important;
+	}
+
 	// Video element
 	.vjs-tech {
 		position: relative !important;
