@@ -29,6 +29,12 @@ $video-handle-size: $spacing-sm + 2px;
 	max-height: $video-max-height;
 	overflow: hidden;
 	background-color: $c-primary;
+	// aspect-ratio is set dynamically via inline style from video metadata
+
+	// Loading state - show background while metadata loads
+	&--loading {
+		min-height: 200px; // Minimum height while loading
+	}
 
 	// Contain mode: height follows video aspect ratio
 	&--contain {

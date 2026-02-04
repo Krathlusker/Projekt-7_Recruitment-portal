@@ -1,5 +1,5 @@
 <template>
-	<div class="calendar-slot-picker" v-loading="loading">
+	<div class="calendar-slot-picker">
 		<!-- Date header with selected date and button -->
 		<div class="calendar-slot-picker__header">
 			<span class="calendar-slot-picker__date-display">{{

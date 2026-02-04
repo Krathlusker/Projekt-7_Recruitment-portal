@@ -60,14 +60,14 @@ const discTypes = ['D', 'I', 'S', 'C']
 const interviewTimes = ['08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30']
 const interviewTypes = ['fysisk', 'virtuel']
 
-// Generate dates for next 65 weekdays (~3 months)
+// Generate dates for next 14 weekdays
 function getNextWeekdays() {
 	const dates = []
 	const today = new Date()
 	let daysAdded = 0
 	let offset = 1
 
-	while (daysAdded < 65) {
+	while (daysAdded < 14) {
 		const date = new Date(today)
 		date.setDate(date.getDate() + offset)
 		// Skip weekends
@@ -158,7 +158,7 @@ async function seed() {
 	// ==============================================
 	// 1. Create interview slots for next 14 weekdays
 	// ==============================================
-	console.log('\nCreating interview slots for next 3 months (~65 weekdays)...')
+	console.log('\nCreating interview slots for next 14 weekdays...')
 
 	const dates = getNextWeekdays()
 	const allSlots = []
@@ -249,7 +249,7 @@ async function seed() {
 
 	// --- PENDING: Qualified, 2 selected times, none confirmed yet ---
 	console.log('  Creating qualified pending applications (2 selected, none confirmed)...')
-	for (let i = 0; i < 30; i++) {
+	for (let i = 0; i < 10; i++) {
 		const firstName = firstNames[Math.floor(Math.random() * firstNames.length)]
 		const lastName = lastNames[Math.floor(Math.random() * lastNames.length)]
 		const fullName = `${firstName} ${lastName}`
@@ -287,7 +287,7 @@ async function seed() {
 
 	// --- INTERVIEW-SCHEDULED: Qualified, 2 selected times, 1 confirmed ---
 	console.log('  Creating qualified applications with scheduled interview...')
-	for (let i = 0; i < 24; i++) {
+	for (let i = 0; i < 8; i++) {
 		const firstName = firstNames[Math.floor(Math.random() * firstNames.length)]
 		const lastName = lastNames[Math.floor(Math.random() * lastNames.length)]
 		const fullName = `${firstName} ${lastName}`
@@ -325,7 +325,7 @@ async function seed() {
 
 	// --- ACCEPTED: Qualified, confirmed slot ---
 	console.log('  Creating accepted applications...')
-	for (let i = 0; i < 18; i++) {
+	for (let i = 0; i < 6; i++) {
 		const firstName = firstNames[Math.floor(Math.random() * firstNames.length)]
 		const lastName = lastNames[Math.floor(Math.random() * lastNames.length)]
 		const fullName = `${firstName} ${lastName}`
@@ -362,7 +362,7 @@ async function seed() {
 
 	// --- REJECTED: Low score, no times at all ---
 	console.log('  Creating rejected applications (low DISC, no times)...')
-	for (let i = 0; i < 24; i++) {
+	for (let i = 0; i < 8; i++) {
 		const firstName = firstNames[Math.floor(Math.random() * firstNames.length)]
 		const lastName = lastNames[Math.floor(Math.random() * lastNames.length)]
 		const fullName = `${firstName} ${lastName}`
@@ -387,7 +387,7 @@ async function seed() {
 
 	// --- PENDING: Low score, HR manually assigned time (not confirmed) ---
 	console.log('  Creating low DISC applications with HR assigned time (pending)...')
-	for (let i = 0; i < 15; i++) {
+	for (let i = 0; i < 5; i++) {
 		const firstName = firstNames[Math.floor(Math.random() * firstNames.length)]
 		const lastName = lastNames[Math.floor(Math.random() * lastNames.length)]
 		const fullName = `${firstName} ${lastName}`
@@ -420,7 +420,7 @@ async function seed() {
 
 	// --- ACCEPTED: Low score, HR manually assigned and confirmed ---
 	console.log('  Creating low DISC applications with HR assigned time (accepted)...')
-	for (let i = 0; i < 9; i++) {
+	for (let i = 0; i < 3; i++) {
 		const firstName = firstNames[Math.floor(Math.random() * firstNames.length)]
 		const lastName = lastNames[Math.floor(Math.random() * lastNames.length)]
 		const fullName = `${firstName} ${lastName}`

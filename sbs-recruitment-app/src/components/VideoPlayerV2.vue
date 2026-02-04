@@ -4,8 +4,10 @@
 		class="video-player-v2"
 		:class="{
 			'video-player-v2--contain': objectFit === 'contain',
-			'video-player-v2--rounded': rounded
+			'video-player-v2--rounded': rounded,
+			'video-player-v2--loading': !metadataLoaded
 		}"
+		:style="containerStyle"
 	>
 		<!-- Title overlay (above video) -->
 		<div
@@ -16,8 +18,9 @@
 			<el-text v-if="subtitle" class="video-player-v2__subtitle">{{ subtitle }}</el-text>
 		</div>
 
-		<!-- Video.js Player -->
+		<!-- Video.js Player (only rendered after metadata is loaded) -->
 		<VideoPlayer
+			v-if="metadataLoaded"
 			class="video-player-v2__player video-js vjs-big-play-centered"
 			:src="src"
 			:poster="poster"
@@ -29,7 +32,7 @@
 			:fluid="fluid"
 			:volume="initialVolume"
 			:options="videoOptions"
-			@mounted="onMounted"
+			@mounted="onPlayerMounted"
 			@play="onPlay"
 			@pause="onPause"
 			@ended="onEnded"
@@ -44,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { VideoPlayer } from '@videojs-player/vue'
 import 'video.js/dist/video-js.css'
 import type videojs from 'video.js'
@@ -72,6 +75,7 @@ interface Props {
 	objectFit?: 'cover' | 'contain'
 	initialVolume?: number
 	rounded?: boolean
+	fetchpriority?: 'high' | 'low' | 'auto'
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -84,7 +88,8 @@ const props = withDefaults(defineProps<Props>(), {
 	fluid: false,
 	objectFit: 'cover',
 	initialVolume: 0.6,
-	rounded: false
+	rounded: false,
+	fetchpriority: 'auto'
 })
 
 // Emits
@@ -100,6 +105,52 @@ const emit = defineEmits<{
 const player = ref<Player | null>(null)
 const containerRef = ref<HTMLElement | null>(null)
 const hasStarted = ref(false)
+const metadataLoaded = ref(false)
+const videoAspectRatio = ref<number | null>(null)
+
+// Computed style for dynamic aspect-ratio
+const containerStyle = computed(() => {
+	if (videoAspectRatio.value) {
+		return { aspectRatio: `${videoAspectRatio.value}` }
+	}
+	// Fallback til 16/9 mens metadata loader
+	return { aspectRatio: '16 / 9' }
+})
+
+// Preload video metadata to get dimensions
+const preloadMetadata = () => {
+	const video = document.createElement('video')
+	video.preload = 'metadata'
+	video.src = props.src
+
+	video.onloadedmetadata = () => {
+		const width = video.videoWidth
+		const height = video.videoHeight
+		if (width && height) {
+			videoAspectRatio.value = width / height
+		}
+		metadataLoaded.value = true
+		video.remove()
+	}
+
+	video.onerror = () => {
+		// Fallback - vis alligevel
+		metadataLoaded.value = true
+		video.remove()
+	}
+}
+
+// Preload on mount
+onMounted(() => {
+	preloadMetadata()
+})
+
+// Watch for src changes
+watch(() => props.src, () => {
+	metadataLoaded.value = false
+	videoAspectRatio.value = null
+	preloadMetadata()
+})
 
 // Video.js options
 const videoOptions = computed(() => ({
@@ -128,8 +179,13 @@ const videoOptions = computed(() => ({
 }))
 
 // Event handlers
-const onMounted = (payload: { video: HTMLVideoElement; player: Player; state: VideoPlayerState }) => {
+const onPlayerMounted = (payload: { video: HTMLVideoElement; player: Player; state: VideoPlayerState }) => {
 	player.value = payload.player
+
+	// Set fetchpriority attribute on video element
+	if (props.fetchpriority && props.fetchpriority !== 'auto') {
+		payload.video.setAttribute('fetchpriority', props.fetchpriority)
+	}
 
 	// Listen for useractive/userinactive to toggle container class (only after video has started)
 	payload.player.on('useractive', () => {

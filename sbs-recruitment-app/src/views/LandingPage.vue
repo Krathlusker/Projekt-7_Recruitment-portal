@@ -32,6 +32,7 @@
 						:loop="true"
 						:muted="true"
 						object-fit="contain"
+						fetchpriority="high"
 					/>
 				</div>
 			</section>
