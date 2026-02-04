@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
-import ElementPlus from 'element-plus'
+import { createHead } from '@unhead/vue/client'
+// Element Plus styles - components are auto-imported on-demand by unplugin
 import 'element-plus/dist/index.css'
-import da from 'element-plus/es/locale/lang/da'
 import App from './App.vue'
 import router from './router'
 import './assets/scss/main.scss'
@@ -29,7 +29,10 @@ import 'overlayscrollbars/overlayscrollbars.css'
 })()
 
 const app = createApp(App)
+const head = createHead()
 
-app.use(ElementPlus, { locale: da })
+app.use(head)
+// Element Plus components are auto-imported on-demand
+// Locale is handled via ElConfigProvider in App.vue if needed
 app.use(router)
 app.mount('#app')

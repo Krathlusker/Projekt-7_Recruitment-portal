@@ -3,23 +3,24 @@
 		<!-- Header -->
 		<header class="landing-page__header" :class="{ 'landing-page__header--scrolled': isScrolled }">
 			<div class="landing-page__header-container">
-				<img src="/logo.svg" alt="SBS Friction A/S" class="landing-page__logo" />
+				<img src="/logo.svg" alt="SBS Friction A/S" class="landing-page__logo" width="92" height="45" />
 				<h1 class="landing-page__header-title">JOB PORTAL</h1>
 			</div>
 		</header>
 
-		<OverlayScrollbarsComponent
-			class="landing-page__scrollable"
-			:options="{
-				scrollbars: {
-					theme: 'os-theme-dark',
-					autoHide: 'scroll',
-					autoHideDelay: 1000
-				}
-			}"
-			defer
-			@osScroll="handleScroll"
-		>
+		<main class="landing-page__main">
+			<OverlayScrollbarsComponent
+				class="landing-page__scrollable"
+				:options="{
+					scrollbars: {
+						theme: 'os-theme-dark',
+						autoHide: 'scroll',
+						autoHideDelay: 1000
+					}
+				}"
+				defer
+				@osScroll="handleScroll"
+			>
 			<!-- Hero Section -->
 			<section class="landing-page__hero">
 				<div class="landing-page__hero-content">
@@ -125,16 +126,16 @@
 				<div class="landing-page__footer-container">
 					<!-- Social Media -->
 					<div class="landing-page__social">
-						<el-link href="https://dk.linkedin.com/company/scandinavian-brake-systems-a-s" target="_blank" underline="never" class="social-link">
+						<el-link href="https://dk.linkedin.com/company/scandinavian-brake-systems-a-s" target="_blank" underline="never" class="social-link" aria-label="Besøg SBS på LinkedIn">
 							<AkLinkedInFill />
 						</el-link>
-						<el-link href="https://www.facebook.com/sbsbrakes" target="_blank" underline="never" class="social-link">
+						<el-link href="https://www.facebook.com/sbsbrakes" target="_blank" underline="never" class="social-link" aria-label="Besøg SBS på Facebook">
 							<FaBandsFacebookF />
 						</el-link>
-						<el-link href="https://www.instagram.com/sbsbrakes/" target="_blank" underline="never" class="social-link">
+						<el-link href="https://www.instagram.com/sbsbrakes/" target="_blank" underline="never" class="social-link" aria-label="Besøg SBS på Instagram">
 							<AkInstagramFill />
 						</el-link>
-						<el-link href="https://www.youtube.com/@sbsbrakes" target="_blank" underline="never" class="social-link">
+						<el-link href="https://www.youtube.com/@sbsbrakes" target="_blank" underline="never" class="social-link" aria-label="Besøg SBS på YouTube">
 							<BsYoutube />
 						</el-link>
 					</div>
@@ -191,6 +192,7 @@
 				</div>
 			</footer>
 		</OverlayScrollbarsComponent>
+		</main>
 
 		<!-- Floating Apply Button -->
 		<FloatingApplyButton @click="openApplicationModal()" />
@@ -215,10 +217,17 @@
 <script setup lang="ts">
 import { ref, shallowRef, onMounted, onUnmounted, computed, watch } from 'vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
+// Icons imported from specific sub-paths for tree-shaking
 import { AkLinkedInFill, AkInstagramFill } from '@kalimahapps/vue-icons/ak'
 import { BsYoutube } from '@kalimahapps/vue-icons/bs'
 import { FaBandsFacebookF } from '@kalimahapps/vue-icons/fa'
-import { LaTshirtSolid, MdOutlinedDiscount, ReHomeWifiLine, PhIsland, TaOutlineMassage, MdRoundFitnessCenter, FlFood, CaFruitBowl } from '@kalimahapps/vue-icons';
+import { LaTshirtSolid } from '@kalimahapps/vue-icons/la'
+import { MdOutlinedDiscount, MdRoundFitnessCenter } from '@kalimahapps/vue-icons/md'
+import { ReHomeWifiLine } from '@kalimahapps/vue-icons/re'
+import { PhIsland } from '@kalimahapps/vue-icons/ph'
+import { TaOutlineMassage } from '@kalimahapps/vue-icons/ta'
+import { FlFood } from '@kalimahapps/vue-icons/fl'
+import { CaFruitBowl } from '@kalimahapps/vue-icons/ca'
 import {
 	Location,
 	Phone,

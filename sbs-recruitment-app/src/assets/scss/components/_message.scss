@@ -7,18 +7,20 @@
 @use '../abstracts/variables' as *;
 @use '../abstracts/mixins' as *;
 
-// EL-MESSAGE WARNING - gul baggrund med mørk tekst
+// EL-MESSAGE WARNING - RØD baggrund med hvid tekst (advarsler skal være røde)
+// OBS: $c-warning bruges andre steder til positive ting (kalenderdatoer),
+// så vi bruger $c-danger direkte her
 .el-message--warning {
-	background-color: $c-warning !important;
-	border-color: $c-warning !important;
+	background-color: $c-danger !important;
+	border-color: $c-danger !important;
 
 	.el-message__content {
-		color: $c-primary !important;
+		color: $c-bg !important;
 		font-family: $font-body !important;
 		font-weight: $font-weight-bold !important;
 	}
 
 	.el-message__icon {
-		color: $c-primary !important;
+		color: $c-bg !important;
 	}
 }

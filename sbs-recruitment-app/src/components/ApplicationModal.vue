@@ -577,7 +577,7 @@ watch(
 			document.body.style.paddingRight = `${scrollbarWidth}px`
 			document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`)
 			// Fetch available time slots when opening
-			loadAvailableSlots()
+			loadAvailableSlots(true) // Show loading on initial open
 		} else {
 			document.body.style.overflow = ''
 			document.body.style.paddingRight = ''
@@ -669,7 +669,7 @@ watch(
 	(step) => {
 		if (step === 3) {
 			// On step 3 (Dato) - start polling and load slots
-			loadAvailableSlots()
+			loadAvailableSlots(true) // Show loading when entering step 3
 			startPolling()
 		} else {
 			// Not on step 3 - stop polling
@@ -1015,8 +1015,11 @@ const toggleSlot = async (slot: InterviewSlot) => {
 }
 
 // Load available slots
-const loadAvailableSlots = async () => {
-	slotsLoading.value = true
+const loadAvailableSlots = async (showLoading = false) => {
+	// Only show loading spinner on initial load, not during polling
+	if (showLoading) {
+		slotsLoading.value = true
+	}
 	try {
 		const response = await api.get('/interview-slots')
 		allTimeSlots.value = response.data
