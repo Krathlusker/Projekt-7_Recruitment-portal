@@ -107,7 +107,7 @@
 													:show-file-list="false"
 													:on-exceed="handleFileExceed"
 													:before-upload="beforeUpload"
-													accept=".pdf,.doc,.docx,.odt,.rtf,.gdoc"
+													accept=".pdf,application/pdf"
 													@change="handleFileChange"
 												>
 													<span class="application-modal__cv-dropzone-text">
@@ -975,11 +975,11 @@ const calculateDiscResult = (): DiscResult => {
 	}
 }
 
-// Allowed file extensions
-const allowedExtensions = ['.pdf', '.doc', '.docx', '.odt', '.rtf', '.gdoc']
+// Allowed file extensions - only PDF
+const allowedExtensions = ['.pdf']
 
 // Warning message for invalid file types
-const FILE_TYPE_WARNING = 'Kun PDF, Word, Google Docs, ODT og RTF filer er tilladt'
+const FILE_TYPE_WARNING = 'Kun PDF filer er tilladt'
 
 // Truncate filename to show beginning + extension
 const truncateFilename = (filename: string, maxLength: number = 20): string => {

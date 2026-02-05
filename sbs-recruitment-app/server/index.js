@@ -61,12 +61,12 @@ const upload = multer({
 	storage,
 	limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
 	fileFilter: (req, file, cb) => {
-		const allowedTypes = ['.pdf', '.doc', '.docx', '.odt', '.rtf', '.gdoc']
+		const allowedTypes = ['.pdf']
 		const ext = path.extname(file.originalname).toLowerCase()
 		if (allowedTypes.includes(ext)) {
 			cb(null, true)
 		} else {
-			cb(new Error('Invalid file type. Only PDF, Word, Google Docs, ODT and RTF documents are allowed.'))
+			cb(new Error('Invalid file type. Only PDF documents are allowed.'))
 		}
 	}
 })
@@ -722,7 +722,7 @@ app.get('/api/download-cv/:filename', authenticateHR, (req, res) => {
 const isProduction = process.env.NODE_ENV === 'production'
 if (isProduction) {
 	const distPath = path.join(__dirname, '..', 'dist')
-	
+
 	// Serve static files with correct MIME types
 	app.use(express.static(distPath, {
 		setHeaders: (res, filePath) => {
