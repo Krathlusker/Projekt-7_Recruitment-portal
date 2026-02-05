@@ -1,5 +1,11 @@
 <template>
-	<el-checkbox :model-value="modelValue" class="consent-checkbox" @click.prevent="openModal">
+	<el-checkbox
+		:model-value="modelValue"
+		class="consent-checkbox"
+		@click.prevent="openModal"
+		@keydown.enter.prevent="openModal"
+		@keydown.space.prevent="openModal"
+	>
 		<span class="consent-checkbox__text">
 			Jeg accepterer <span class="consent-checkbox__link">behandling af mine persondata</span>
 		</span>
@@ -83,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, nextTick, onUnmounted } from 'vue'
 import ModalCloseButton from '@/components/ModalCloseButton.vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 
@@ -96,6 +102,7 @@ const emit = defineEmits<{
 }>()
 
 const modalVisible = ref(false)
+let previousActiveElement: HTMLElement | null = null
 
 const openModal = () => {
 	modalVisible.value = true
@@ -114,6 +121,73 @@ const handleDecline = () => {
 	emit('update:modelValue', false)
 	closeModal()
 }
+
+// ESC handler for consent modal
+const handleKeydown = (event: KeyboardEvent) => {
+	if (event.key === 'Escape' && modalVisible.value) {
+		event.preventDefault()
+		event.stopPropagation()
+		closeModal()
+	}
+}
+
+// Focus trap handler
+const handleFocusTrap = (event: KeyboardEvent) => {
+	if (event.key !== 'Tab' || !modalVisible.value) return
+
+	const modal = document.querySelector('.consent-modal-wrapper__container') as HTMLElement
+	if (!modal) return
+
+	const focusableElements = modal.querySelectorAll<HTMLElement>(
+		'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+	)
+	if (focusableElements.length === 0) return
+
+	const firstElement = focusableElements[0]
+	const lastElement = focusableElements[focusableElements.length - 1]
+
+	if (event.shiftKey) {
+		// Shift+Tab: hvis på første element, gå til sidste
+		if (document.activeElement === firstElement) {
+			event.preventDefault()
+			lastElement.focus()
+		}
+	} else {
+		// Tab: hvis på sidste element, gå til første
+		if (document.activeElement === lastElement) {
+			event.preventDefault()
+			firstElement.focus()
+		}
+	}
+}
+
+// Watch for modal visibility changes
+watch(modalVisible, (newVal) => {
+	if (newVal) {
+		// Modal opens - save focus and setup listeners
+		previousActiveElement = document.activeElement as HTMLElement
+		document.addEventListener('keydown', handleKeydown, true) // capture phase for ESC
+		document.addEventListener('keydown', handleFocusTrap)
+		// Focus first button after modal renders
+		nextTick(() => {
+			const firstButton = document.querySelector('.consent-modal-wrapper .modal-nav-btn') as HTMLElement
+			if (firstButton) firstButton.focus()
+		})
+	} else {
+		// Modal closes - cleanup and restore focus
+		document.removeEventListener('keydown', handleKeydown, true)
+		document.removeEventListener('keydown', handleFocusTrap)
+		if (previousActiveElement) {
+			previousActiveElement.focus()
+		}
+	}
+})
+
+// Cleanup on unmount
+onUnmounted(() => {
+	document.removeEventListener('keydown', handleKeydown, true)
+	document.removeEventListener('keydown', handleFocusTrap)
+})
 </script>
 
 <style lang="scss" scoped>
@@ -121,6 +195,7 @@ const handleDecline = () => {
 
 .consent-checkbox {
 	margin: $spacing-md 0;
+	margin-left: 4px; // Giv plads til focus ring
 	align-items: center; // Center checkbox and text vertically
 
 	// Override Element Plus checkbox alignment
@@ -132,6 +207,7 @@ const handleDecline = () => {
 	:deep(.el-checkbox__inner) {
 		width: 20px;
 		height: 20px;
+		border-radius: $border-radius-xs;
 
 		&::after {
 			// Adjust checkmark for larger checkbox
@@ -141,6 +217,13 @@ const handleDecline = () => {
 			top: 7px;
 			border-width: 2px;
 		}
+	}
+
+	// Focus styling på checkbox (kun keyboard, ikke touch)
+	:deep(.el-checkbox__input.is-focus .el-checkbox__inner),
+	:deep(.el-checkbox__original:focus-visible + .el-checkbox__inner) {
+		box-shadow: 0 0 0 2px $c-warning !important;
+		outline: none;
 	}
 
 	:deep(.el-checkbox__label) {

@@ -204,6 +204,21 @@
 	}
 }
 
+/// Inset focus-visible styling til keyboard navigation.
+/// Gul border inde i elementet + hover-lignende baggrundsfarve.
+/// @example scss
+///   .card-element {
+///     @include focus-visible-inset;
+///   }
+@mixin focus-visible-inset {
+	&:focus-visible {
+		outline: none;
+		box-shadow: inset 0 0 0 2px $c-warning;
+		border-radius: $border-radius-md;
+		background-color: $c-fill-light;
+	}
+}
+
 // =============================================================================
 // BUTTON MIXINS
 // =============================================================================

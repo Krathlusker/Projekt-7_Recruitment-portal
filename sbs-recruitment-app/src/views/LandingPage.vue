@@ -178,17 +178,15 @@
 
 					<!-- Copyright -->
 					<div class="landing-page__copyright">
-						<el-icon :size="15">
-							<CircleCheck />
-						</el-icon>
+						<FaRegCopyright />
 						<span>Scandinavian Brake Systems A/S (SBS)</span>
 					</div>
 
 					<!-- Legal Links -->
 					<div class="landing-page__legal">
-						<el-link href="/privacy" class="footer-link footer-link--small">Persondata</el-link>
+						<el-link href="#" class="footer-link footer-link--small">Persondata</el-link>
 						<span class="landing-page__legal-separator"></span>
-						<el-link href="/cookies" class="footer-link footer-link--small">Cookiepolitik</el-link>
+						<el-link href="#" class="footer-link footer-link--small">Cookiepolitik</el-link>
 					</div>
 				</div>
 			</footer>
@@ -221,7 +219,7 @@ import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 // Icons imported from specific sub-paths for tree-shaking
 import { AkLinkedInFill, AkInstagramFill } from '@kalimahapps/vue-icons/ak'
 import { BsYoutube } from '@kalimahapps/vue-icons/bs'
-import { FaBandsFacebookF } from '@kalimahapps/vue-icons/fa'
+import { FaBandsFacebookF, FaRegCopyright } from '@kalimahapps/vue-icons/fa'
 import { LaTshirtSolid } from '@kalimahapps/vue-icons/la'
 import { MdOutlinedDiscount, MdRoundFitnessCenter } from '@kalimahapps/vue-icons/md'
 import { ReHomeWifiLine } from '@kalimahapps/vue-icons/re'
@@ -232,8 +230,7 @@ import { CaFruitBowl } from '@kalimahapps/vue-icons/ca'
 import {
 	Location,
 	Phone,
-	Message,
-	CircleCheck
+	Message
 } from '@element-plus/icons-vue'
 import FloatingApplyButton from '@/components/FloatingApplyButton.vue'
 import ApplicationModal from '@/components/ApplicationModal.vue'

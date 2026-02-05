@@ -61,6 +61,20 @@
 	transform: translateY(-4px);
 }
 
+// Focus styling for keyboard navigation - only on title
+.el-step.is-simple .el-step__title:focus-visible {
+	outline: none;
+	border-radius: $border-radius-sm;
+	box-shadow: inset 0 0 0 2px $c-warning;
+	background-color: $c-fill-light;
+	transform: translateY(-4px);
+}
+
+// When title is focused, also lift the icon
+.el-step.is-simple:has(.el-step__title:focus-visible) .el-step__icon {
+	transform: translateY(-4px);
+}
+
 // Completed state - disable hover and pointer cursor
 .el-steps.is-completed .el-step.is-simple .el-step__icon,
 .el-steps.is-completed .el-step.is-simple .el-step__title {

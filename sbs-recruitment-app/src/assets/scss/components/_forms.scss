@@ -59,21 +59,27 @@ $dropdown-offset: math.div((1.25 - $font-body-cap-height) - $font-body-descender
 	}
 }
 
-// Input/Select focus
-.el-input.is-focus .el-input__wrapper,
-.el-input__wrapper:focus-within,
-.el-select .el-input.is-focus .el-input__wrapper,
-.el-textarea__inner:focus {
+// Input/Select focus (kun keyboard, ikke touch)
+.el-input__wrapper:has(:focus-visible),
+.el-select__wrapper:has(:focus-visible),
+.el-textarea__inner:focus-visible {
 	box-shadow: inset 0 0 0 1px $c-warning !important;
 	border-color: $c-warning !important;
 }
 
-// Switch focus
+// Upload focus
+.el-upload:focus-visible {
+	outline: none;
+	box-shadow: inset 0 0 0 2px $c-warning !important;
+	background-color: rgba($c-primary, 0.05);
+}
+
+// Switch focus (kun keyboard, ikke touch)
 .el-switch.is-checked {
 	--el-switch-on-color: #f1db53;
 }
 
-.el-switch:focus .el-switch__core {
+.el-switch:has(:focus-visible) .el-switch__core {
 	outline: 2px solid $c-warning;
 	outline-offset: 2px;
 }

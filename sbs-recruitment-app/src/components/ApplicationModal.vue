@@ -145,7 +145,7 @@
 									<el-radio-group
 										:model-value="getSelectedOptionValue(currentQuestion)"
 										class="application-modal__quiz-options"
-										@change="(val: number) => selectOptionByIndex(currentQuestion, val)"
+										@change="(val) => selectOptionByIndex(currentQuestion, Number(val))"
 									>
 										<el-radio
 											v-for="(option, index) in discQuestions[currentQuestion].options"
@@ -193,7 +193,12 @@
 														'application-modal__slot--selected': isSlotSelected(slot.id),
 														'application-modal__slot--disabled': selectedSlots.length >= 2 && !isSlotSelected(slot.id)
 													}"
+													:tabindex="selectedSlots.length >= 2 && !isSlotSelected(slot.id) ? -1 : 0"
+													role="button"
+													:aria-pressed="isSlotSelected(slot.id)"
 													@click="toggleSlot(slot)"
+													@keydown.enter.prevent="toggleSlot(slot)"
+													@keydown.space.prevent="toggleSlot(slot)"
 												>
 													<span class="application-modal__slot-time">{{ slot.time }}</span>
 													<span class="application-modal__slot-type">{{
@@ -381,7 +386,7 @@
 	<!-- Calendar Modal (separate overlay, outside main modal transition) -->
 	<Transition name="calendar-modal">
 		<div v-if="calendarModalVisible" class="calendar-modal-overlay" @click.self="closeCalendarModal">
-			<div class="calendar-modal">
+			<div ref="calendarModalRef" class="calendar-modal">
 				<div class="calendar-modal__content">
 					<div class="calendar-modal__header">
 						<Transition :name="calendarSlideDirection" mode="out-in">
@@ -455,7 +460,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules, UploadFile, UploadRawFile, UploadInstance } from 'element-plus'
 import ModalCloseButton from '@/components/ModalCloseButton.vue'
@@ -635,6 +640,11 @@ const calendarModalVisible = ref(false)
 const slotsLoading = ref(false)
 const calendarSlideDirection = ref<'calendar-slide-left' | 'calendar-slide-right'>('calendar-slide-left')
 
+// Calendar modal ref for focus trap
+const calendarModalRef = ref<HTMLElement | null>(null)
+let previousActiveElement: HTMLElement | null = null
+let isMonthTransitioning = false // Lock for at forhindre multiple månedsskift
+
 // Consent
 const consentAccepted = ref(false)
 
@@ -705,21 +715,134 @@ onMounted(() => {
 	if (props.visible) {
 		loadDraft()
 	}
+	// Setup step titles for keyboard navigation
+	setupStepTitleAccessibility()
 })
 
-// Load draft when modal opens
+// Setup step title accessibility (tabindex + keyboard handlers)
+const setupStepTitleAccessibility = () => {
+	nextTick(() => {
+		const stepTitles = document.querySelectorAll('.application-modal__footer .el-step__title') as NodeListOf<HTMLElement>
+		stepTitles.forEach((title, index) => {
+			const stepId = index + 1
+			// Kun tilgængelige steps kan fokuseres (finish, process, eller allerede nået)
+			const isAccessible = stepId <= highestStepReached.value
+			title.setAttribute('tabindex', isAccessible ? '0' : '-1')
+			title.setAttribute('role', 'button')
+
+			// Tilføj keyboard handler hvis ikke allerede sat
+			if (!title.dataset.keyboardSetup) {
+				title.dataset.keyboardSetup = 'true'
+				title.addEventListener('keydown', (e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						e.preventDefault()
+						goToStep(stepId)
+					}
+				})
+			}
+		})
+	})
+}
+
+// Update step accessibility when step changes
+watch(currentStep, () => {
+	setupStepTitleAccessibility()
+})
+
+// Track previous focus element for modal focus trap
+let modalPreviousActiveElement: HTMLElement | null = null
+
+// Load draft and setup accessibility when modal opens
 watch(
 	() => props.visible,
 	(newVal) => {
 		if (newVal) {
+			// Gem element der havde fokus før modal åbnede
+			modalPreviousActiveElement = document.activeElement as HTMLElement
 			loadDraft()
+			// Setup step titles efter DOM er renderet
+			nextTick(() => {
+				setupStepTitleAccessibility()
+				// Tilføj focus trap listener
+				document.addEventListener('keydown', handleModalFocusTrap)
+			})
+		} else {
+			// Modal lukker - fjern focus trap og returner fokus
+			document.removeEventListener('keydown', handleModalFocusTrap)
+			if (modalPreviousActiveElement) {
+				modalPreviousActiveElement.focus()
+			}
 		}
 	}
 )
 
+// Focus trap for main application modal
+const handleModalFocusTrap = (event: KeyboardEvent) => {
+	if (!dialogVisible.value) return
+	// Ignorer hvis calendar modal eller consent modal er åben (de har deres egne handlers)
+	if (calendarModalVisible.value) return
+	// Tjek om consent modal er åben (den teleporteres til body)
+	const consentModalOpen = document.querySelector('body > .consent-modal-wrapper')
+	if (consentModalOpen) return
+
+	// ESC lukker ApplicationModal (kun hvis ingen sub-modals er åbne)
+	if (event.key === 'Escape') {
+		event.preventDefault()
+		event.stopPropagation()
+		handleClose()
+		return
+	}
+
+	if (event.key === 'Tab') {
+		// Brug container i stedet for modal for at inkludere navigation buttons
+		const container = document.querySelector('.modal-wrapper__container') as HTMLElement
+		if (!container) return
+
+		// Find alle fokusbare elementer i containeren (inkl. nav buttons)
+		const focusableSelectors = [
+			'button:not([disabled]):not([tabindex="-1"])',
+			'input:not([disabled]):not([tabindex="-1"])',
+			'select:not([disabled]):not([tabindex="-1"])',
+			'textarea:not([disabled]):not([tabindex="-1"])',
+			'[tabindex="0"]',
+			'a[href]'
+		].join(', ')
+
+		const focusableElements = Array.from(container.querySelectorAll(focusableSelectors)) as HTMLElement[]
+		// Filtrer elementer der ikke er synlige
+		const visibleElements = focusableElements.filter(el => {
+			const rect = el.getBoundingClientRect()
+			return rect.width > 0 && rect.height > 0
+		})
+
+		if (visibleElements.length === 0) return
+
+		const firstElement = visibleElements[0]
+		const lastElement = visibleElements[visibleElements.length - 1]
+
+		// Shift+Tab fra første element → gå til sidste
+		if (event.shiftKey && document.activeElement === firstElement) {
+			event.preventDefault()
+			lastElement.focus()
+		}
+		// Tab fra sidste element → gå til første
+		else if (!event.shiftKey && document.activeElement === lastElement) {
+			event.preventDefault()
+			firstElement.focus()
+		}
+		// Hvis fokus er uden for containeren, flyt det ind
+		else if (!container.contains(document.activeElement)) {
+			event.preventDefault()
+			firstElement.focus()
+		}
+	}
+}
+
 onUnmounted(() => {
 	stopPolling()
 	window.removeEventListener('beforeunload', handleBeforeUnload)
+	document.removeEventListener('keydown', handleGlobalKeydown)
+	document.removeEventListener('keydown', handleModalFocusTrap)
 	releaseAllReservations()
 })
 
@@ -1141,23 +1264,36 @@ const formatMonthYear = (_dateString: string): string => {
 }
 
 const prevMonth = () => {
-	// Don't allow navigating before current month
-	if (isCurrentMonth.value) return
+	// Don't allow navigating before current month eller under transition
+	if (isCurrentMonth.value || isMonthTransitioning) return
+	isMonthTransitioning = true
 
 	calendarSlideDirection.value = 'calendar-slide-right'
 	const current = new Date(calendarDate.value)
 	current.setMonth(current.getMonth() - 1)
 	calendarDate.value = current
+	// Genopsæt accessibility og fokuser SIDSTE dag (vi kom bagfra)
+	setupCalendarAccessibility('last')
 }
 
 const nextMonth = () => {
+	// Undgå flere månedsskift under transition
+	if (isMonthTransitioning) return
+	isMonthTransitioning = true
+
 	calendarSlideDirection.value = 'calendar-slide-left'
 	const current = new Date(calendarDate.value)
 	current.setMonth(current.getMonth() + 1)
 	calendarDate.value = current
+	// Genopsæt accessibility og fokuser FØRSTE dag (vi kom forfra)
+	setupCalendarAccessibility('first')
 }
 
 const goToToday = () => {
+	// Undgå flere månedsskift under transition
+	if (isMonthTransitioning) return
+	isMonthTransitioning = true
+
 	const today = new Date()
 	const currentMonth = calendarDate.value.getMonth()
 	const todayMonth = today.getMonth()
@@ -1169,17 +1305,262 @@ const goToToday = () => {
 	}
 
 	calendarDate.value = today
+	// Genopsæt accessibility efter måned-skift
+	setupCalendarAccessibility('first')
 }
 
 // Calendar modal functions
 const openCalendarModal = async () => {
+	// Gem det element der havde fokus før modal åbnede
+	previousActiveElement = document.activeElement as HTMLElement
+
 	// Refresh available slots before showing calendar
 	await loadAvailableSlots()
 	calendarModalVisible.value = true
+
+	// Tilføj global keydown listener
+	document.addEventListener('keydown', handleGlobalKeydown)
+
+	// Tilføj tabindex og keyboard handlers til kalenderdage efter DOM er renderet
+	setupCalendarAccessibility(false)
 }
 
 const closeCalendarModal = () => {
 	calendarModalVisible.value = false
+
+	// Fjern global keydown listener
+	document.removeEventListener('keydown', handleGlobalKeydown)
+
+	// Returnér fokus til elementet der åbnede modalen
+	if (previousActiveElement) {
+		nextTick(() => {
+			previousActiveElement?.focus()
+		})
+	}
+}
+
+// Global keydown handler for focus trap, Escape og calendar navigation
+const handleGlobalKeydown = (event: KeyboardEvent) => {
+	if (!calendarModalVisible.value) return
+
+	// Luk med Escape
+	if (event.key === 'Escape') {
+		event.preventDefault()
+		closeCalendarModal()
+		return
+	}
+
+	// Håndter keyboard navigation på kalenderdage (event delegation)
+	const target = document.activeElement as HTMLElement
+	if (target?.classList.contains('calendar-modal__day')) {
+		// Hent dato fra elementets tekst og nuværende måned
+		const dayNumber = parseInt(target.textContent || '0')
+		const year = calendarDate.value.getFullYear()
+		const month = calendarDate.value.getMonth()
+		const currentDateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNumber).padStart(2, '0')}`
+
+		// Enter/Space = select date
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault()
+			selectDateAndClose(currentDateString)
+			return
+		}
+
+		// Arrow keys = navigate
+		let dayOffset = 0
+		switch (event.key) {
+			case 'ArrowLeft':
+				dayOffset = -1
+				break
+			case 'ArrowRight':
+				dayOffset = 1
+				break
+			case 'ArrowUp':
+				dayOffset = -7
+				break
+			case 'ArrowDown':
+				dayOffset = 7
+				break
+		}
+
+		if (dayOffset !== 0) {
+			event.preventDefault()
+			navigateToNextAvailableDay(currentDateString, dayOffset)
+			return
+		}
+	}
+
+	// Focus trap med Tab
+	if (event.key === 'Tab') {
+		const modal = calendarModalRef.value
+		if (!modal) return
+
+		// Find alle fokusbare elementer i modalen
+		const focusableSelectors = [
+			'button:not([disabled])',
+			'.calendar-modal__day[tabindex="0"]',
+			'a[href]',
+			'input:not([disabled])',
+			'select:not([disabled])',
+			'textarea:not([disabled])'
+		].join(', ')
+
+		const focusableElements = Array.from(modal.querySelectorAll(focusableSelectors)) as HTMLElement[]
+		if (focusableElements.length === 0) return
+
+		const firstElement = focusableElements[0]
+		const lastElement = focusableElements[focusableElements.length - 1]
+
+		// Shift+Tab fra første element → gå til sidste
+		if (event.shiftKey && document.activeElement === firstElement) {
+			event.preventDefault()
+			lastElement.focus()
+		}
+		// Tab fra sidste element → gå til første
+		else if (!event.shiftKey && document.activeElement === lastElement) {
+			event.preventDefault()
+			firstElement.focus()
+		}
+		// Hvis fokus er uden for modalen, flyt det ind
+		else if (!modal.contains(document.activeElement)) {
+			event.preventDefault()
+			firstElement.focus()
+		}
+	}
+}
+
+// Tilføj tabindex og keyboard handlers til kalenderdage
+// focusPosition: false = ingen fokus, 'first' = første dag, 'last' = sidste dag
+const setupCalendarAccessibility = (focusPosition: false | 'first' | 'last' = false) => {
+	nextTick(() => {
+		// Længere delay for at sikre Transition er helt færdig
+		setTimeout(() => {
+			const modal = calendarModalRef.value
+			if (!modal) {
+				// Prøv igen hvis modal ikke er klar endnu
+				setTimeout(() => setupCalendarAccessibility(focusPosition), 100)
+				return
+			}
+
+			// Find alle kalenderdage i modalen
+			const allDays = modal.querySelectorAll('.calendar-modal__day') as NodeListOf<HTMLElement>
+
+			if (allDays.length === 0) {
+				// DOM ikke klar endnu, prøv igen
+				setTimeout(() => setupCalendarAccessibility(focusPosition), 100)
+				return
+			}
+
+			allDays.forEach((dayEl) => {
+				// Tjek alle betingelser: har slots, ikke disabled, OG ikke fra anden måned
+				const isAvailable = dayEl.classList.contains('calendar-modal__day--has-slots') &&
+				                    !dayEl.classList.contains('calendar-modal__day--disabled') &&
+				                    !dayEl.classList.contains('calendar-modal__day--other-month')
+
+				// Sæt tabindex baseret på tilgængelighed
+				dayEl.setAttribute('tabindex', isAvailable ? '0' : '-1')
+				dayEl.setAttribute('role', 'gridcell')
+			})
+
+			// Fokuser tilgængelig dag hvis ønsket
+			if (focusPosition) {
+				// Find alle tilgængelige dage
+				const availableDays = modal.querySelectorAll(
+					'.calendar-modal__day--has-slots:not(.calendar-modal__day--disabled):not(.calendar-modal__day--other-month)'
+				) as NodeListOf<HTMLElement>
+
+				if (availableDays.length > 0) {
+					// Fokuser første eller sidste afhængigt af navigation retning
+					const targetDay = focusPosition === 'last'
+						? availableDays[availableDays.length - 1]
+						: availableDays[0]
+					targetDay.focus()
+				} else {
+					// Ingen tilgængelige dage i denne måned - fokuser prev month knap
+					const prevBtn = modal.querySelector('.calendar-modal__nav') as HTMLElement
+					if (prevBtn) {
+						prevBtn.focus()
+					}
+				}
+			}
+
+			// Frigiv lock - transition er færdig
+			isMonthTransitioning = false
+		}, 350) // Længere delay for transition
+	})
+}
+
+// Navigate to next available day in the given direction using DOM
+const navigateToNextAvailableDay = (currentDateString: string, initialOffset: number) => {
+	const modal = calendarModalRef.value
+	if (!modal) return
+
+	const direction = initialOffset > 0 ? 1 : -1
+	const isVertical = Math.abs(initialOffset) === 7
+
+	// Find alle tilgængelige dage i DOM (gule, ikke disabled, ikke other-month)
+	const availableDays = Array.from(
+		modal.querySelectorAll('.calendar-modal__day--has-slots:not(.calendar-modal__day--disabled):not(.calendar-modal__day--other-month)')
+	) as HTMLElement[]
+
+	if (availableDays.length === 0) return
+
+	// Find nuværende dag i listen
+	const currentDayNumber = parseInt(currentDateString.split('-')[2])
+	const currentIndex = availableDays.findIndex(
+		(el) => parseInt(el.textContent || '0') === currentDayNumber
+	)
+
+	if (currentIndex === -1) return
+
+	if (isVertical) {
+		// Vertikal navigation: find dag i samme kolonne (samme ugedag) eller tættest på
+		const currentEl = availableDays[currentIndex]
+		const currentRect = currentEl.getBoundingClientRect()
+
+		// Find alle dage over/under nuværende
+		const candidates = availableDays.filter((el, idx) => {
+			if (idx === currentIndex) return false
+			const rect = el.getBoundingClientRect()
+			// Samme kolonne (±10px tolerance)
+			const sameColumn = Math.abs(rect.left - currentRect.left) < 10
+			// Korrekt retning
+			const correctDirection = direction > 0
+				? rect.top > currentRect.top
+				: rect.top < currentRect.top
+			return sameColumn && correctDirection
+		})
+
+		if (candidates.length > 0) {
+			// Sorter efter afstand og tag nærmeste
+			candidates.sort((a, b) => {
+				const aRect = a.getBoundingClientRect()
+				const bRect = b.getBoundingClientRect()
+				return Math.abs(aRect.top - currentRect.top) - Math.abs(bRect.top - currentRect.top)
+			})
+			candidates[0].focus()
+		} else {
+			// Ingen i samme kolonne - skift måned
+			if (direction > 0) {
+				nextMonth()
+			} else if (!isCurrentMonth.value) {
+				prevMonth()
+			}
+		}
+	} else {
+		// Horisontal navigation: gå til næste/forrige i listen
+		const nextIndex = currentIndex + direction
+
+		if (nextIndex >= 0 && nextIndex < availableDays.length) {
+			availableDays[nextIndex].focus()
+		} else if (nextIndex >= availableDays.length) {
+			// Gå til næste måned
+			nextMonth()
+		} else if (nextIndex < 0 && !isCurrentMonth.value) {
+			// Gå til forrige måned
+			prevMonth()
+		}
+	}
 }
 
 const selectDateAndClose = (date: string) => {
@@ -1581,7 +1962,8 @@ const handleClose = async () => {
 		display: flex;
 		flex-direction: column;
 		gap: $spacing-sm;
-		align-items: flex-start;
+		align-items: stretch; // Lad options fylde fuld bredde
+		margin-left: 4px; // Giv plads til focus ring
 	}
 
 	&__quiz-option {
@@ -1590,6 +1972,30 @@ const handleClose = async () => {
 		height: auto;
 		white-space: normal;
 		align-items: flex-start;
+		border-radius: $border-radius-sm;
+		padding: $spacing-xs $spacing-sm;
+		align-items: center;
+
+		// Focus styling for hele radio option (kun keyboard, ikke touch)
+		&:has(:focus-visible) {
+			outline: none;
+			box-shadow: inset 0 0 0 2px $c-warning;
+			background-color: rgba($c-primary, 0.03);
+		}
+
+		:deep(.el-radio__input) {
+			// Fjern ALLE focus rings fra radio input
+			&.is-focus .el-radio__inner,
+			.el-radio__inner:focus {
+				box-shadow: none !important;
+				outline: none !important;
+			}
+		}
+
+		:deep(.el-radio__original:focus + .el-radio__inner) {
+			box-shadow: none !important;
+			outline: none !important;
+		}
 
 		:deep(.el-radio__inner) {
 			transition: all $transition-duration $transition-ease;
@@ -1841,6 +2247,7 @@ const handleClose = async () => {
 
 	&__slot {
 		@include slot-item;
+		@include focus-visible-inset;
 
 		&--selected {
 			@include slot-item-selected;

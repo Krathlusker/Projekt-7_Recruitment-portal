@@ -201,8 +201,18 @@
 		border-radius: $border-radius-sm;
 		transition:
 			background-color 0.15s ease,
-			color 0.15s ease;
+			color 0.15s ease,
+			box-shadow 0.15s ease;
 		background-color: transparent;
+
+		// 🎨 Focus styling - inset: gul (2px) on top, hvid (3px) bagved, rounded corners
+		&:focus-visible {
+			outline: none;
+			box-shadow:
+				inset 0 0 0 2px $c-warning,
+				inset 0 0 0 5px $c-bg;
+			border-radius: $border-radius-lg;
+		}
 
 		&--today {
 			border: $border-width-normal solid $c-primary;
@@ -213,7 +223,8 @@
 			color: $c-primary;
 			cursor: pointer;
 
-			&:hover {
+			&:hover,
+			&:focus-visible {
 				background-color: $c-fill-light;
 				color: $c-primary;
 			}
@@ -225,7 +236,8 @@
 			color: $c-primary;
 			cursor: pointer;
 
-			&:hover {
+			&:hover,
+			&:focus-visible {
 				background-color: $c-fill-light;
 				color: $c-primary;
 			}

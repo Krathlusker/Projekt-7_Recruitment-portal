@@ -87,8 +87,19 @@
 	<!-- Calendar Modal -->
 	<Teleport to="body">
 		<Transition name="calendar-modal">
-			<div v-if="calendarModalVisible" class="calendar-modal-overlay" @click.self="closeCalendarModal">
-				<div class="calendar-modal">
+			<div
+				v-if="calendarModalVisible"
+				class="calendar-modal-overlay"
+				@click.self="closeCalendarModal"
+			>
+				<div
+					class="calendar-modal"
+					ref="calendarModalRef"
+					role="dialog"
+					aria-modal="true"
+					aria-label="Vælg dato"
+					tabindex="-1"
+				>
 					<div class="calendar-modal__content">
 						<div class="calendar-modal__header">
 							<Transition :name="calendarSlideDirection" mode="out-in">
@@ -122,15 +133,17 @@
 									</template>
 									<template #date-cell="{ data }">
 										<div
-											class="calendar-modal__day"
-											:class="{
-												'calendar-modal__day--has-slots': hasTimeSlotsOnDate(data.day) && !isDateInPast(data.day),
-												'calendar-modal__day--selected':
-													selectedDate === data.day && hasTimeSlotsOnDate(data.day) && !isDateInPast(data.day),
-												'calendar-modal__day--disabled': !hasTimeSlotsOnDate(data.day) || isDateInPast(data.day),
-												'calendar-modal__day--other-month': isOtherMonth(data.day) || isDateInPast(data.day),
-												'calendar-modal__day--today': isToday(data.day)
-											}"
+											:class="[
+												'calendar-modal__day',
+												{
+													'calendar-modal__day--has-slots': hasTimeSlotsOnDate(data.day) && !isDateInPast(data.day),
+													'calendar-modal__day--selected':
+														selectedDate === data.day && hasTimeSlotsOnDate(data.day) && !isDateInPast(data.day),
+													'calendar-modal__day--disabled': !hasTimeSlotsOnDate(data.day) || isDateInPast(data.day),
+													'calendar-modal__day--other-month': isOtherMonth(data.day) || isDateInPast(data.day),
+													'calendar-modal__day--today': isToday(data.day)
+												}
+											]"
 											@click.stop="selectDateAndClose(data.day)"
 										>
 											{{ parseInt(data.day.split('-')[2]) }}
@@ -163,7 +176,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
 import { Calendar, ArrowLeft, ArrowRight, Delete } from '@element-plus/icons-vue'
 
 interface TimeSlot {
@@ -211,6 +224,18 @@ const selectedSlotId = ref<string | null>(null)
 const calendarModalVisible = ref(false)
 const calendarDate = ref(new Date())
 const calendarSlideDirection = ref<'calendar-slide-left' | 'calendar-slide-right'>('calendar-slide-left')
+
+// Watch for modal visibility - add tabindex when modal opens
+watch(calendarModalVisible, (isVisible) => {
+	if (isVisible) {
+		// Wait for DOM to render, then add tabindex to available days
+		setTimeout(() => {
+			document.querySelectorAll('.calendar-modal__day--has-slots:not(.calendar-modal__day--disabled)').forEach((el) => {
+				el.setAttribute('tabindex', '0')
+			})
+		}, 200)
+	}
+})
 
 // Watch for initial date changes
 watch(
@@ -294,6 +319,10 @@ const hasTimeSlotsOnDate = (dateString: string): boolean => {
 	)
 }
 
+const isDateAvailable = (dateString: string): boolean => {
+	return hasTimeSlotsOnDate(dateString) && !isDateInPast(dateString)
+}
+
 const isDateInPast = (dateString: string): boolean => {
 	const today = new Date()
 	today.setHours(0, 0, 0, 0)
@@ -323,6 +352,8 @@ const prevMonth = () => {
 	newDate.setDate(1) // Sæt til 1. for at undgå overflow (f.eks. 31 jan -> 1 mar)
 	newDate.setMonth(newDate.getMonth() - 1)
 	calendarDate.value = newDate
+	// Genopsæt accessibility efter måned-skift
+	setupCalendarAccessibility()
 }
 
 const nextMonth = () => {
@@ -331,6 +362,8 @@ const nextMonth = () => {
 	newDate.setDate(1) // Sæt til 1. for at undgå overflow (f.eks. 31 jan -> 1 mar)
 	newDate.setMonth(newDate.getMonth() + 1)
 	calendarDate.value = newDate
+	// Genopsæt accessibility efter måned-skift
+	setupCalendarAccessibility()
 }
 
 const goToToday = () => {
@@ -341,22 +374,231 @@ const goToToday = () => {
 		calendarSlideDirection.value = 'calendar-slide-left'
 	}
 	calendarDate.value = now
+	// Genopsæt accessibility efter måned-skift
+	setupCalendarAccessibility()
+}
+
+// Modal ref for focus trap
+const calendarModalRef = ref<HTMLElement | null>(null)
+let previousActiveElement: HTMLElement | null = null
+
+// Global keydown handler for focus trap
+const handleGlobalKeydown = (event: KeyboardEvent) => {
+	if (!calendarModalVisible.value) return
+
+	// Luk med Escape
+	if (event.key === 'Escape') {
+		event.preventDefault()
+		closeCalendarModal()
+		return
+	}
+
+	// Focus trap med Tab
+	if (event.key === 'Tab') {
+		const modal = calendarModalRef.value
+		if (!modal) return
+
+		// Find alle fokusbare elementer i modalen
+		const focusableSelectors = [
+			'button:not([disabled])',
+			'.calendar-modal__day[tabindex="0"]',
+			'a[href]',
+			'input:not([disabled])',
+			'select:not([disabled])',
+			'textarea:not([disabled])'
+		].join(', ')
+
+		const focusableElements = Array.from(modal.querySelectorAll(focusableSelectors)) as HTMLElement[]
+		if (focusableElements.length === 0) return
+
+		const firstElement = focusableElements[0]
+		const lastElement = focusableElements[focusableElements.length - 1]
+
+		// Shift+Tab fra første element → gå til sidste
+		if (event.shiftKey && document.activeElement === firstElement) {
+			event.preventDefault()
+			lastElement.focus()
+		}
+		// Tab fra sidste element → gå til første
+		else if (!event.shiftKey && document.activeElement === lastElement) {
+			event.preventDefault()
+			firstElement.focus()
+		}
+		// Hvis fokus er uden for modalen, flyt det ind
+		else if (!modal.contains(document.activeElement)) {
+			event.preventDefault()
+			firstElement.focus()
+		}
+	}
 }
 
 // Modal controls
 const openCalendarModal = () => {
+	// Gem det element der havde fokus før modal åbnede
+	previousActiveElement = document.activeElement as HTMLElement
 	calendarModalVisible.value = true
+
+	// Tilføj global keydown listener
+	document.addEventListener('keydown', handleGlobalKeydown)
+
+	// Tilføj tabindex til kalenderdage efter DOM er renderet
+	setTimeout(() => {
+		document.querySelectorAll('.calendar-modal__day--has-slots:not(.calendar-modal__day--disabled)').forEach((el) => {
+			el.setAttribute('tabindex', '0')
+		})
+	}, 200)
+}
+
+// Tilføj tabindex og keyboard handlers til kalenderdage
+const setupCalendarAccessibility = (focusFirst = false) => {
+	nextTick(() => {
+		setTimeout(() => {
+			const modal = calendarModalRef.value
+			if (!modal) return
+
+			// Find alle kalenderdage i modalen
+			const allDays = modal.querySelectorAll('.calendar-modal__day') as NodeListOf<HTMLElement>
+
+			allDays.forEach((dayEl) => {
+				const isAvailable = dayEl.classList.contains('calendar-modal__day--has-slots') &&
+				                    !dayEl.classList.contains('calendar-modal__day--disabled')
+
+				// Sæt tabindex baseret på tilgængelighed
+				dayEl.setAttribute('tabindex', isAvailable ? '0' : '-1')
+				dayEl.setAttribute('role', 'gridcell')
+
+				// Tilføj keyboard handler hvis ikke allerede sat
+				if (!dayEl.dataset.keyboardSetup) {
+					dayEl.dataset.keyboardSetup = 'true'
+					dayEl.addEventListener('keydown', (e) => handleDayKeydownFromElement(e, dayEl))
+				}
+			})
+
+			// Fokuser første tilgængelige dag hvis ønsket
+			if (focusFirst) {
+				const firstFocusable = modal.querySelector('.calendar-modal__day[tabindex="0"]') as HTMLElement
+				if (firstFocusable) {
+					firstFocusable.focus()
+				}
+			}
+		}, 100) // Delay for at sikre DOM og Transition er færdig
+	})
 }
 
 const closeCalendarModal = () => {
 	calendarModalVisible.value = false
+
+	// Fjern global keydown listener
+	document.removeEventListener('keydown', handleGlobalKeydown)
+
+	// Returnér fokus til elementet der åbnede modalen
+	if (previousActiveElement) {
+		nextTick(() => {
+			previousActiveElement?.focus()
+		})
+	}
 }
 
+// Cleanup ved unmount
+onUnmounted(() => {
+	document.removeEventListener('keydown', handleGlobalKeydown)
+})
+
 const selectDateAndClose = (dateString: string) => {
-	if (!hasTimeSlotsOnDate(dateString) || isDateInPast(dateString)) return
+	if (!isDateAvailable(dateString)) return
 	selectedDate.value = dateString
 	selectedSlotId.value = null
 	closeCalendarModal()
+}
+
+// Keyboard handler for calendar days - handles Enter, Space, and arrow keys
+// Keyboard handler from JavaScript-added event listener
+const handleDayKeydownFromElement = (event: KeyboardEvent, dayEl: HTMLElement) => {
+	// Hent dato fra elementets tekst og nuværende måned
+	const dayNumber = parseInt(dayEl.textContent || '0')
+	const year = calendarDate.value.getFullYear()
+	const month = calendarDate.value.getMonth()
+	const currentDateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNumber).padStart(2, '0')}`
+
+	handleDayKeydown(event, currentDateString)
+}
+
+const handleDayKeydown = (event: KeyboardEvent, currentDateString: string) => {
+	// Enter/Space = select date
+	if (event.key === 'Enter' || event.key === ' ') {
+		event.preventDefault()
+		selectDateAndClose(currentDateString)
+		return
+	}
+
+	// Arrow keys = navigate
+	const currentDate = new Date(currentDateString)
+	let dayOffset = 0
+
+	switch (event.key) {
+		case 'ArrowLeft':
+			dayOffset = -1
+			break
+		case 'ArrowRight':
+			dayOffset = 1
+			break
+		case 'ArrowUp':
+			dayOffset = -7
+			break
+		case 'ArrowDown':
+			dayOffset = 7
+			break
+		default:
+			return // Not an arrow key
+	}
+
+	event.preventDefault()
+
+	const targetDate = new Date(currentDate)
+	targetDate.setDate(targetDate.getDate() + dayOffset)
+	const targetDateString = targetDate.toISOString().split('T')[0]
+
+	// Check if we need to change month
+	if (targetDate.getMonth() !== calendarDate.value.getMonth()) {
+		const now = new Date()
+		now.setHours(0, 0, 0, 0)
+
+		// Don't go before current month
+		if (targetDate < now && targetDate.getMonth() < now.getMonth()) {
+			return
+		}
+
+		// Change month
+		if (targetDate < calendarDate.value) {
+			prevMonth()
+		} else {
+			nextMonth()
+		}
+
+		// Focus target date after transition
+		setTimeout(() => focusDateElement(targetDateString), 350)
+	} else {
+		focusDateElement(targetDateString)
+	}
+}
+
+// Focus a specific date element in the calendar
+const focusDateElement = (dateString: string) => {
+	// Da vi ikke kan bruge data-date attribut, finder vi elementet via dag-nummeret
+	const dayNumber = parseInt(dateString.split('-')[2])
+	const calendarWrapper = document.querySelector('.calendar-modal__calendar-wrapper')
+	if (!calendarWrapper) return
+
+	const allDays = calendarWrapper.querySelectorAll('.calendar-modal__day') as NodeListOf<HTMLElement>
+	for (const dayEl of allDays) {
+		if (parseInt(dayEl.textContent || '0') === dayNumber) {
+			// Tjek at det ikke er en "other-month" dag
+			if (!dayEl.classList.contains('calendar-modal__day--other-month')) {
+				dayEl.focus()
+				return
+			}
+		}
+	}
 }
 
 // Slot selection
