@@ -931,8 +931,8 @@ const steps = [
 watch(
 	() => props.selectedJob,
 	(newJob) => {
-		// Only set job position if no draft is loaded or formData is empty
-		if (newJob && !formData.value.fullName) {
+		// Always update job position when prop changes (e.g. from JobModal apply button)
+		if (newJob) {
 			formData.value.jobPosition = newJob
 		}
 	}
