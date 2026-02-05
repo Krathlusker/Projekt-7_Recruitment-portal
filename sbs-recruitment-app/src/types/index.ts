@@ -17,8 +17,9 @@ export type ApplicationStatus =
 // Job positions
 export type JobPosition = 'pakkeri' | 'produktion' | 'andre'
 
-// Age range
-export type AgeRange = '18-25' | '26-35' | '36-45' | '46-55' | '56+'
+// Age is stored as a string (e.g., "25", "42") from dropdown selection
+// Valid ages are 16-99 years old
+export type Age = string
 
 // Interview slot type
 export interface InterviewSlot {
@@ -52,7 +53,7 @@ export interface ApplicationFormData {
 	fullName: string
 	phone: string
 	email: string
-	age: AgeRange | ''
+	age: Age | ''  // Specific age as string (e.g., "25")
 	jobPosition: JobPosition | ''
 	hasCV: boolean
 	cvFile: File | null
@@ -85,7 +86,7 @@ export interface Application {
 	fullName: string
 	phone: string
 	email: string
-	age: AgeRange
+	age: Age  // Specific age as string (e.g., "25", "42")
 	jobPosition: JobPosition
 	cvFileName?: string
 	discResult: DiscResult
