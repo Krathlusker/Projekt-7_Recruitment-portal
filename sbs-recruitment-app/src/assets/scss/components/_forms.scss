@@ -16,7 +16,6 @@ $dropdown-offset: math.div((1.25 - $font-body-cap-height) - $font-body-descender
 // Input felter
 .el-input__inner,
 .el-textarea__inner {
-	padding-top: #{$input-offset}em !important;
 	font-size: $font-size-input !important; // Prevent iOS Safari auto-zoom
 }
 
@@ -118,7 +117,6 @@ $dropdown-offset: math.div((1.25 - $font-body-cap-height) - $font-body-descender
 	width: 100%;
 	height: 32px;
 	padding: 1px 11px;
-	padding-top: #{$input-offset}em;
 	font-size: $font-size-input;
 	font-family: $font-body;
 	line-height: 30px;
