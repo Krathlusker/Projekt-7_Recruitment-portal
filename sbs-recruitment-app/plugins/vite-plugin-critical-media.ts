@@ -33,7 +33,7 @@ interface CriticalMediaOptions {
 export function criticalMediaPreload(options: CriticalMediaOptions = {}): Plugin {
 	const {
 		posterPattern = /-poster\.webp$/i,
-		priorityPatterns = ['HERO'],
+		priorityPatterns = ['HERO_V2_8bit'],
 		imagesDir = 'images'
 	} = options
 
@@ -59,7 +59,9 @@ export function criticalMediaPreload(options: CriticalMediaOptions = {}): Plugin
 
 				// Only preload PRIORITY posters (above the fold / immediately visible)
 				// Other posters will be loaded on-demand when modals open
+				// Only match _8bit posters (the ones we actually use)
 				const priorityPosters = posters.filter(poster =>
+					poster.includes('_8bit') &&
 					priorityPatterns.some(p => poster.toUpperCase().includes(p.toUpperCase()))
 				)
 

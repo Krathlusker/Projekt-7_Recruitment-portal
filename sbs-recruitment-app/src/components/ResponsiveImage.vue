@@ -155,7 +155,7 @@ onMounted(() => {
 					lazyObserver?.disconnect()
 				}
 			},
-			{ root: scrollRoot, rootMargin: '200px', threshold: 0 }
+			{ root: scrollRoot, rootMargin: '300px', threshold: 0 }
 		)
 
 		lazyObserver.observe(containerRef.value)

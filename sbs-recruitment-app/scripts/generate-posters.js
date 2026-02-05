@@ -17,7 +17,7 @@ const __dirname = dirname(__filename)
 
 const VIDEOS_DIR = join(__dirname, '../public/videos')
 const IMAGES_DIR = join(__dirname, '../public/images')
-const QUALITY = 90 // WebP quality (higher = better quality, larger file)
+const QUALITY = 95 // WebP quality 0-100 (higher = better quality, larger file)
 
 function checkFFmpeg() {
   try {
@@ -38,6 +38,7 @@ function getVideoFiles() {
 
   return readdirSync(VIDEOS_DIR)
     .filter(file => extname(file).toLowerCase() === '.mp4')
+    .filter(file => file.includes('_8bit')) // Only generate posters for _8bit videos (the ones we actually use)
 }
 
 function getPosterName(videoFile) {
@@ -65,11 +66,10 @@ function generatePoster(videoFile) {
   try {
     console.log(`📸 Generating poster: ${posterFile}`)
 
-    // Extract first frame as WebP with specified quality
-    // -q:v for WebP: 0-51, lower = better quality (we convert from 0-100 scale)
-    const qValue = Math.round((100 - QUALITY) / 3)
+    // Simple, compatible WebP extraction
+    // Let FFmpeg auto-detect best settings from source video
     execSync(
-      `ffmpeg -i "${videoPath}" -vframes 1 -q:v ${qValue} "${posterPath}" -y`,
+      `ffmpeg -i "${videoPath}" -vframes 1 -c:v libwebp -quality ${QUALITY} "${posterPath}" -y`,
       { stdio: 'ignore' }
     )
 

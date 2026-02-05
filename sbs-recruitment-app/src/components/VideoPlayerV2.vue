@@ -28,6 +28,7 @@
 			:controls="true"
 			:playsinline="true"
 			:volume="initialVolume"
+			:preload="preload"
 			:options="videoOptions"
 			@mounted="onPlayerMounted"
 			@play="onPlay"
@@ -80,6 +81,7 @@ interface Props {
 	initialVolume?: number
 	rounded?: boolean
 	maxHeight?: number // Max height in pixels
+	preload?: 'auto' | 'metadata' | 'none' // Controls when browser downloads video
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -92,7 +94,8 @@ const props = withDefaults(defineProps<Props>(), {
 	objectFit: 'cover',
 	initialVolume: 0.6,
 	rounded: false,
-	maxHeight: 600
+	maxHeight: 600,
+	preload: 'auto' // Default: auto for autoplay videos
 })
 
 // Auto-generate poster path from video src if not provided
@@ -115,8 +118,10 @@ const player = ref<Player | null>(null)
 const containerRef = ref<HTMLElement | null>(null)
 const hasStarted = ref(false)
 
-// Video.js options - poster handled by Video.js natively
+// Video.js options - includes preload setting to ensure it's respected
 const videoOptions = computed(() => ({
+	// Preload setting - must be in options for Video.js to respect it
+	preload: props.preload,
 	// Responsive behavior
 	responsive: true,
 	// Language

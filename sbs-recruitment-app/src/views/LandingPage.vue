@@ -9,18 +9,17 @@
 		</header>
 
 		<main class="landing-page__main">
-			<!-- Scrollbar component with deferred initialization to avoid forced reflow -->
-			<component
-				:is="scrollbarReady ? OverlayScrollbarsComponent : 'div'"
+			<!-- Scrollbar component - always use OverlayScrollbars but defer initialization -->
+			<OverlayScrollbarsComponent
 				class="landing-page__scrollable"
-				:options="scrollbarReady ? {
+				:options="{
 					scrollbars: {
 						theme: 'os-theme-dark',
 						autoHide: 'scroll',
 						autoHideDelay: 1000
 					}
-				} : undefined"
-				:defer="scrollbarReady ? true : undefined"
+				}"
+				:defer="true"
 				@osScroll="handleScroll"
 			>
 			<!-- Hero Section -->
@@ -29,7 +28,7 @@
 					<VideoPlayerV2
 						ref="heroVideoRef"
 						class="landing-page__hero-video"
-						src="/videos/HERO_V2_compressed.mp4"
+						src="/videos/HERO_V2_8bit.mp4"
 						title="ARBEJDSPLADSEN SBS"
 						:autoplay="true"
 						:loop="true"
@@ -193,7 +192,7 @@
 					</div>
 				</div>
 			</footer>
-		</component>
+		</OverlayScrollbarsComponent>
 		</main>
 
 		<!-- Floating Apply Button -->
@@ -246,9 +245,6 @@ import type { JobPosition } from '@/types'
 // Video player ref
 const heroVideoRef = ref<InstanceType<typeof VideoPlayerV2> | null>(null)
 
-// Defer scrollbar initialization to avoid forced reflow during initial paint
-const scrollbarReady = ref(false)
-
 // Scroll state
 const isScrolled = ref(false)
 let lastScrollY = 0
@@ -295,18 +291,6 @@ const handleWheel = (e: WheelEvent) => {
 onMounted(() => {
 	// Window scroll listeners not needed when using OverlayScrollbars
 	window.addEventListener('wheel', handleWheel, { passive: false })
-
-	// Defer scrollbar initialization to avoid forced reflow during initial paint
-	// Use requestIdleCallback if available, otherwise requestAnimationFrame
-	const initScrollbar = () => {
-		scrollbarReady.value = true
-	}
-
-	if ('requestIdleCallback' in window) {
-		requestIdleCallback(initScrollbar, { timeout: 100 })
-	} else {
-		requestAnimationFrame(initScrollbar)
-	}
 })
 
 onUnmounted(() => {
