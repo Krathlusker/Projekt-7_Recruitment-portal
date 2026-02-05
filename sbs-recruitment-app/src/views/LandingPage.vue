@@ -4,7 +4,7 @@
 		<header class="landing-page__header" :class="{ 'landing-page__header--scrolled': isScrolled }">
 			<div class="landing-page__header-container">
 				<img src="/logo.svg" alt="SBS Friction A/S" class="landing-page__logo" width="92" height="45" />
-				<h1 class="landing-page__header-title">JOB PORTAL</h1>
+				<h1 class="landing-page__header-title">jobportal</h1>
 			</div>
 		</header>
 
