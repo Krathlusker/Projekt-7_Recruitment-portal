@@ -80,7 +80,7 @@
 							role="button"
 							:aria-label="`Åbn jobdetaljer for ${job.title}`"
 							@click="openJobModal(job.id)"
-							@keydown.enter.self="openJobModal(job.id)"
+							@keydown.enter.self.prevent="openJobModal(job.id)"
 							@keydown.space.self.prevent="openJobModal(job.id)"
 						>
 							<div class="el-image-card__image">
