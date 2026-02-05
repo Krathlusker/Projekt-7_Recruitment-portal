@@ -45,10 +45,16 @@
 		transform $transition-duration $transition-ease,
 		box-shadow $transition-duration $transition-ease;
 
-	&:hover {
+	// Hover og focus animation (WCAG 2.4.7)
+	&:hover,
+	&:focus-visible,
+	&:has(:focus-visible) {
 		transform: translateY(-4px);
 		box-shadow: $shadow-modal;
 	}
+
+	// Keyboard focus styling (WCAG 2.4.7)
+	@include focus-visible;
 
 	&__image {
 		position: absolute;

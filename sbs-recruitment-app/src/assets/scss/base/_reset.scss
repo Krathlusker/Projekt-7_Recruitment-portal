@@ -29,3 +29,25 @@ body.modal-open {
 	overflow: hidden;
 	padding-right: var(--scrollbar-width, 0);
 }
+
+// =============================================================================
+// REDUCED MOTION (WCAG 2.3.3)
+// =============================================================================
+// Respekterer brugerens præference for reduceret bevægelse.
+// Deaktiverer animationer og transitions for brugere med vestibulære lidelser.
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+
+	// Stop video autoplay for users who prefer reduced motion
+	video[autoplay] {
+		animation: none !important;
+	}
+}

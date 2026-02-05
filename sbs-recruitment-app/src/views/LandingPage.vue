@@ -23,7 +23,7 @@
 				@osScroll="handleScroll"
 			>
 			<!-- Hero Section -->
-			<section class="landing-page__hero">
+			<section class="landing-page__hero" aria-label="Introduktionsvideo">
 				<div class="landing-page__hero-content">
 					<VideoPlayerV2
 						ref="heroVideoRef"
@@ -35,7 +35,12 @@
 						:muted="true"
 						object-fit="contain"
 						:max-height="600"
+						aria-describedby="hero-video-description"
 					/>
+					<!-- Screen reader description for video (WCAG 1.2.1) -->
+					<p id="hero-video-description" class="sr-only">
+						Videoen viser SBS Friction fabrikken i Svendborg, hvor medarbejdere arbejder med produktion af bremseklodser. Billeder af produktionslinjer, pakkeri og kollegaer i arbejde.
+					</p>
 				</div>
 			</section>
 
@@ -71,7 +76,12 @@
 							:key="job.id"
 							class="el-image-card"
 							shadow="hover"
+							tabindex="0"
+							role="button"
+							:aria-label="`Åbn jobdetaljer for ${job.title}`"
 							@click="openJobModal(job.id)"
+							@keydown.enter.self="openJobModal(job.id)"
+							@keydown.space.self.prevent="openJobModal(job.id)"
 						>
 							<div class="el-image-card__image">
 								<ResponsiveImage

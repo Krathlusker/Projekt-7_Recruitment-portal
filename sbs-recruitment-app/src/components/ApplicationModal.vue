@@ -36,15 +36,15 @@
 										class="application-modal__form"
 									>
 										<el-form-item label="Fulde navn" prop="fullName" required>
-											<el-input v-model="formData.fullName" placeholder="Skriv her..." />
+											<el-input v-model="formData.fullName" placeholder="Skriv her..." autocomplete="name" />
 										</el-form-item>
 
 										<el-form-item label="Telefonnummer" prop="phone" required>
-											<el-input v-model="formData.phone" placeholder="Skriv her..." />
+											<el-input v-model="formData.phone" placeholder="Skriv her..." autocomplete="tel" />
 										</el-form-item>
 
 										<el-form-item label="E-mail" prop="email" required>
-											<el-input v-model="formData.email" placeholder="Skriv her..." />
+											<el-input v-model="formData.email" placeholder="Skriv her..." autocomplete="email" />
 										</el-form-item>
 
 										<el-form-item label="Alder" prop="age" required>

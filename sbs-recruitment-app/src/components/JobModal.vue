@@ -2,7 +2,12 @@
 	<Transition name="modal">
 		<div v-if="dialogVisible" class="modal-wrapper">
 			<div class="modal-wrapper__backdrop" @click="handleClose"></div>
-			<div class="modal-wrapper__container">
+			<div
+				class="modal-wrapper__container"
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="job-modal-title"
+			>
 				<!-- Close button (rotated X in corner) -->
 				<ModalCloseButton @click="handleClose" />
 
@@ -46,7 +51,7 @@
 						<!-- Section -->
 						<div class="job-modal__section">
 							<!-- Title -->
-							<h2 class="job-modal__title">{{ currentJob.title }}</h2>
+							<h2 id="job-modal-title" class="job-modal__title">{{ currentJob.title }}</h2>
 
 							<!-- Quote -->
 							<el-text v-if="currentJob.quote" class="job-modal__quote">{{ currentJob.quote }}</el-text>
@@ -114,6 +119,7 @@ const emit = defineEmits<{
 
 const dialogVisible = ref(false)
 const currentJobIndex = ref(0)
+let previousActiveElement: HTMLElement | null = null
 
 // Job data fra Figma
 const jobsData: JobData[] = [
@@ -191,10 +197,25 @@ watch(dialogVisible, (newVal) => {
 		document.body.style.overflow = 'hidden'
 		document.body.style.paddingRight = `${scrollbarWidth}px`
 		document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`)
+		// Keyboard navigation: save focus and setup listeners
+		previousActiveElement = document.activeElement as HTMLElement
+		document.addEventListener('keydown', handleKeydown, true)
+		document.addEventListener('keydown', handleFocusTrap)
+		// Focus first interactive element after modal renders
+		nextTick(() => {
+			const firstButton = document.querySelector('.job-modal__cta-btn') as HTMLElement
+			if (firstButton) firstButton.focus()
+		})
 	} else {
 		document.body.style.overflow = ''
 		document.body.style.paddingRight = ''
 		document.documentElement.style.setProperty('--scrollbar-width', '0px')
+		// Keyboard navigation: cleanup and restore focus
+		document.removeEventListener('keydown', handleKeydown, true)
+		document.removeEventListener('keydown', handleFocusTrap)
+		if (previousActiveElement) {
+			previousActiveElement.focus()
+		}
 	}
 })
 
@@ -207,6 +228,51 @@ const handleApply = () => {
 	emit('apply', currentJob.value.id)
 	handleClose()
 }
+
+// ESC handler for job modal
+const handleKeydown = (event: KeyboardEvent) => {
+	if (event.key === 'Escape' && dialogVisible.value) {
+		event.preventDefault()
+		event.stopPropagation()
+		handleClose()
+	}
+}
+
+// Focus trap handler - keeps focus inside modal
+const handleFocusTrap = (event: KeyboardEvent) => {
+	if (event.key !== 'Tab' || !dialogVisible.value) return
+
+	const modal = document.querySelector('.modal-wrapper__container[aria-labelledby="job-modal-title"]') as HTMLElement
+	if (!modal) return
+
+	const focusableElements = modal.querySelectorAll<HTMLElement>(
+		'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), video'
+	)
+	if (focusableElements.length === 0) return
+
+	const firstElement = focusableElements[0]
+	const lastElement = focusableElements[focusableElements.length - 1]
+
+	if (event.shiftKey) {
+		// Shift+Tab: hvis på første element, gå til sidste
+		if (document.activeElement === firstElement) {
+			event.preventDefault()
+			lastElement.focus()
+		}
+	} else {
+		// Tab: hvis på sidste element, gå til første
+		if (document.activeElement === lastElement) {
+			event.preventDefault()
+			firstElement.focus()
+		}
+	}
+}
+
+// Cleanup on unmount
+onUnmounted(() => {
+	document.removeEventListener('keydown', handleKeydown, true)
+	document.removeEventListener('keydown', handleFocusTrap)
+})
 </script>
 
 <style lang="scss" scoped>
