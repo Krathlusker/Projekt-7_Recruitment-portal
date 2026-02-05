@@ -1,0 +1,96 @@
+# ==============================================
+# SBS Recruitment Portal - robots.txt
+# ==============================================
+# VIGTIGT: Denne fil blokerer ALLE crawlere!
+# Fjern/opdater denne fil når siden er solgt og skal indexeres.
+# ==============================================
+
+# Bloker alle standard søgemaskiner
+User-agent: *
+Disallow: /
+
+# Bloker Google specifikt
+User-agent: Googlebot
+Disallow: /
+
+User-agent: Googlebot-Image
+Disallow: /
+
+# Bloker Bing
+User-agent: Bingbot
+Disallow: /
+
+# Bloker Yahoo
+User-agent: Slurp
+Disallow: /
+
+# Bloker DuckDuckGo
+User-agent: DuckDuckBot
+Disallow: /
+
+# Bloker Yandex
+User-agent: Yandex
+Disallow: /
+
+# Bloker Baidu
+User-agent: Baiduspider
+Disallow: /
+
+# ==============================================
+# AI Crawlere (ChatGPT, Claude, Perplexity, etc.)
+# ==============================================
+
+# OpenAI / ChatGPT
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+# Anthropic / Claude
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+# Common Crawl (bruges af mange AI modeller)
+User-agent: CCBot
+Disallow: /
+
+# Perplexity AI
+User-agent: PerplexityBot
+Disallow: /
+
+# Google AI (Bard/Gemini)
+User-agent: Google-Extended
+Disallow: /
+
+# Facebook AI
+User-agent: FacebookBot
+Disallow: /
+
+# Cohere AI
+User-agent: cohere-ai
+Disallow: /
+
+# Bytespider (TikTok/ByteDance AI)
+User-agent: Bytespider
+Disallow: /
+
+# Amazon AI
+User-agent: Amazonbot
+Disallow: /
+
+# Apple AI (Applebot-Extended for AI training)
+User-agent: Applebot-Extended
+Disallow: /
+
+# ==============================================
+# Når siden er klar til at blive indexeret,
+# erstat indholdet med:
+#
+# User-agent: *
+# Allow: /
+# Sitemap: https://din-domain.dk/sitemap.xml
+# ==============================================
