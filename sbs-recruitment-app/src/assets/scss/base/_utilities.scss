@@ -23,6 +23,30 @@
 	border: 0;
 }
 
+// Skip link - skjult indtil fokus (WCAG 2.4.1 Bypass Blocks)
+// Vises øverst på siden når brugeren tabber til den
+// Styled som light button for konsistent design
+.skip-link {
+	@include button-base;
+	@include button-colors-light;
+	@include button-font;
+	position: fixed;
+	top: -100%;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 9999;
+	transition: top $transition-duration $transition-ease,
+		background-color $transition-duration $transition-ease,
+		color $transition-duration $transition-ease,
+		box-shadow $transition-duration $transition-ease;
+
+	&:focus {
+		top: $spacing-md;
+		outline: 2px solid $c-warning;
+		outline-offset: 2px;
+	}
+}
+
 // Layout utilities
 .container {
 	max-width: $max-page-width;

@@ -36,15 +36,39 @@
 										class="application-modal__form"
 									>
 										<el-form-item label="Fulde navn" prop="fullName" required>
-											<el-input v-model="formData.fullName" placeholder="Skriv her..." autocomplete="name" />
+											<input
+												v-model="formData.fullName"
+												id="fullName"
+												name="fullName"
+												type="text"
+												placeholder="Skriv her..."
+												autocomplete="name"
+												class="el-input__inner"
+											/>
 										</el-form-item>
 
 										<el-form-item label="Telefonnummer" prop="phone" required>
-											<el-input v-model="formData.phone" placeholder="Skriv her..." autocomplete="tel" />
+											<input
+												v-model="formData.phone"
+												id="phone"
+												name="phone"
+												type="tel"
+												placeholder="Skriv her..."
+												autocomplete="tel"
+												class="el-input__inner"
+											/>
 										</el-form-item>
 
 										<el-form-item label="E-mail" prop="email" required>
-											<el-input v-model="formData.email" placeholder="Skriv her..." autocomplete="email" />
+											<input
+												v-model="formData.email"
+												id="email"
+												name="email"
+												type="email"
+												placeholder="Skriv her..."
+												autocomplete="email"
+												class="el-input__inner"
+											/>
 										</el-form-item>
 
 										<el-form-item label="Alder" prop="age" required>
@@ -60,6 +84,7 @@
 													placeholder="Vælg her..."
 													class="application-modal__select"
 													@focus="isAgeFocused = true"
+													@blur="isAgeFocused = false"
 													@visible-change="handleAgeVisibleChange"
 												>
 													<el-option

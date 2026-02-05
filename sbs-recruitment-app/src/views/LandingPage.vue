@@ -1,5 +1,8 @@
 <template>
 	<div class="landing-page">
+		<!-- Skip Link (WCAG 2.4.1) - vises kun ved keyboard focus -->
+		<a href="#main-content" class="skip-link" @click="skipToMain">Spring til hovedindhold</a>
+
 		<!-- Header -->
 		<header class="landing-page__header" :class="{ 'landing-page__header--scrolled': isScrolled }">
 			<div class="landing-page__header-container">
@@ -8,9 +11,10 @@
 			</div>
 		</header>
 
-		<main class="landing-page__main">
+		<main id="main-content" class="landing-page__main" tabindex="-1">
 			<!-- Scrollbar component - always use OverlayScrollbars but defer initialization -->
 			<OverlayScrollbarsComponent
+				ref="scrollContainerRef"
 				class="landing-page__scrollable"
 				:options="{
 					scrollbars: {
@@ -250,6 +254,22 @@ import type { JobPosition } from '@/types'
 
 // Video player ref
 const heroVideoRef = ref<InstanceType<typeof VideoPlayerV2> | null>(null)
+
+// Scrollbar ref for skip link functionality
+const scrollContainerRef = ref<InstanceType<typeof OverlayScrollbarsComponent> | null>(null)
+
+// Skip to main content (WCAG 2.4.1)
+const skipToMain = (e: Event) => {
+	e.preventDefault()
+	const mainContent = document.getElementById('main-content')
+	const osInstance = scrollContainerRef.value?.osInstance()
+	const viewport = osInstance?.elements().viewport
+
+	if (viewport) {
+		viewport.scrollTo({ top: 0, behavior: 'smooth' })
+	}
+	mainContent?.focus()
+}
 
 // Scroll state
 const isScrolled = ref(false)
