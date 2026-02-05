@@ -463,7 +463,7 @@
 ///   }
 @mixin slot-picker-date-display {
 	@include subtitle-font;
-	font-size: $font-size-subtitle;
+	font-size: $font-size-date-head;
 }
 
 /// VÆLG DATO knap styling.
