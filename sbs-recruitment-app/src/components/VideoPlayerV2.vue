@@ -52,7 +52,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import { VideoPlayer } from '@videojs-player/vue'
 import 'video.js/dist/video-js.css'
 import type videojs from 'video.js'

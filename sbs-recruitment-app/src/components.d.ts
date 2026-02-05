@@ -49,7 +49,6 @@ declare module 'vue' {
     ResponsiveImage: typeof import('./components/ResponsiveImage.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    VideoPlayer: typeof import('./components/VideoPlayer.vue')['default']
     VideoPlayerV2: typeof import('./components/VideoPlayerV2.vue')['default']
   }
   export interface GlobalDirectives {

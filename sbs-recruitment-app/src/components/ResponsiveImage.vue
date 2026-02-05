@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 interface ImageSource {
 	media: string

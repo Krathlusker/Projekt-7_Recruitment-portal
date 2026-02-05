@@ -80,7 +80,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
 import { Check } from '@element-plus/icons-vue'
 import ModalCloseButton from '@/components/ModalCloseButton.vue'
 import VideoPlayerV2 from '@/components/VideoPlayerV2.vue'

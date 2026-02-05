@@ -89,7 +89,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, onUnmounted } from 'vue'
 import ModalCloseButton from '@/components/ModalCloseButton.vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 

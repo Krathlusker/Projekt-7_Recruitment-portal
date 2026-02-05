@@ -176,7 +176,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
 import { Calendar, ArrowLeft, ArrowRight, Delete } from '@element-plus/icons-vue'
 
 interface TimeSlot {

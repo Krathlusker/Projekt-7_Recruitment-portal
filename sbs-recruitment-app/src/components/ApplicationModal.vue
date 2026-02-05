@@ -460,8 +460,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
 import type { FormInstance, FormRules, UploadFile, UploadRawFile, UploadInstance } from 'element-plus'
 import ModalCloseButton from '@/components/ModalCloseButton.vue'
 import ConsentModal from '@/components/ConsentModal.vue'

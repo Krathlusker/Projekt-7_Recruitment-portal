@@ -214,7 +214,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, onMounted, onUnmounted, computed, watch } from 'vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 // Icons imported from specific sub-paths for tree-shaking
 import { AkLinkedInFill, AkInstagramFill } from '@kalimahapps/vue-icons/ak'

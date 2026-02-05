@@ -21,7 +21,6 @@
     "@element-plus/icons-vue": "^2.3.2",
     "@kalimahapps/vue-icons": "^1.9.5",
     "@tato30/vue-pdf": "^1.11.5",
-    "@unhead/vue": "^2.1.2",
     "@videojs-player/vue": "^1.0.0",
     "axios": "^1.6.0",
     "better-sqlite3": "^9.2.2",

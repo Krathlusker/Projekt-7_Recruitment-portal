@@ -13,8 +13,9 @@ export default defineConfig({
       priorityPatterns: ['HERO'], // Hero poster gets fetchpriority="high"
     }),
     vue(),
-    // Auto-import Element Plus components on-demand (tree-shaking)
+    // Auto-import Vue functions + Element Plus on-demand (tree-shaking)
     AutoImport({
+      imports: ['vue', 'vue-router'],
       resolvers: [ElementPlusResolver()],
       dts: 'src/auto-imports.d.ts'
     }),

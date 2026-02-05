@@ -695,8 +695,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { ElMessage } from 'element-plus'
 import { User, Message, Phone, Calendar } from '@element-plus/icons-vue'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-vue'
 import { VuePDF, usePDF } from '@tato30/vue-pdf'
