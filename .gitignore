@@ -49,21 +49,8 @@ EXAMPLE APP/sbs-recruitment/vitest.config.ts
 EXAMPLE APP/sbs-recruitment/.vscode/extensions.json
 EXAMPLE APP/sbs-recruitment/server/uploads/.gitkeep
 nul
-sbs-recruitment-app/DEPENDENCIES.md
 EXAMPLE APP/
-sbs-recruitment-app/StylingFindings.md
-sbs-recruitment-app/FONT-SYSTEM.md
-sbs-recruitment-app/TextPlan.md
-sbs-recruitment-app/ColorUpdate.md
-sbs-recruitment-app/DEPLOYMENT.md
-sbs-recruitment-app/Plans/ColorUpdate.md
-sbs-recruitment-app/Plans/DEPENDENCIES.md
-sbs-recruitment-app/Plans/DEPLOYMENT.md
-sbs-recruitment-app/Plans/FONT-SYSTEM.md
-sbs-recruitment-app/Plans/PROJECT.md
-sbs-recruitment-app/Plans/StylingFindings.md
-sbs-recruitment-app/Plans/TextPlan.md
-sbs-recruitment-app/PROJECT.md
+sbs-recruitment-app/Plans/*
 *.md
 sbs-recruitment-app/.htaccess
 sbs-recruitment-app/.npmrc
